@@ -1,0 +1,17 @@
+Youtube Videos
+Lecture 22: Frank-Wolfe method 
+https://www.youtube.com/watch?v=6u0XyY3aeBo
+Minutes "4-10:51" is beneficial to understand Frank-Wolfe visually.
+
+
+STEM Opt Class Videos (Frank-Wolfe)
+ODS 22-23 LECTURE 21
+https://mediaspace.unipd.it/media/ODS%2022-23%20LECTURE%2021/1_y0zx9531
+Minutes 39-Till end
+
+ODS 22-23 LECTURE 22
+https://mediaspace.unipd.it/media/ODS%2022-23%20LECTURE%2022/1_ru9wukl9
+all video
+
+ODS 22-23 LECTURE 23
+https://mediaspace.unipd.it/media/ODS%2022-23%20LECTURE%2023/1_vuv7z0w2
