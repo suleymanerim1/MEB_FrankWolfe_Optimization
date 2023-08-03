@@ -28,6 +28,6 @@ Now go to requirements.txt file and delete the comment symbol (#) before "-e ."
 Then in terminal type:
 "pip install -r requirements.txt"
 
-If you need to install extra packages from pip, write it in requrirement.txt and use only code above "pip install -r requirements.txt"
-So that we can also have the same package in our environment.
+If you need to install extra library from pip, write it in requrirements.txt and use only the code: "pip install -r requirements.txt"
+So that we can also have the same library in our environment.
 
