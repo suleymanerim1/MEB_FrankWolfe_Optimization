@@ -54,3 +54,20 @@ Once you are done please upload the files on github using the following link:
 https://classroom.github.com/a/oHnpo2pm
 Here is a bunch of videos with detailed instructions for using github:
 https://classroom.github.com/videos
+
+
+
+
+Idea of how project will go : (FROM CHATGPT)
+
+Choose Two Datasets: Select two datasets from a source such as the UCI Machine Learning Repository (https://archive.ics.uci.edu/ml/datasets.php) or any other relevant data source. These datasets should have instances (data points) that you want to analyze for anomalies.
+
+Minimum Enclosing Ball (MEB): The MEB is the smallest possible ball (or sphere) that encloses a given set of points. In the context of anomaly detection, the MEB represents a compact region that encompasses the majority of data points while excluding potential outliers.
+
+Detecting Anomalies: Anomalies are data points that deviate significantly from the overall pattern of the dataset. The instruction suggests using the MEB to detect anomalies. The idea is to calculate the MEB over the entire dataset or a subset of it and then identify points that are located outside (or significantly distant from) the MEB.
+
+Implementation Steps:
+
+a. Calculate MEB: Implement the algorithm to compute the Minimum Enclosing Ball over the chosen dataset(s). This can involve mathematical and computational techniques to find the center and radius of the MEB.
+
+b. Identify Anomalies: Once you have the MEB, you can determine which data points fall outside the MEB or lie at a significant distance from the MEB's boundary. These points are potential anomalies.
