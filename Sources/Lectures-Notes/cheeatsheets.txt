@@ -1,0 +1,2 @@
+Matrix derivatives
+http://www.gatsby.ucl.ac.uk/teaching/courses/sntn/sntn-2017/resources/Matrix_derivatives_cribsheet.pdf
