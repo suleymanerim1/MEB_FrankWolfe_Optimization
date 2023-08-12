@@ -1,1 +1,5 @@
 Rinaldi's code for MEB and Frank Wolfe: https://github.com/DamianoZeffiro/MEB/blob/master/FWAW_Q.py
+
+BPCG implementation in Julia: https://github.com/ZIB-IOL/FrankWolfe.jl/blob/master/src/pairwise.jl 
+
+MEB: https://github.com/p3ml/recipes/blob/master/Minimum%20Enclosing%20Ball.ipynb
