@@ -1,0 +1,20 @@
+Things to include in the report:
+- Anomaly detection explanation
+- MEB applications
+- MEB history and best result in literature
+- MEB dual formulation
+- Theorems and lemmas: Lemma 2.1 Yildirim
+- why we don't use dot product (unit simplex)
+
+
+We will follow the professor's notation:
+c - center
+r - radius
+small gamma - square of the radius
+A - vector of points (n-D), dimension of A: m x n
+ai - point in R^n
+u matrix is (n x m) dimensional
+ui - vector of shape (n, 1)
+alpha - step size
+k - iteration counter
+... to be added
