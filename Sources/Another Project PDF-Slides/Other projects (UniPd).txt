@@ -5,3 +5,5 @@ https://github.com/f-grimaldi/AdvAttack
 https://github.com/PashaIanko/Portfolio-Optimization/tree/main
 https://github.com/luismarcoslc/white_box_attacks_using_FW_optimization_algorithms
 https://github.com/mojeee/OptimizationFor-DataScience
+
+https://github.com/ValerioRocca/Frank-Wolfe
