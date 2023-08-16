@@ -10,7 +10,7 @@ if __name__ == '__main__':
     m = 2 ** 5
 
     # Number of variables
-    n = 2 ** 12
+    n = 2 ** 4
 
     # Max number of iteartions
     maxit = 3000
