@@ -3,7 +3,16 @@ import math
 import time
 from src.logger import logging
 
-
+# TODO: away step FW rewrite step by step, change variables names like blended Pairwise, use dual_func and gradient and line search
+# TODO: away step arrange active set weights by article
+# TODO: blended pairwise think about active set weights
+# TODO: return radius and center
+# TODO: blended does not have stopping condition, why?
+# TODO: add last algorithm
+# TODO: add stopping condition of time for each alogirthm
+# TODO: add max iteration stopping condition for each algorithm if neccesaary
+# TODO: min grad stopping condition for each algorithm if neceesary
+# TODO: run each algorithm and check for error from logs and results, check how each variables acts according to article
 def dual_function(A, u):
     A2 = A.T @ A
     A2u = A2 @ u
@@ -64,17 +73,6 @@ def golden_section_search(func, a , b, tol=1e-6, max_iter=100):
     return (a + b) / 2
 
 
-# Example usage
-def objective_function(x):
-    return x ** 2 + 4 * x + 4
-
-
-a = -10.0
-b = 10.0
-minimum_point = golden_section_search(objective_function, a, b)
-
-print("Estimated minimum point:", minimum_point)
-print("Objective function value at minimum point:", objective_function(minimum_point))
 
 
 def awayStep_FW(A, u, eps, maxit):
