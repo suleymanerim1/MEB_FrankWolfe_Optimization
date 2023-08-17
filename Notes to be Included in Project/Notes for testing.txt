@@ -1,0 +1,2 @@
+Notes for testing:
+Graph: Duality gap vs Iteration (see Lacoste-Julien page 8)

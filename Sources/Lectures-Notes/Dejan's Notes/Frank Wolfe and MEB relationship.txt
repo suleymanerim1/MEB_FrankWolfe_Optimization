@@ -1,0 +1,33 @@
+All 3 algorithms that we have to implement are modifications of the main Frank Wolfe algorithm. FW in general is used for finding minimum of a function, subject to some **constraints**. So it is an algorithm for constrained convex optimization. Despite FW, there are other methods that do the same.
+
+Question: Can we use normal gradient descent for constrained optimization?
+Answer: No. The iterates  (proposed solution in each iteration) may violate the constraints, i.e. be outside of the feasible region (xk not in C).
+
+Proposition: There is a variant of Gradient Descent called projected gradient descent that deals with this. It chooses a point in the feasible region that is the closest to the computed iterate xk (we do this using projection).
+Downside: It is computationally untractable for high dimensional spaces. 
+
+The advantage of FW is that it produces sparse solutions and the cost per iteration is small. The algorithm simplifies the main problem, reducing it to a series of linear programming problems. So we go from quadratic or even more complex (can be any f(x)), to solving just a linear problem in each iteration.
+From Rinaldi's slides:
+min ∇f(xk)^T * (x − xk).
+x∈C
+In this equation every member related to xk is a constant, since we have xk from the previous iteration, and now we want to calculate x(k+1). So ∇f(xk)^T and xk are constant and we just check which value of x∈C minimizes the function. And this is what the LMO (Linear Minimization Oracle) does.
+
+Okay, this was just an intro to FW, and why it is useful.
+
+For our project the aim is to detect anomalies, by utilizing the MEB (Minimum Enclosing Ball) problem. By finding the minimum enclosing ball, data points that lie outside (or maybe also on the boundary) of the ball can be considered potential anomalies or outliers. The farther a point is from the ball's center, the more likely it is to be an anomaly.
+Mathematically, we want to find the minimum-radius ball that encloses most of the data points, leaving out the ones that are potential outliers.
+
+So what is left is to understand what we do with MEB, and how do we relate it to Frank Wolfe...
+
+For MEB we need to find the radius and center of the ball. The problem we need to solve mathematiacally is the following:
+min ||ai − c|| ≤ ρ
+c,ρ
+
+Because data is high-dimensional, this problem is intractable in this primal form. So we rewrite in its dual form, which is simpler to solve.
+Check formula in papers, or here: Whiteboard Lecture 23 (part 1 MEB).
+The dual form gives us explicit representation for the center and the radius.
+
+A big advantage of using the dual version is that the duality gap gives us an upper bound of the error, i.e., how far we are from the optimal solution:
+f (x) − f (x∗) ≤ g(x) ≤ ε.
+Thus we can stop the method when: ∇f (xk)^T * (xk_hat − xk) ≥ −ε.
+
