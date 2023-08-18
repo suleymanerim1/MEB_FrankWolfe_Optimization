@@ -27,9 +27,6 @@ def gradient(A, u):
 
     return 2 * A2u - sum_a2
 
-
-
-
 def golden_section_search(func, a , b, tol=1e-6, max_iter=100):
     """
     Perform exact line search using the golden section search method.
@@ -76,58 +73,57 @@ def golden_section_search(func, a , b, tol=1e-6, max_iter=100):
 
 
 def awayStep_FW(A, u, eps, maxit):
-    #Lacoste-Julien algo1
+    #Lacoste-Julien
+    tstart = time.time()
+
 
     _, n = A.shape
 
-    A2 = A.T @ A
-    sum_a2 = np.sum(A ** 2, axis=0)
 
     alpha_max = 1  # max step_size
-    alpha_k = 0  # step_size at iteration k
+    alpha_t = 0  # step_size at iteration t
 
     # step 1
-    Sk = np.where(u > 0)[0]  # active set Sk -- previously used vertices
+    St = np.where(u > 0)[0]  # active set St -- initialize
 
 
     logging.info("Away Step Frank Wolfe algorithm first iteration started!")
 
-    tstart = time.time()
+    # step 2
+    for t in range(maxit):
+        logging.info(f"\n--------------Iteration {t} -----------------")
 
-    for k  in range(maxit):
-        logging.info(f"\n--------------Iteration {k} -----------------")
-
-        A2u = A2 @ u  #calculate A**2 @ u just once here to make algorithm faster, because we are gonna use it twice
 
         # objective function
-        dual_func = u.T @ A2u - sum_a2.T @ u
-        logging.info(f"Dual func value found: {dual_func} ")
+        dual = dual_function(A, u)
+        logging.info(f"Dual func value found: {dual} ")
 
         # gradient evaluation
-        grad = 2 * A2u - sum_a2
+        grad = gradient(A,u)
         logging.info(f"Gradient calculation done. ")
 
 
         # solution of FW problem - step 3
-        i_star_fw = np.argmin(grad) #find index which makes gradient min
-        u_star_fw = np.zeros(n)  # create n dimensional array and do e_i = 1
-        u_star_fw[i_star_fw] = 1.0
-        logging.info(f"FW min grad unit simplex index found: {i_star_fw}")
+        s_t_idx = np.argmin(grad) #find index which makes gradient min
+        s_t = np.zeros(n)  # create n dimensional array and do e_i = 1
+        s_t[s_t_idx] = 1.0
+        logging.info(f"FW min grad unit simplex index found: {s_t_idx}")
 
         # calculate FW direction
-        d_FW = u_star_fw - u
+        d_FW = s_t - u
         logging.info(f"FW direction calculated.")
 
 
         # solution of Away Step - step 4 in Lacoste-Julien algo1
-        i_star_aw = np.argmax(grad[Sk]) # choose away step index from active set St
-        u_star_aw = np.zeros(n)
-        e_k = Sk[i_star_aw]  # set unit simplex coordinate with highest grad
-        u_star_aw[e_k] = 1.0 # create n dimensional array and do e_k = 1
-        logging.info(f"Away step max grad unit simplex index found: {e_k}")
+        max_grad_idx = np.argmax(grad[St])  # find max_grad_index from active set St
+        v_t_idx = St[max_grad_idx]  # set away vertex index from active set St
+        v_t = np.zeros(n)
+        v_t[v_t_idx] = 1.0  # create n dimensional array and do a_t = 1 and others 0
+        logging.info(f"Away step max grad unit simplex index found: {v_t_idx}")
+
 
         # calculate Away Step direction
-        d_AW = u - u_star_aw
+        d_AW = u - v_t
         logging.info(f"Away Step direction calculated")
 
         # stopping condition
@@ -139,6 +135,7 @@ def awayStep_FW(A, u, eps, maxit):
 
         # step 6 - compare FW gap and AW gap
         g_AW = -grad.T @ d_AW  # calculate Away step gap
+        fw_check = True
         if g_FW >= g_AW:
 
             #step 7 - set direction at iteration k as FW direction
@@ -152,25 +149,31 @@ def awayStep_FW(A, u, eps, maxit):
 
             #step 9 - choose away direction and max feasible step_size
             d_k = d_AW
-            alpha_max = u[e_k] / (1-u[e_k]) # use the value of unit simplex highest grad coordinate
+            alpha_max = St[v_t_idx] / (1-St[v_t_idx]) # use the value of unit simplex highest grad coordinate
             logging.info(f"Choose Away Step  direction, step_size_max : {alpha_max}")
-
+            fw_check = False
 
         #step 10 end if
         # step 11- a line search
-        #alpha_k = - grad.T @ d_k / (d_k.T @ d_k)
-        #alpha_k = max(0, min(alpha_k, alpha_max));
-        # step 11- fixed step size
-        alpha_k = 2 / (k+2)
-        logging.info(f"Step size is set {alpha_k}")
+        alpha_t = golden_section_search(dual(A, u), a=0, b=alpha_max)
+
+        logging.info(f"Step size is set {alpha_t}")
 
         #step 12
-        u = u + alpha_k * d_k
+        u = u + alpha_t * d_k
         logging.info(f"u values updated")
 
-        # step 13 update active set
-        Sk = np.where(u > 0)[0]
-        logging.info(f"Active set is updated!: indices: {Sk}")
+        # step 13 update active set (Lacoste-Juline pg.4 1st paragraph)
+        if fw_check:  # fw step used
+                St= (1-alpha_t)*St
+                St[s_t_idx] = St[s_t_idx]+alpha_t
+
+
+        else:  # away step used
+            St = (1+alpha_t) * St
+            St[v_t_idx] = St[v_t_idx] - alpha_t
+
+        logging.info(f"Active set is updated!:{St}")
         # step 14 end for
 
 
@@ -178,21 +181,22 @@ def awayStep_FW(A, u, eps, maxit):
     ttot = time.time() - tstart
 
     logging.info("Frank Wolfe algorithm iterations finished!")
-    logging.info(f"Last value of dual function {dual_func:.3e}")
+    logging.info(f"Last value of dual function {dual:.3e}")
     logging.info(f"Total CPU time {ttot:.3e}")
 
-    return u, k, dual_func
+    return u, t, dual
 
 
 def blendedPairwise_FW(A, u, eps, maxit):
 
     # Tsuji Algorithm 1
+    tstart = time.time()
+
     _, n = A.shape
 
     alpha_max = 1  # max step_size
     alpha_t = 0  # step_size at iteration t
 
-    tstart = time.time()
 
     # step 1
     St = np.where(u > 0)[0]  # active set St -- initialize
@@ -261,8 +265,7 @@ def blendedPairwise_FW(A, u, eps, maxit):
             alpha_t  = golden_section_search(dual(A,u), a =0 , b = 1)
             # step 18
             if alpha_t == 1:
-                St = np.zeros(n)
-                St[w_t_idx] = 1
+                St = w_t
             else:
                 St[w_t_idx] = 1
 
