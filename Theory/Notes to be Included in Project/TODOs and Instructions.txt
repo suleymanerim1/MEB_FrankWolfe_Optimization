@@ -1,0 +1,39 @@
+Marija (Helper functions for Suleyman):
+
+# Task 1: Write a function for visualizing the minimization progress
+(x-axis can be CPU Time/Iterations/Size of active set, y-axis can be Dual gap/Objective function)
+
+Iterations vs Whatever
+list 1,length=200
+list 2 length=300
+list 3 length=400
+
+x_max <- max length of all y lists
+x <- list(range(0, x_max))
+
+CPU Time vs Whatever:
+list 1, CPU Time=10
+list 2, CPU Time=12
+list 3, CPU Time=14
+
+x_max <- max CPU Time
+x <- list(range(0, x_max))
+
+Size of active set vs Whatever:
+x-axis is size of active set
+y-axis is Whatever
+
+# Task 2: Visualize points and MEB
+
+
+Suleyman:
+For iterations: return nothing
+For cpu time: return a number: end time - start time
+List of active elements: probably just the size is enough
+List of Dual gap values
+List of Objective function values
+(not needed most probably) List of Primal gap
+
+
+
+
