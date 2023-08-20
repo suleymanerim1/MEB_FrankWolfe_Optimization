@@ -2,6 +2,10 @@ import numpy as np
 import time
 from src.logger import logging
 
+# TODO: add logging
+# TODO: add maxit
+# TODO: keep CPU time
+# TODO: check 3 algorithms to be suitable to return necessary lists indicated for graphs.
 
 def dual_function(A, u):
     A2 = A.T @ A
