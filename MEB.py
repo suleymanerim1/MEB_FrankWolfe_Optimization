@@ -10,10 +10,10 @@ if __name__ == '__main__':
     m = 2 ** 5
 
     # Dimension of variables
-    n = 2 ** 4
+    n = 2 ** 1
 
-    # Max number of iteartions
-    maxit = 50000
+    # Max number of iterations
+    maxit = 1000
 
     # initial solution
     u0 = np.zeros(m)
@@ -30,8 +30,7 @@ if __name__ == '__main__':
     logging.info("\nASFW algorithm started!")
     u_fw, iter_fw, dual_fw, CPU_time_fw = awayStep_FW(A, u0, eps, maxit)
     radius_awayStep_FW = np.sqrt(-dual_fw)
-    a_sum = np.sum(A,axis=0)
-    center_awayStep_FW = a_sum * u_fw
+    center_awayStep_FW = A @ u_fw
 
     # Print results:
     print(f"dual function = {dual_fw:.3e}")
@@ -51,8 +50,7 @@ if __name__ == '__main__':
     logging.info("\nBPFW algorithm started!")
     u_bp, iter_bp, dual_bp, CPU_time_bp = blendedPairwise_FW(A, u0, eps, maxit)
     radius_awayStep_BP = np.sqrt(-dual_bp)
-    a_sum = np.sum(A,axis=0)
-    center_awayStep_BP = a_sum * u_bp
+    center_awayStep_BP = A @ u_bp
 
     # Print results:
     print(f"dual function = {dual_bp:.3e}")
