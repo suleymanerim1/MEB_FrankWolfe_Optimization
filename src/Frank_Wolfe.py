@@ -4,7 +4,6 @@ import time
 from src.logger import logging
 
 # TODO: blended does not have stopping condition, why?
-# TODO: add last algorithm
 # TODO: add stopping condition of time for each alogirthm
 # TODO: add max iteration stopping condition for each algorithm if neccesaary
 # TODO: run each algorithm and check for error from logs and results, check how each variables acts according to article
