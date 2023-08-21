@@ -1,7 +1,41 @@
 import math
 import matplotlib.pyplot as plt
+from matplotlib.patches import Circle
 import numpy as np
 
+def plot_points_circle(A, r, c, title):
+    # Separate x and y coordinates from A
+    x_coords = A[0]
+    y_coords = A[1]
+
+    # Create the figure and axes
+    fig, ax = plt.subplots()
+
+    # Plot the points as blue "+"
+    ax.plot(x_coords, y_coords, 'b+', label='Inside points')
+
+    # Plot the center as a blue thick dot
+    ax.plot(c[0], c[1], 'bo', markersize=10, label='Center')
+
+    # Plot the circle with black color
+    circle = Circle(c, r, color='black', fill=False)
+    ax.add_patch(circle)
+
+    # Calculate distances from the center to each point
+    distances = np.linalg.norm(A - c[:, np.newaxis], axis=0)
+    # Find the indices of points that touch the boundary of the circle
+    touching_indices = np.where(np.abs(distances - r) < 1e-6)[0]
+    # Plot the points that touch the circle boundary as green "x"
+    ax.plot(x_coords[touching_indices], y_coords[touching_indices], 'gx', label='Support vectors')
+
+    ax.set_xlabel('X')
+    ax.set_ylabel('Y')
+    ax.legend()
+    ax.set_title(title)
+    # Set aspect ratio to be equal, so the circle isn't distorted
+    ax.set_aspect('equal', adjustable='datalim')
+
+    plt.show()
 
 def plot_cpu_time_vs_dual_gap(cpu_time, dual_gap_values, algorithm_name):
     plt.plot(cpu_time, dual_gap_values, marker='o', label=algorithm_name)

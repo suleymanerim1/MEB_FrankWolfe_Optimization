@@ -1,9 +1,9 @@
 import numpy as np
 from src.logger import logging
 from src.FrankWolfeVariants import awayStep_FW, blendedPairwise_FW, one_plus_eps_MEB_approximation
-from src.utils import generateRandomMatrix, plot_cpu_time_vs_dual_gap, plot_active_set_size_vs_dual_gap,\
-    plot_cpu_time_vs_objective_function, plot_iterations_vs_objective_function, plot_dual_gap_vs_iterations
-# from src.utils import fermat_spiral
+from src.utils import generateRandomMatrix, plot_points_circle
+# from src.utils import plot_cpu_time_vs_dual_gap, plot_active_set_size_vs_dual_gap, plot_cpu_time_vs_objective_function,\
+#    plot_iterations_vs_objective_function, plot_dual_gap_vs_iterations, fermat_spiral
 
 if __name__ == '__main__':
 
@@ -17,7 +17,8 @@ if __name__ == '__main__':
     # A = fermat_spiral(m).T
 
     print("*****************")
-    print("*  Away Step FW   *")
+    title = "*  Away Step FW   *"
+    print(title)
     print("*****************")
 
     logging.info("\nASFW algorithm started!")
@@ -31,12 +32,13 @@ if __name__ == '__main__':
     print(f"Number of iterations = {iter_fw}")
     print(f"CPU time: {CPU_time_fw}")
     print(f"center: {center_awayStep_FW} and radius: {radius_awayStep_FW} ")
-
     logging.info("Away step Frank Wolfe finished!")
     logging.info(f"center: {center_awayStep_FW} and radius: {radius_awayStep_FW} ")
+    plot_points_circle(A, radius_awayStep_FW, center_awayStep_FW, title)
 
     print("*****************")
-    print("*  Blended Pairwise FW   *")
+    title = "*  Blended Pairwise FW   *"
+    print(title)
     print("*****************")
 
     logging.info("\nBPFW algorithm started!")
@@ -51,12 +53,13 @@ if __name__ == '__main__':
     print(f"Number of iterations = {iter_bp}")
     print(f"CPU time: {CPU_time_bp}")
     print(f"center: {center_awayStep_BP} and radius: {radius_awayStep_BP} ")
-
     logging.info("BP Frank Wolfe finished!")
     logging.info(f"center: {center_awayStep_BP} and radius: {radius_awayStep_BP} ")
+    plot_points_circle(A, radius_awayStep_BP, center_awayStep_BP, title)
 
     print("*****************")
-    print("*  (1+epsilon)-approximation FW   *")
+    title = "*  (1+epsilon)-approximation FW   *"
+    print(title)
     print("*****************")
     center_aproxAlg, iteration_aproxAlg, Xk_active_set, u_dual_sol_aproxAlg, radius_aproxAlg, total_time_aproxAlg = \
         one_plus_eps_MEB_approximation(A, epsilon, maxiter)
@@ -66,6 +69,7 @@ if __name__ == '__main__':
     print(f"Number of iterations = {iteration_aproxAlg}")
     print(f"CPU time: {total_time_aproxAlg}")
     print(f"center: {center_aproxAlg} and radius: {radius_aproxAlg} ")
+    plot_points_circle(A, radius_aproxAlg, center_aproxAlg, title)
 
     # For testing: (Added by Marija)
     # dual_gap_values_away = [...]  # List of dual gap values for awayStep_FW
