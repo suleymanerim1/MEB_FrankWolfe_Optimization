@@ -1,32 +1,51 @@
 import numpy as np
+import yaml
 from src.logger import logging
 from src.FrankWolfeVariants import awayStep_FW, blendedPairwise_FW, one_plus_eps_MEB_approximation
-from src.utils import generateRandomMatrix, plot_points_circle, fermat_spiral
+from src.utils import load_config,generateRandomMatrix, plot_points_circle, fermat_spiral
 # from src.utils import plot_cpu_time_vs_dual_gap, plot_active_set_size_vs_dual_gap, plot_cpu_time_vs_objective_function,\
 #   plot_iterations_vs_objective_function, plot_dual_gap_vs_iterations, fermat_spiral
 
+# folder to load config file
+config_path = "configs/"
+# hyperparameters
+config = load_config("experiment1.yaml",config_path)
+
+maxiter = eval(config.get('maxiter'))
+epsilon = eval(config.get('epsilon'))
+
+m = eval(config.get('number_of_samples'))
+n = eval(config.get('number_of_variables'))
+solver_methods = config.get('solver_methods')
+data_creation_method = config.get('data_creation_method')
 
 #TODO: Suleyman's question
 # What is support vector in graph?
 
-# TODO: important --- 3rd algorithm always stops at first iteration eps condition, check why??
-# TODO: save results to json
-# TODO: save graphs in png
-# TODO: find 2 datasets to check
+# TODO: important --- 3rd algorithm always stops at first iteration eps condition, check why?? -- for Suleyman
+# TODO: create YAML file for configuration  -- for Suleyman
+# TODO: save results to json -- for Suleyman
+# TODO: save graphs in png -- for Marija
+# TODO: find 2 datasets to check -- for Marija
 if __name__ == '__main__':
 
-    maxiter = 1000
-    epsilon = 1e-6
+    #maxiter = 1000
+    #epsilon = 1e-6
 
     logging.info("Creating data points")
-    m = 2 ** 10  # Number of samples
-    n = 2 ** 4  # Dimension of variables
-    #A = generateRandomMatrix(n, m)
-    A = fermat_spiral(m).T
-    #methods = ["asfw", "bpfw", "appfw"]
-    methods = ["appfw"]
+    #m = 2 ** 10  # Number of samples
+    #n = 2 ** 4  # Dimension of variables
 
-    for method in methods:
+    if data_creation_method == "random":
+        A = generateRandomMatrix(n, m)
+    elif data_creation_method == "fermat":
+        A = fermat_spiral(m).T
+    else:
+        pass # TODO: choose 2 datasets and add in this method
+    #methods = ["asfw", "bpfw", "appfw"]
+    #methods = ["appfw"]
+
+    for method in solver_methods:
         if method == "asfw":
 
             print("*****************")
