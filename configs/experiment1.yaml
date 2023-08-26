@@ -1,0 +1,13 @@
+# The below variables should be given in " "
+maxiter: "1000"  # max iteration
+epsilon: "1.e-6"  # epsilon
+number_of_samples:  "2**10"  #m
+number_of_variables:  "2**1"  #n
+data_creation_method: "random"   # "random" or "fermat"
+
+# List
+solver_methods: ["asfw"]  # A combination of these 3 ["asfw", "bpfw", "appfw"]
+
+
+
+
