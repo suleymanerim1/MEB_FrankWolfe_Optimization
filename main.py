@@ -1,7 +1,7 @@
 import numpy as np
 import yaml
 import os
-from src.logger import logging
+from src.logger import my_logger
 from src.FrankWolfeVariants import awayStep_FW, blendedPairwise_FW, one_plus_eps_MEB_approximation
 from src.utils import increment_path,load_config,generateRandomMatrix, plot_points_circle, fermat_spiral
 # from src.utils import plot_cpu_time_vs_dual_gap, plot_active_set_size_vs_dual_gap, plot_cpu_time_vs_objective_function,\
@@ -23,43 +23,43 @@ n = eval(config.get('number_of_variables'))
 solver_methods = config.get('solver_methods')
 data_creation_method = config.get('data_creation_method')
 
+
 #TODO: Suleyman's question
 # What is support vector in graph?
 
 # TODO: important --- 3rd algorithm always stops at first iteration eps condition, check why?? -- for Suleyman
+# TODO: 2dn algoritm return negative and positive, check that it creates error
 # TODO: save graphs in png -- for Marija
 # TODO: find 2 datasets to check -- for Marija
 
 
-
-
-# Example usage
-base_path = 'runs/'
-experiment_path = os.path.join(base_path,os.path.splitext(yaml_name)[0] )
-# if there is an experiment with same experiment.yaml, increment_path_number exp1, exp2....
-incremented_path = increment_path(experiment_path, exist_ok=False, sep='_', mkdir=True)
-print(f"Results will be saved: {incremented_path}" )
-
-
-
-
 if __name__ == '__main__':
 
+    # Save path
+    base_path = 'runs/'
+    experiment_path = os.path.join(base_path, os.path.splitext(yaml_name)[0])
+    # if there is an experiment with same experiment.yaml, increment_path_number exp1, exp2....
+    incremented_path = increment_path(experiment_path, exist_ok=False, sep='_', mkdir=True)
+    print(f"Results will be saved: {incremented_path}")
+
+    logging = my_logger(incremented_path)
     #maxiter = 1000
     #epsilon = 1e-6
 
-    logging.info("Creating data points")
     #m = 2 ** 10  # Number of samples
     #n = 2 ** 4  # Dimension of variables
 
+    #methods = ["asfw", "bpfw", "appfw"]
+    #methods = ["appfw"]
+
+
+    logging.info("Creating data points")
     if data_creation_method == "random":
         A = generateRandomMatrix(n, m)
     elif data_creation_method == "fermat":
         A = fermat_spiral(m).T
     else:
         pass # TODO: choose 2 datasets and add in this method
-    #methods = ["asfw", "bpfw", "appfw"]
-    #methods = ["appfw"]
 
     for method in solver_methods:
         # initialize output dictionaries
@@ -68,7 +68,7 @@ if __name__ == '__main__':
         appfw={}
         if method == "asfw":
 
-            print("*****************")
+            print("\n*****************")
             title = "*  Away Step FW   *"
             print(title)
             print("*****************")
@@ -102,7 +102,7 @@ if __name__ == '__main__':
 
         if method == "bpfw":
 
-            print("*****************")
+            print("\n*****************")
             title = "*  Blended Pairwise FW   *"
             print(title)
             print("*****************")
@@ -136,7 +136,7 @@ if __name__ == '__main__':
 
         if method == "appfw":
 
-            print("*****************")
+            print("\n*****************")
             title = "*  (1+epsilon)-approximation FW   *"
             print(title)
             print("*****************")
@@ -174,16 +174,10 @@ if __name__ == '__main__':
         'appfw': appfw,
     }
 
-    # Save yaml file
+    # Save output yaml file
     with open(os.path.join(incremented_path, 'output.yaml'), 'w') as file:
         yaml.dump(output, file)
-
-
-
-
-
-
-
+        logging.info(f"Output.yaml created")
 
 
 
