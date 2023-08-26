@@ -4,6 +4,33 @@ from matplotlib.patches import Circle
 import numpy as np
 import os
 import yaml
+from pathlib import Path
+
+
+
+
+# Create result save directory
+# Create run folders for experiment result saving
+def increment_path(path, exist_ok=False, sep='', mkdir=False):
+    # Increment file or directory path, i.e. runs/exp --> runs/exp{sep}2, runs/exp{sep}3, ... etc.
+    path = Path(path)  # os-agnostic
+    if path.exists() and not exist_ok:
+        path, suffix = (path.with_suffix(''), path.suffix) if path.is_file() else (path, '')
+
+        # Method 1
+        for n in range(2, 9999):
+            p = f'{path}{sep}{n}{suffix}'  # increment path
+            if not os.path.exists(p):  #
+                break
+        path = Path(p)
+
+    if mkdir:
+        path.mkdir(parents=True, exist_ok=True)  # make directory
+
+    return path
+
+
+
 
 def load_config(config_name,config_path):
     with open(os.path.join(config_path, config_name)) as file:
