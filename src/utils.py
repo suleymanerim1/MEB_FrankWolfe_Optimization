@@ -2,6 +2,15 @@ import math
 import matplotlib.pyplot as plt
 from matplotlib.patches import Circle
 import numpy as np
+import os
+import yaml
+
+def load_config(config_name,config_path):
+    with open(os.path.join(config_path, config_name)) as file:
+        config = yaml.safe_load(file)
+
+    return config
+
 
 def plot_points_circle(A, r, c, title):
     # Separate x and y coordinates from A
