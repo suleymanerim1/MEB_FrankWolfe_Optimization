@@ -2,7 +2,6 @@ import logging
 import os
 from datetime import datetime
 
-# TODO: Can we move this to utils.py? (Dejan)
 
 LOG_FILE = f"{datetime.now().strftime('%m_%d_%Y_%H_%M_%S')}.log"
 logs_path = os.path.join(os.getcwd(), "logs", LOG_FILE)

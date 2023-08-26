@@ -3,12 +3,6 @@ import math
 import time
 from src.logger import logging
 
-# TODO: blended does not have stopping condition, why? (I think we can add check: "if dual < epsilon: break" - Dejan)
-# TODO: add stopping condition of time for each algorithm (I think just using max iterations is sufficient. - Dejan)
-# TODO: run each algorithm and check for error from logs and results, check how each variables acts according to article
-# TODO: add logging
-# TODO: check 3 algorithms to be suitable to return necessary lists indicated for graphs.
-
 def compute_A_related_variables(A, u):
     A_squared = A.T @ A
     A_squared_u = A_squared @ u
@@ -77,7 +71,14 @@ def awayStep_FW(A, eps, max_iter, line_search_strategy='golden_search'):
     # Lacoste-Julien
     logging.info("Away Step Frank Wolfe algorithm first iteration started!")
     t_start = time.time()
-    _, m = A.shape
+
+    #initialize output lists
+    active_set_size_list = []
+    dual_gap_list = []
+    dual_list = [0]
+
+    n, m = A.shape
+    logging.info(f"Dataset size: {m} points, each {n}-dimensional.")
     # alpha_max = 1  # max step_size
     # alpha_t = 0  # step_size at iteration t
     dual = 0
@@ -87,7 +88,6 @@ def awayStep_FW(A, eps, max_iter, line_search_strategy='golden_search'):
     u[0] = 1e0
 
     # Step 1
-    logging.info("Active set initialized!")
     St = np.zeros(m)
     St[np.where(u > 0)[0]] = 1  # active set St -- initialize
 
@@ -98,10 +98,13 @@ def awayStep_FW(A, eps, max_iter, line_search_strategy='golden_search'):
         # objective function
         dual = dual_function(A, u)
         logging.info(f"Dual function value found: {dual} ")
+        dual_list.append(dual)
+        dual_gap = dual_list[-1]-dual_list[-2]
+        logging.info(f"Dual gap value found: {dual_gap} ")
+        dual_gap_list.append(dual_gap)
 
         # gradient evaluation
         grad = gradient(A, u)
-        logging.info(f"Gradient calculation done. ")
 
         # solution of FW problem - Step 3
         s_t_idx = np.argmin(grad)  # find index which makes gradient min
@@ -111,7 +114,6 @@ def awayStep_FW(A, eps, max_iter, line_search_strategy='golden_search'):
 
         # calculate FW direction
         d_FW = s_t - u
-        logging.info(f"FW direction calculated.")
 
         # solution of Away Step - Step 4 in Lacoste-Julien algo1
         active_idxs_list = np.where(St > 0)[0]
@@ -123,7 +125,6 @@ def awayStep_FW(A, eps, max_iter, line_search_strategy='golden_search'):
 
         # calculate Away Step direction
         d_AW = u - v_t
-        logging.info(f"Away Step direction calculated")
 
         # Step 5 - If FW gap is small enough, break
         g_FW = -grad.T @ d_FW
@@ -162,7 +163,6 @@ def awayStep_FW(A, eps, max_iter, line_search_strategy='golden_search'):
 
         # Step 12
         u = u + alpha_t * d_t
-        logging.info(f"u values updated.")
 
         # Step 13 update active set (Lacoste-Juline pg.4 1st paragraph)
         if fw_check:  # fw step used
@@ -172,24 +172,37 @@ def awayStep_FW(A, eps, max_iter, line_search_strategy='golden_search'):
         else:  # away step used
             St = (1+alpha_t) * St
             St[v_t_idx] = St[v_t_idx] - alpha_t
-
-        logging.info(f"Active set is updated!")
+        active_set_size_list.append(np.sum(np.abs(St) >= 0.0001))
         # Step 14 end for
 
     t_total = time.time() - t_start
+    radius = np.sqrt(-dual)
+    center = A @ u
 
-    logging.info("Frank Wolfe algorithm iterations finished!")
+    logging.info("\n-----------Away step Frank Wolfe finished!--------------")
+    logging.info(f"center: {center} and radius: {radius} ")
     logging.info(f"Last value of dual function {dual:.3e}")
+    logging.info(f"Last value of dual gap  {dual_gap:.3e}")
     logging.info(f"Total CPU time {t_total:.3e}")
+    logging.info(f"Number of non-zero components of x = {active_set_size_list[-1]}")
+    logging.info(f"Number of iterations = {len(dual_list)}")
 
-    return u, iteration, dual, t_total
+    return center,radius, active_set_size_list ,dual_gap_list, dual_list, t_total
 
 def blendedPairwise_FW(A, eps, max_iter=1000):  # Tsuji Algorithm 1
     logging.info("Blended Pairwise Frank Wolfe algorithm first iteration started!")
     t_start = time.time()
-    _, m = A.shape
+
+    #initialize output lists
+    active_set_size_list = []
+    dual_gap_list = []
+    dual_list = [0]
+
+    n, m = A.shape
     # alpha_max = 1  # max step_size
     # alpha_t = 0  # step_size at iteration t
+    logging.info(f"Dataset size: {m} points, each {n}-dimensional.")
+
     dual = 0
     iteration = 0
     # initial solution
@@ -199,7 +212,6 @@ def blendedPairwise_FW(A, eps, max_iter=1000):  # Tsuji Algorithm 1
     # Step 1
     St = np.zeros(m)
     St[np.where(u > 0)[0]] = 1  # active set St -- initialize
-    logging.info("Active set initialized!")
 
     # Step 2
     for iteration in range(max_iter):
@@ -207,11 +219,14 @@ def blendedPairwise_FW(A, eps, max_iter=1000):  # Tsuji Algorithm 1
 
         # objective function
         dual = dual_function(A, u)
-        logging.info(f"Dual func value found: {dual} ")
+        logging.info(f"Dual function value found: {dual} ")
+        dual_list.append(dual)
+        dual_gap = dual_list[-1]-dual_list[-2]
+        logging.info(f"Dual gap value found: {dual_gap} ")
+        dual_gap_list.append(dual_gap)
 
         # gradient evaluation
         grad = gradient(A, u)
-        logging.info(f"Gradient calculation done. ")
 
         # Step 3 - away vertex
         active_idxs_list = np.where(St > 0)[0]
@@ -226,13 +241,13 @@ def blendedPairwise_FW(A, eps, max_iter=1000):  # Tsuji Algorithm 1
         s_t_idx = active_idxs_list[min_grad_idx]  # set local FW index from active set St
         s_t = np.zeros(m)  # create m-dimensional array and set s_t = 1 and others to 0
         s_t[s_t_idx] = 1.0
-        logging.info(f"Away step max grad unit simplex index found: {s_t_idx}")
+        logging.info(f"Local FW min grad unit simplex index found: {s_t_idx}")
 
         # Step 5 - global FW
         w_t_idx = np.argmin(grad)  # find index which makes gradient min - search in all vertices
         w_t = np.zeros(m)  # create m-dimensional array and set w_t = 1 and others to 0
         w_t[w_t_idx] = 1.0
-        logging.info(f"FW min grad unit simplex index found: {w_t_idx}")
+        logging.info(f"Global FW min grad unit simplex index found: {w_t_idx}")
 
         FW_gap = grad.T @ (u - w_t)
         if FW_gap  <= eps:  # stopping condition
@@ -271,22 +286,27 @@ def blendedPairwise_FW(A, eps, max_iter=1000):  # Tsuji Algorithm 1
                 St = w_t
             else:
                 St[w_t_idx] = 1
-            logging.info(f"Active set is updated!")
         # Step 19 - end if
+        active_set_size_list.append(np.sum(np.abs(St) >= 0.0001))
+
 
         # Step 20
         u = u - alpha_t * d_t
-        logging.info(f"u values updated")
 
     # Step 21 - end for
 
     t_total = time.time() - t_start
+    radius = np.sqrt(-dual)
+    center = A @ u
 
-    logging.info("Frank Wolfe algorithm iterations finished!")
+    logging.info("\n-----------Away step Frank Wolfe finished!--------------")
+    logging.info(f"center: {center} and radius: {radius} ")
     logging.info(f"Last value of dual function {dual:.3e}")
+    logging.info(f"Last value of dual gap  {dual_gap:.3e}")
     logging.info(f"Total CPU time {t_total:.3e}")
-
-    return u, iteration, dual, t_total
+    logging.info(f"Number of non-zero components of x = {active_set_size_list[-1]}")
+    logging.info(f"Number of iterations = {len(dual_list)}")
+    return center,radius, active_set_size_list ,dual_gap_list, dual_list, t_total
 
 def find_max_dist_idx(A_mat, point):
 
@@ -306,6 +326,11 @@ def one_plus_eps_MEB_approximation(A, eps, max_iter=1000):
     logging.info("(1+epsilon)-approximation algorithm first iteration started!")
     t_start = time.time()
 
+    #initialize output lists
+    active_set_size_list = []
+    dual_gap_list = []
+    dual_list = [0]
+
     # shape A: n*m, n is the dimension of the points, m is the number of points
     n_A, m_A = np.shape(A)
     logging.info(f"Dataset size: {m_A} points, each {n_A}-dimensional.")
@@ -321,10 +346,17 @@ def one_plus_eps_MEB_approximation(A, eps, max_iter=1000):
     u[b] = 0.5
     # Step 4 - Create active set , here active set includes the indices, in FW version it includes weights of indices
     Xk = [a, b]
+    active_set_size_list.append(len(Xk))
     # Step 5 - Initialize center
     c = A @ u  # c should be n dimensional like points a
-    # Step 6
-    r2 = -dual_function(A, u)  # r^2 is gamma -- radius^2
+    # Step 6 - objective function
+    dual = dual_function(A, u)
+    logging.info(f"Dual function value found: {dual} ")
+    dual_list.append(dual)
+    dual_gap = dual_list[-1] - dual_list[-2]
+    logging.info(f"Dual gap value found: {dual_gap} ")
+    dual_gap_list.append(dual_gap)
+    r2 = -dual  # r^2 is gamma -- radius^2
     # Step 7
     K = find_max_dist_idx(A, c)  # get the point index furthest from center c
     # Step 8  - Delta is termination criterion delta > (1+eps)^2 -1
@@ -354,6 +386,7 @@ def one_plus_eps_MEB_approximation(A, eps, max_iter=1000):
         c = (1-alpha_k)*c + alpha_k * A[:, K]
         # Step 16 - Update active set
         Xk.append(K)
+        active_set_size_list.append(len(Xk))
         # Step 17  - Update gamma
         r2 = -dual_function(A, u)
         # Step 18  - Update K (index of the furthest point in A from c)
@@ -364,10 +397,16 @@ def one_plus_eps_MEB_approximation(A, eps, max_iter=1000):
     # Step 21 - Output
     approx_radius = np.sqrt((1 + delta) * r2)
     t_total = time.time() - t_start
-    logging.info("(1+epsilon)-approximation algorithm finished!")
-    logging.info(f"Center: {c}")
-    logging.info(f"Radius: {approx_radius}")
-    logging.info(f"Active set: {sorted(Xk)}")
-    logging.info(f"u: {u}")
-    logging.info(f"Total time: {t_total}")
-    return c, iteration, Xk, u, approx_radius, t_total
+
+    logging.info("\n-----------(1+epsilon)-approximation FW algorithm finished!--------------")
+    logging.info(f"center: {c} and radius: {approx_radius} ")
+    logging.info(f"Last value of dual function {dual:.3e}")
+    logging.info(f"Last value of dual gap  {dual_gap:.3e}")
+    logging.info(f"Total CPU time {t_total:.3e}")
+    logging.info(f"Number of non-zero components of x = {active_set_size_list[-1]}")
+    logging.info(f"Number of iterations = {len(dual_list)}")
+
+    return c,approx_radius, active_set_size_list ,dual_gap_list, dual_list, t_total
+
+
+

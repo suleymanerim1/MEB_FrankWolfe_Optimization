@@ -1,75 +1,101 @@
 import numpy as np
 from src.logger import logging
 from src.FrankWolfeVariants import awayStep_FW, blendedPairwise_FW, one_plus_eps_MEB_approximation
-from src.utils import generateRandomMatrix, plot_points_circle
+from src.utils import generateRandomMatrix, plot_points_circle, fermat_spiral
 # from src.utils import plot_cpu_time_vs_dual_gap, plot_active_set_size_vs_dual_gap, plot_cpu_time_vs_objective_function,\
-#    plot_iterations_vs_objective_function, plot_dual_gap_vs_iterations, fermat_spiral
+#   plot_iterations_vs_objective_function, plot_dual_gap_vs_iterations, fermat_spiral
 
+
+#TODO: Suleyman's question
+# What is support vector in graph?
+
+# TODO: important --- 3rd algorithm always stops at first iteration eps condition, check why??
+# TODO: save results to json
+# TODO: save graphs in png
+# TODO: find 2 datasets to check
 if __name__ == '__main__':
 
     maxiter = 1000
     epsilon = 1e-6
 
     logging.info("Creating data points")
-    m = 2 ** 5  # Number of samples
-    n = 2 ** 1  # Dimension of variables
-    A = generateRandomMatrix(n, m)
-    # A = fermat_spiral(m).T
+    m = 2 ** 10  # Number of samples
+    n = 2 ** 4  # Dimension of variables
+    #A = generateRandomMatrix(n, m)
+    A = fermat_spiral(m).T
+    #methods = ["asfw", "bpfw", "appfw"]
+    methods = ["appfw"]
 
-    print("*****************")
-    title = "*  Away Step FW   *"
-    print(title)
-    print("*****************")
+    for method in methods:
+        if method == "asfw":
 
-    logging.info("\nASFW algorithm started!")
-    u_fw, iter_fw, dual_fw, CPU_time_fw = awayStep_FW(A, epsilon, maxiter)
-    radius_awayStep_FW = np.sqrt(-dual_fw)
-    center_awayStep_FW = A @ u_fw
+            print("*****************")
+            title = "*  Away Step FW   *"
+            print(title)
+            print("*****************")
 
-    # Print results:
-    print(f"dual function = {dual_fw:.3e}")
-    print(f"Number of non-zero components of x = {np.sum(np.abs(u_fw) >= 0.0001)}")
-    print(f"Number of iterations = {iter_fw}")
-    print(f"CPU time: {CPU_time_fw}")
-    print(f"center: {center_awayStep_FW} and radius: {radius_awayStep_FW} ")
-    logging.info("Away step Frank Wolfe finished!")
-    logging.info(f"center: {center_awayStep_FW} and radius: {radius_awayStep_FW} ")
-    plot_points_circle(A, radius_awayStep_FW, center_awayStep_FW, title)
+            logging.info("\nASFW algorithm started!")
+            (center_awayStep_FW,
+             radius_awayStep_FW,
+             active_set_size_list_fw,
+             dual_gap_list_fw,
+             dual_list_fw,
+             CPU_time_fw) = awayStep_FW(A, epsilon, maxiter)
 
-    print("*****************")
-    title = "*  Blended Pairwise FW   *"
-    print(title)
-    print("*****************")
+            # Print results:
+            print(f"dual function = {dual_list_fw[-1]:.3e}")
+            print(f"Number of non-zero components of x = {active_set_size_list_fw[-1]}")
+            print(f"Number of iterations = {len(dual_list_fw)}")
+            print(f"CPU time: {CPU_time_fw}")
+            print(f"center: {center_awayStep_FW} and radius: {radius_awayStep_FW} ")
 
-    logging.info("\nBPFW algorithm started!")
-    u_bp, iter_bp, dual_bp, CPU_time_bp = blendedPairwise_FW(A, epsilon, maxiter)
-    # TODO: Debug - Here for dual_bp sometimes we get positive value, sometimes negative.
-    radius_awayStep_BP = np.sqrt(abs(dual_bp))
-    center_awayStep_BP = A @ u_bp
+            plot_points_circle(A, radius_awayStep_FW, center_awayStep_FW, title)
 
-    # Print results:
-    print(f"dual function = {dual_bp:.3e}")
-    print(f"Number of non-zero components of x = {np.sum(np.abs(dual_bp) >= 0.0001)}")
-    print(f"Number of iterations = {iter_bp}")
-    print(f"CPU time: {CPU_time_bp}")
-    print(f"center: {center_awayStep_BP} and radius: {radius_awayStep_BP} ")
-    logging.info("BP Frank Wolfe finished!")
-    logging.info(f"center: {center_awayStep_BP} and radius: {radius_awayStep_BP} ")
-    plot_points_circle(A, radius_awayStep_BP, center_awayStep_BP, title)
+        if method == "bpfw":
 
-    print("*****************")
-    title = "*  (1+epsilon)-approximation FW   *"
-    print(title)
-    print("*****************")
-    center_aproxAlg, iteration_aproxAlg, Xk_active_set, u_dual_sol_aproxAlg, radius_aproxAlg, total_time_aproxAlg = \
-        one_plus_eps_MEB_approximation(A, epsilon, maxiter)
-    # Print results:
-    print(f"dual function = {u_dual_sol_aproxAlg}")
-    print(f"Number of non-zero components of x = {np.sum(np.abs(u_dual_sol_aproxAlg) >= 0.0001)}")
-    print(f"Number of iterations = {iteration_aproxAlg}")
-    print(f"CPU time: {total_time_aproxAlg}")
-    print(f"center: {center_aproxAlg} and radius: {radius_aproxAlg} ")
-    plot_points_circle(A, radius_aproxAlg, center_aproxAlg, title)
+            print("*****************")
+            title = "*  Blended Pairwise FW   *"
+            print(title)
+            print("*****************")
+
+            logging.info("\nBPFW algorithm started!")
+            (center_bpfw,
+             radius_bpfw,
+             active_set_size_list_bpfw,
+             dual_gap_list_bpfw,
+             dual_list_bpfw,
+             CPU_time_bpfw) = blendedPairwise_FW(A, epsilon, maxiter)
+            # TODO: Debug - Here for dual_bp sometimes we get positive value, sometimes negative.
+
+            # Print results:
+            print(f"dual function = {dual_list_bpfw[-1]:.3e}")
+            print(f"Number of non-zero components of x = {active_set_size_list_bpfw[-1]}")
+            print(f"Number of iterations = {len(dual_list_bpfw)}")
+            print(f"CPU time: {CPU_time_bpfw}")
+            print(f"center: {center_bpfw} and radius: {radius_bpfw} ")
+            plot_points_circle(A, radius_bpfw, center_bpfw, title)
+
+        if method == "appfw":
+
+            print("*****************")
+            title = "*  (1+epsilon)-approximation FW   *"
+            print(title)
+            print("*****************")
+            logging.info("\n(1+epsilon)-approximation FW algorithm started!")
+            (center_aproxAlg,
+             radius_aproxAlg,
+             active_set_size_list_aproxAlg,
+             dual_gap_list_aproxAlg,
+             dual_list_aproxAlg,
+             CPU_time_aproxAlg) = one_plus_eps_MEB_approximation(A, epsilon, maxiter)
+
+            # Print results:
+            print(f"dual function = {dual_list_aproxAlg[-1]:.3e}")
+            print(f"Number of non-zero components of x = {active_set_size_list_aproxAlg[-1]}")
+            print(f"Number of iterations = {len(dual_list_aproxAlg)}")
+            print(f"CPU time: {CPU_time_aproxAlg}")
+            print(f"center: {center_aproxAlg} and radius: {radius_aproxAlg} ")
+            plot_points_circle(A, radius_aproxAlg, center_aproxAlg, title)
 
     # For testing: (Added by Marija)
     # dual_gap_values_away = [...]  # List of dual gap values for awayStep_FW
