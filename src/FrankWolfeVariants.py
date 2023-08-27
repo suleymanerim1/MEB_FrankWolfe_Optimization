@@ -72,11 +72,11 @@ def awayStep_FW(A, eps, max_iter, line_search_strategy='golden_search'):
     logging.info("Away Step Frank Wolfe algorithm first iteration started!")
 
     #initialize output lists
-    active_set_size_list = []
-    dual_gap_list = []
+    active_set_size_list = [1]
+    dual_gap_list = [0]
     dual_list = [0]
     total_time = 0
-    CPU_time_list = []
+    CPU_time_list = [0]
 
     n, m = A.shape
     logging.info(f"Dataset size: {m} points, each {n}-dimensional.")
@@ -132,6 +132,11 @@ def awayStep_FW(A, eps, max_iter, line_search_strategy='golden_search'):
         g_FW = -grad.T @ d_FW
         if g_FW  <= eps:  # stopping condition
             logging.info(f"Stopping condition gap < epsilon is met!")
+            it_time = time.time() - t_start
+            total_time = total_time + it_time
+            CPU_time_list.append(total_time)
+            active_set_size_list.append(np.sum(np.abs(St) >= 0.0001))
+
             break
         fw_check = True
 
@@ -200,11 +205,11 @@ def blendedPairwise_FW(A, eps, max_iter=1000):  # Tsuji Algorithm 1
     logging.info("Blended Pairwise Frank Wolfe algorithm first iteration started!")
 
     #initialize output lists
-    active_set_size_list = []
-    dual_gap_list = []
+    active_set_size_list = [1]
+    dual_gap_list = [0]
     dual_list = [0]
     total_time = 0
-    CPU_time_list = []
+    CPU_time_list = [0]
 
     n, m = A.shape
     # alpha_max = 1  # max step_size
@@ -261,6 +266,10 @@ def blendedPairwise_FW(A, eps, max_iter=1000):  # Tsuji Algorithm 1
         FW_gap = grad.T @ (u - w_t)
         if FW_gap  <= eps:  # stopping condition
             logging.info(f"Stopping condition gap < epsilon is met!")
+            it_time = time.time() - t_start
+            total_time = total_time + it_time
+            CPU_time_list.append(total_time)
+            active_set_size_list.append(np.sum(np.abs(St) >= 0.0001))
             break
 
         # Step 6
