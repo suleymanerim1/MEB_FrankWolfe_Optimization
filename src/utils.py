@@ -39,7 +39,7 @@ def load_config(config_name,config_path):
     return config
 
 
-def plot_points_circle(A, r, c, title):
+def plot_points_circle(A, r, c, title, path, show = True):
     # Separate x and y coordinates from A
     x_coords = A[0]
     y_coords = A[1]
@@ -70,8 +70,9 @@ def plot_points_circle(A, r, c, title):
     ax.set_title(title)
     # Set aspect ratio to be equal, so the circle isn't distorted
     ax.set_aspect('equal', adjustable='datalim')
-
-    plt.show()
+    plt.savefig(os.path.join(path, "plot_points_circle.png"))
+    if show:
+        plt.show()
 
 
 # TODO: Marija- get a path for all graph functions,
