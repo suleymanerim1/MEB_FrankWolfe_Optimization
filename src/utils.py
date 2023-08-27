@@ -73,6 +73,9 @@ def plot_points_circle(A, r, c, title):
 
     plt.show()
 
+
+# TODO: Marija- get a path for all graph functions,
+# Save the graphs inside that path.
 def plot_cpu_time_vs_dual_gap(cpu_time, dual_gap_values, algorithm_name):
     plt.plot(cpu_time, dual_gap_values, marker='o', label=algorithm_name)
     plt.xlabel('CPU Time')
@@ -81,6 +84,7 @@ def plot_cpu_time_vs_dual_gap(cpu_time, dual_gap_values, algorithm_name):
     plt.grid(True)
     plt.legend()
     plt.show()
+    # TODO: save given path-
 
 def plot_active_set_size_vs_dual_gap(active_set_sizes, dual_gap_values, algorithm_name):
     plt.plot(active_set_sizes, dual_gap_values, marker='o', label=algorithm_name)
@@ -99,6 +103,8 @@ def plot_cpu_time_vs_objective_function(cpu_time, objective_function_values, alg
     plt.show()
 
 def plot_iterations_vs_objective_function(iterations, objective_function_values, algorithm_name):
+    # TODO: Marija:Number of iterations will be given as scalar.
+    # create a range from 0 to num_iterations and plot range(0-num iterations) vs objective function values
     plt.plot(iterations, objective_function_values, marker='o', label=algorithm_name)
     plt.xlabel('Iterations')
     plt.ylabel('Objective Function Value')
@@ -107,6 +113,7 @@ def plot_iterations_vs_objective_function(iterations, objective_function_values,
     plt.show()
 
 def plot_dual_gap_vs_iterations(iterations, dual_gap_values, algorithm_name):
+    # TODO: the same idea with iterations
     plt.plot(iterations, dual_gap_values, marker='o', label=algorithm_name)
     plt.xlabel('Iterations')
     plt.ylabel('Dual Gap')

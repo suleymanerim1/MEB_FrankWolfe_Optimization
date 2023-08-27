@@ -27,6 +27,9 @@ data_creation_method = config.get('data_creation_method')
 #TODO: Suleyman's question
 # What is support vector in graph?
 
+# TODO: return cpu time as cumulative time list -- for Süleyman
+# TODO: solve MEB problem and find anomaly --points for Suleyman
+# TODO: keep track of anomaly points --for Suleyman
 # TODO: important --- 3rd algorithm always stops at first iteration eps condition, check why?? -- for Suleyman
 # TODO: 2dn algoritm return negative and positive, check that it creates error
 # TODO: save graphs in png -- for Marija
@@ -79,13 +82,13 @@ if __name__ == '__main__':
              active_set_size_list_fw,
              dual_gap_list_fw,
              dual_list_fw,
-             CPU_time_fw) = awayStep_FW(A, epsilon, maxiter)
+             CPU_time_list_fw) = awayStep_FW(A, epsilon, maxiter)
 
             # Print results:
             print(f"dual function = {dual_list_fw[-1]:.3e}")
             print(f"Number of non-zero components of x = {active_set_size_list_fw[-1]}")
             print(f"Number of iterations = {len(dual_list_fw)}")
-            print(f"CPU time: {CPU_time_fw}")
+            print(f"CPU time: {CPU_time_list_fw}")
             print(f"center: {center_awayStep_FW} and radius: {radius_awayStep_FW} ")
 
             asfw = {
@@ -95,7 +98,7 @@ if __name__ == '__main__':
                 "Number of iterations" : len(dual_list_fw),
                 "dual_function_list": [float(value) for value in dual_list_fw],
                 "dual_gap_list": [float(value) for value in dual_gap_list_fw],
-                "CPU_time":CPU_time_fw,
+                "CPU_time":CPU_time_list_fw,
             }
 
             plot_points_circle(A, radius_awayStep_FW, center_awayStep_FW, title)
@@ -113,14 +116,14 @@ if __name__ == '__main__':
              active_set_size_list_bpfw,
              dual_gap_list_bpfw,
              dual_list_bpfw,
-             CPU_time_bpfw) = blendedPairwise_FW(A, epsilon, maxiter)
+             CPU_time_list_bpfw) = blendedPairwise_FW(A, epsilon, maxiter)
             # TODO: Debug - Here for dual_bp sometimes we get positive value, sometimes negative.
 
             # Print results:
             print(f"dual function = {dual_list_bpfw[-1]:.3e}")
             print(f"Number of non-zero components of x = {active_set_size_list_bpfw[-1]}")
             print(f"Number of iterations = {len(dual_list_bpfw)}")
-            print(f"CPU time: {CPU_time_bpfw}")
+            print(f"CPU time: {CPU_time_list_bpfw}")
             print(f"center: {center_bpfw} and radius: {radius_bpfw} ")
             plot_points_circle(A, radius_bpfw, center_bpfw, title)
 
@@ -131,7 +134,7 @@ if __name__ == '__main__':
                 "Number of iterations" : len(dual_list_bpfw),
                 "dual_function_list": [float(value) for value in dual_list_bpfw],
                 "dual_gap_list": [float(value) for value in dual_gap_list_bpfw],
-                "CPU_time":CPU_time_bpfw,
+                "CPU_time":CPU_time_list_bpfw,
             }
 
         if method == "appfw":
@@ -146,13 +149,13 @@ if __name__ == '__main__':
              active_set_size_list_aproxAlg,
              dual_gap_list_aproxAlg,
              dual_list_aproxAlg,
-             CPU_time_aproxAlg) = one_plus_eps_MEB_approximation(A, epsilon, maxiter)
+             CPU_time_list_aproxAlg) = one_plus_eps_MEB_approximation(A, epsilon, maxiter)
 
             # Print results:
             print(f"dual function = {dual_list_aproxAlg[-1]:.3e}")
             print(f"Number of non-zero components of x = {active_set_size_list_aproxAlg[-1]}")
             print(f"Number of iterations = {len(dual_list_aproxAlg)}")
-            print(f"CPU time: {CPU_time_aproxAlg}")
+            print(f"CPU time: {CPU_time_list_aproxAlg}")
             print(f"center: {center_aproxAlg} and radius: {radius_aproxAlg} ")
             plot_points_circle(A, radius_aproxAlg, center_aproxAlg, title)
 
@@ -163,7 +166,7 @@ if __name__ == '__main__':
                 "Number of iterations" : len(dual_list_aproxAlg),
                 "dual_function_list": [float(value) for value in dual_list_aproxAlg],
                 "dual_gap_list": [float(value) for value in dual_gap_list_aproxAlg],
-                "CPU_time":CPU_time_aproxAlg,
+                "CPU_time":CPU_time_list_aproxAlg,
             }
 
     # Create yaml content
