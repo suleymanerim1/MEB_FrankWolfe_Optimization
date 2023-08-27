@@ -8,7 +8,7 @@ from src.utils import increment_path,load_config,generateRandomMatrix, plot_poin
 #   plot_iterations_vs_objective_function, plot_dual_gap_vs_iterations, fermat_spiral
 
 # Change only this
-yaml_name = "exp2.yaml"
+yaml_name = "exp1.yaml"
 
 
 
@@ -64,11 +64,12 @@ if __name__ == '__main__':
     else:
         pass # TODO: choose 2 datasets and add in this method
 
+    asfw = {}
+    bpfw = {}
+    appfw = {}
     for method in solver_methods:
         # initialize output dictionaries
-        aspw={}
-        bpfw={}
-        appfw={}
+
         if method == "asfw":
 
             print("\n*****************")
@@ -88,7 +89,7 @@ if __name__ == '__main__':
             print(f"dual function = {dual_list_fw[-1]:.3e}")
             print(f"Number of non-zero components of x = {active_set_size_list_fw[-1]}")
             print(f"Number of iterations = {len(dual_list_fw)}")
-            print(f"CPU time: {CPU_time_list_fw}")
+            print(f"Total CPU time: {CPU_time_list_fw[-1]}")
             print(f"center: {center_awayStep_FW} and radius: {radius_awayStep_FW} ")
 
             asfw = {
@@ -123,7 +124,7 @@ if __name__ == '__main__':
             print(f"dual function = {dual_list_bpfw[-1]:.3e}")
             print(f"Number of non-zero components of x = {active_set_size_list_bpfw[-1]}")
             print(f"Number of iterations = {len(dual_list_bpfw)}")
-            print(f"CPU time: {CPU_time_list_bpfw}")
+            print(f"Total CPU time: {CPU_time_list_bpfw[-1]}")
             print(f"center: {center_bpfw} and radius: {radius_bpfw} ")
             plot_points_circle(A, radius_bpfw, center_bpfw, title)
 
@@ -155,7 +156,7 @@ if __name__ == '__main__':
             print(f"dual function = {dual_list_aproxAlg[-1]:.3e}")
             print(f"Number of non-zero components of x = {active_set_size_list_aproxAlg[-1]}")
             print(f"Number of iterations = {len(dual_list_aproxAlg)}")
-            print(f"CPU time: {CPU_time_list_aproxAlg}")
+            print(f"Total CPU time: {CPU_time_list_aproxAlg[-1]}")
             print(f"center: {center_aproxAlg} and radius: {radius_aproxAlg} ")
             plot_points_circle(A, radius_aproxAlg, center_aproxAlg, title)
 

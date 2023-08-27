@@ -70,12 +70,13 @@ def golden_section_search(func, A, u, d_t, a, b,
 def awayStep_FW(A, eps, max_iter, line_search_strategy='golden_search'):
     # Lacoste-Julien
     logging.info("Away Step Frank Wolfe algorithm first iteration started!")
-    t_start = time.time()
 
     #initialize output lists
     active_set_size_list = []
     dual_gap_list = []
     dual_list = [0]
+    total_time = 0
+    CPU_time_list = []
 
     n, m = A.shape
     logging.info(f"Dataset size: {m} points, each {n}-dimensional.")
@@ -93,6 +94,7 @@ def awayStep_FW(A, eps, max_iter, line_search_strategy='golden_search'):
 
     # Step 2
     for iteration in range(max_iter):
+        t_start = time.time()
         logging.info(f"\n--------------Iteration {iteration} -----------------")
 
         # objective function
@@ -175,7 +177,12 @@ def awayStep_FW(A, eps, max_iter, line_search_strategy='golden_search'):
         active_set_size_list.append(np.sum(np.abs(St) >= 0.0001))
         # Step 14 end for
 
-    t_total = time.time() - t_start
+        it_time = time.time() - t_start
+        total_time = total_time + it_time
+        CPU_time_list.append(total_time)
+
+
+
     radius = np.sqrt(-dual)
     center = A @ u
 
@@ -183,20 +190,21 @@ def awayStep_FW(A, eps, max_iter, line_search_strategy='golden_search'):
     logging.info(f"center: {center} and radius: {radius} ")
     logging.info(f"Last value of dual function {dual:.3e}")
     logging.info(f"Last value of dual gap  {dual_gap:.3e}")
-    logging.info(f"Total CPU time {t_total:.3e}")
+    logging.info(f"Total CPU time {total_time:.3e}")
     logging.info(f"Number of non-zero components of x = {active_set_size_list[-1]}")
     logging.info(f"Number of iterations = {len(dual_list)}")
 
-    return center,radius, active_set_size_list ,dual_gap_list, dual_list, t_total
+    return center,radius, active_set_size_list ,dual_gap_list, dual_list, CPU_time_list
 
 def blendedPairwise_FW(A, eps, max_iter=1000):  # Tsuji Algorithm 1
     logging.info("Blended Pairwise Frank Wolfe algorithm first iteration started!")
-    t_start = time.time()
 
     #initialize output lists
     active_set_size_list = []
     dual_gap_list = []
     dual_list = [0]
+    total_time = 0
+    CPU_time_list = []
 
     n, m = A.shape
     # alpha_max = 1  # max step_size
@@ -215,6 +223,7 @@ def blendedPairwise_FW(A, eps, max_iter=1000):  # Tsuji Algorithm 1
 
     # Step 2
     for iteration in range(max_iter):
+        t_start = time.time()
         logging.info(f"\n--------------Iteration {iteration} -----------------")
 
         # objective function
@@ -294,8 +303,11 @@ def blendedPairwise_FW(A, eps, max_iter=1000):  # Tsuji Algorithm 1
         u = u - alpha_t * d_t
 
     # Step 21 - end for
+        # Track time
+        it_time = time.time() - t_start
+        total_time = total_time + it_time
+        CPU_time_list.append(total_time)
 
-    t_total = time.time() - t_start
     radius = np.sqrt(-dual)
     center = A @ u
 
@@ -303,10 +315,10 @@ def blendedPairwise_FW(A, eps, max_iter=1000):  # Tsuji Algorithm 1
     logging.info(f"center: {center} and radius: {radius} ")
     logging.info(f"Last value of dual function {dual:.3e}")
     logging.info(f"Last value of dual gap  {dual_gap:.3e}")
-    logging.info(f"Total CPU time {t_total:.3e}")
+    logging.info(f"Total CPU time {total_time:.3e}")
     logging.info(f"Number of non-zero components of x = {active_set_size_list[-1]}")
     logging.info(f"Number of iterations = {len(dual_list)}")
-    return center,radius, active_set_size_list ,dual_gap_list, dual_list, t_total
+    return center,radius, active_set_size_list ,dual_gap_list, dual_list, CPU_time_list
 
 def find_max_dist_idx(A_mat, point):
 
@@ -324,12 +336,13 @@ def calculate_delta(cntr, furthest_point, gamma):
 
 def one_plus_eps_MEB_approximation(A, eps, max_iter=1000):
     logging.info("(1+epsilon)-approximation algorithm first iteration started!")
-    t_start = time.time()
 
     #initialize output lists
     active_set_size_list = []
     dual_gap_list = []
     dual_list = [0]
+    total_time = 0
+    CPU_time_list = []
 
     # shape A: n*m, n is the dimension of the points, m is the number of points
     n_A, m_A = np.shape(A)
@@ -365,6 +378,7 @@ def one_plus_eps_MEB_approximation(A, eps, max_iter=1000):
     k = 0
     # Step 10
     while True:
+        t_start = time.time()
         # Step 11 - loop
         iteration += 1
         logging.info(f"--------------Iteration {iteration} -----------------")
@@ -388,7 +402,13 @@ def one_plus_eps_MEB_approximation(A, eps, max_iter=1000):
         Xk.append(K)
         active_set_size_list.append(len(Xk))
         # Step 17  - Update gamma
-        r2 = -dual_function(A, u)
+        dual = dual_function(A, u)
+        logging.info(f"Dual function value found: {dual} ")
+        dual_list.append(dual)
+        dual_gap = dual_list[-1] - dual_list[-2]
+        logging.info(f"Dual gap value found: {dual_gap} ")
+        dual_gap_list.append(dual_gap)
+        r2 = -dual
         # Step 18  - Update K (index of the furthest point in A from c)
         K = find_max_dist_idx(A, c)
         # Step 19
@@ -396,17 +416,21 @@ def one_plus_eps_MEB_approximation(A, eps, max_iter=1000):
         # Step 20 - end loop
     # Step 21 - Output
     approx_radius = np.sqrt((1 + delta) * r2)
-    t_total = time.time() - t_start
+
+    # Track time
+    it_time = time.time() - t_start
+    total_time = total_time + it_time
+    CPU_time_list.append(total_time)
 
     logging.info("\n-----------(1+epsilon)-approximation FW algorithm finished!--------------")
     logging.info(f"center: {c} and radius: {approx_radius} ")
     logging.info(f"Last value of dual function {dual:.3e}")
     logging.info(f"Last value of dual gap  {dual_gap:.3e}")
-    logging.info(f"Total CPU time {t_total:.3e}")
+    logging.info(f"Total CPU time {total_time:.3e}")
     logging.info(f"Number of non-zero components of x = {active_set_size_list[-1]}")
     logging.info(f"Number of iterations = {len(dual_list)}")
 
-    return c,approx_radius, active_set_size_list ,dual_gap_list, dual_list, t_total
+    return c,approx_radius, active_set_size_list ,dual_gap_list, dual_list, CPU_time_list
 
 
 
