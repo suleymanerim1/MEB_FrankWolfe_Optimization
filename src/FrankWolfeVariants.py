@@ -348,16 +348,15 @@ def one_plus_eps_MEB_approximation(A, eps, max_iter=1000):
 
     #initialize output lists
     active_set_size_list = []
-    dual_gap_list = []
+    dual_gap_list = [0]
     dual_list = [0]
     total_time = 0
-    CPU_time_list = []
+    CPU_time_list = [0]
 
     # shape A: n*m, n is the dimension of the points, m is the number of points
     n_A, m_A = np.shape(A)
     logging.info(f"Dataset size: {m_A} points, each {n_A}-dimensional.")
     # alpha_k = 0 # Initialize step size
-    iteration = 0
     # Step 1
     a = find_max_dist_idx(A, A[:, 0])  # get the point index furthest from first point in A (index 0)
     b = find_max_dist_idx(A, A[:, a])  # get the point index furthest from a in A
@@ -374,10 +373,8 @@ def one_plus_eps_MEB_approximation(A, eps, max_iter=1000):
     # Step 6 - objective function
     dual = dual_function(A, u)
     logging.info(f"Dual function value found: {dual} ")
-    dual_list.append(dual)
-    dual_gap = dual_list[-1] - dual_list[-2]
+    dual_gap = dual_list[-1] - 0
     logging.info(f"Dual gap value found: {dual_gap} ")
-    dual_gap_list.append(dual_gap)
     r2 = -dual  # r^2 is gamma -- radius^2
     # Step 7
     K = find_max_dist_idx(A, c)  # get the point index furthest from center c
@@ -389,14 +386,36 @@ def one_plus_eps_MEB_approximation(A, eps, max_iter=1000):
     while True:
         t_start = time.time()
         # Step 11 - loop
-        iteration += 1
-        logging.info(f"--------------Iteration {iteration} -----------------")
+
+        logging.info(f"--------------Iteration {k} -----------------")
         if delta <= (1+eps)**2 - 1:
             logging.info(f"Stopping condition delta <= (1+eps)**2 - 1 is met!")
+            it_time = time.time() - t_start
+            total_time = total_time + it_time
+            CPU_time_list.append(total_time)
+            active_set_size_list.append(len(Xk))
+            dual = dual_function(A, u)
+            logging.info(f"Dual function value found: {dual} ")
+            dual_list.append(dual)
+            dual_gap = dual_list[-1] - dual_list[-2]
+            logging.info(f"Dual gap value found: {dual_gap} ")
+            dual_gap_list.append(dual_gap)
             break
-        elif iteration > max_iter:
+
+        elif k > max_iter:
             logging.info(f"Stopping condition max iterations is met!")
+            it_time = time.time() - t_start
+            total_time = total_time + it_time
+            CPU_time_list.append(total_time)
+            active_set_size_list.append(len(Xk))
+            dual = dual_function(A, u)
+            logging.info(f"Dual function value found: {dual} ")
+            dual_list.append(dual)
+            dual_gap = dual_list[-1] - dual_list[-2]
+            logging.info(f"Dual gap value found: {dual_gap} ")
+            dual_gap_list.append(dual_gap)
             break
+
         # Step 12
         alpha_k = delta/(2 * (1 + delta))
         # Step 13
@@ -423,13 +442,14 @@ def one_plus_eps_MEB_approximation(A, eps, max_iter=1000):
         # Step 19
         delta = calculate_delta(c, A[:, K], r2)
         # Step 20 - end loop
+        # Track time
+        it_time = time.time() - t_start
+        total_time = total_time + it_time
+        CPU_time_list.append(total_time)
     # Step 21 - Output
     approx_radius = np.sqrt((1 + delta) * r2)
 
-    # Track time
-    it_time = time.time() - t_start
-    total_time = total_time + it_time
-    CPU_time_list.append(total_time)
+
 
     logging.info("\n-----------(1+epsilon)-approximation FW algorithm finished!--------------")
     logging.info(f"center: {c} and radius: {approx_radius} ")
@@ -437,7 +457,7 @@ def one_plus_eps_MEB_approximation(A, eps, max_iter=1000):
     logging.info(f"Last value of dual gap  {dual_gap:.3e}")
     logging.info(f"Total CPU time {total_time:.3e}")
     logging.info(f"Number of non-zero components of x = {active_set_size_list[-1]}")
-    logging.info(f"Number of iterations = {len(dual_list)}")
+    logging.info(f"Number of iterations = {k}")
 
     return c,approx_radius, active_set_size_list ,dual_gap_list, dual_list, CPU_time_list
 
