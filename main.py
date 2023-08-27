@@ -186,28 +186,47 @@ if __name__ == '__main__':
 
 
     # For testing: (Added by Marija)
-    # dual_gap_values_away = [...]  # List of dual gap values for awayStep_FW
-    # cpu_time_away = [...]  # Value of CPU time for awayStep_FW
-    # active_set_sizes_away = [...]  # List of active set sizes for awayStep_FW
-    # objective_function_values_away = [...]  # List of objective function values for awayStep_FW
-    # iterations_away = list(range(1, len(objective_function_values_away) + 1))  # ??
+    # dual_gap_values_away = dual_gap_list_fw # List of dual gap values for awayStep_FW
+    # cpu_time_away = CPU_time_list_fw # List of CPU time for awayStep_FW
+    # active_set_sizes_away = active_set_size_list_fw # List of active set sizes for awayStep_FW
+    # objective_function_values_away = dual_list_fw  # List of objective function values for awayStep_FW
+    # num_iterations_away = {len(dual_list_fw)}
+    # iterations_away = list(range(num_iterations_away + 1))
     #
-    # dual_gap_values_blended = [...]  # List of dual gap values for blendedPairwise_FW
-    # cpu_time_blended = [...]  # Value of CPU time for blendedPairwise_FW
-    # active_set_sizes_blended = [...]  # List of active set sizes for blendedPairwise_FW
-    # objective_function_values_blended = [...]  # List of objective function values for blendedPairwise_FW
-    # iterations_blended = list(range(1, len(objective_function_values_blended) + 1))  # ??
+    # dual_gap_values_blended = dual_gap_list_bpfw # List of dual gap values for blendedPairwise_FW
+    # cpu_time_blended = CPU_time_list_bpfw # List of CPU time for blendedPairwise_FW
+    # active_set_sizes_blended = active_set_size_list_bpfw # List of active set sizes for blendedPairwise_FW
+    # objective_function_values_blended = dual_list_bpfw # List of objective function values for blendedPairwise_FW
+    # num_iterations_blended = {len(dual_list_bpfw)}
+    # iterations_blended = list(range(num_iterations_blended + 1))
+    #
+    # dual_gap_values_approx = dual_gap_list_aproxAlg # List of dual gap values for blendedPairwise_FW
+    # cpu_time_approx = CPU_time_list_aproxAlg # List of CPU time for blendedPairwise_FW
+    # active_set_sizes_approx = active_set_size_list_aproxAlg # List of active set sizes for blendedPairwise_FW
+    # objective_function_values_approx = dual_list_aproxAlg # List of objective function values for blendedPairwise_FW
+    # num_iterations_approx = {len(dual_list_aproxAlg)}
+    # iterations_approx = list(range(num_iterations_approx + 1))
+    #
+    # path = incremented_path
+    # show = True
     #
     # # Plot graphs for awayStep_FW
-    # plot_cpu_time_vs_dual_gap(cpu_time_away, dual_gap_values_away, 'awayStep_FW')
-    # plot_active_set_size_vs_dual_gap(active_set_sizes_away, dual_gap_values_away, 'awayStep_FW')
-    # plot_cpu_time_vs_objective_function(cpu_time_away, objective_function_values_away, 'awayStep_FW')
-    # plot_iterations_vs_objective_function(iterations_away, objective_function_values_away, 'awayStep_FW')
-    # plot_dual_gap_vs_iterations(iterations_away, dual_gap_values_away, 'awayStep_FW')
+    # plot_cpu_time_vs_dual_gap(cpu_time_away, dual_gap_values_away, 'awayStep_FW', path, show)
+    # plot_active_set_size_vs_dual_gap(active_set_sizes_away, dual_gap_values_away, 'awayStep_FW', path, show)
+    # plot_cpu_time_vs_objective_function(cpu_time_away, objective_function_values_away, 'awayStep_FW', path ,show)
+    # plot_iterations_vs_objective_function(iterations_away, objective_function_values_away, 'awayStep_FW', path, show)
+    # plot_dual_gap_vs_iterations(iterations_away, dual_gap_values_away, 'awayStep_FW', path, show)
     #
     # # Plot graphs for blendedPairwise_FW
-    # plot_cpu_time_vs_dual_gap(cpu_time_blended, dual_gap_values_blended, 'blendedPairwise_FW')
-    # plot_active_set_size_vs_dual_gap(active_set_sizes_blended, dual_gap_values_blended, 'blendedPairwise_FW')
-    # plot_cpu_time_vs_objective_function(cpu_time_blended, objective_function_values_blended, 'blendedPairwise_FW')
-    # plot_iterations_vs_objective_function(iterations_blended, objective_function_values_blended, 'blendedPairwise_FW')
-    # plot_dual_gap_vs_iterations(iterations_blended, dual_gap_values_blended, 'blendedPairwise_FW')
+    # plot_cpu_time_vs_dual_gap(cpu_time_blended, dual_gap_values_blended, 'blendedPairwise_FW', path, show)
+    # plot_active_set_size_vs_dual_gap(active_set_sizes_blended, dual_gap_values_blended, 'blendedPairwise_FW', path, show)
+    # plot_cpu_time_vs_objective_function(cpu_time_blended, objective_function_values_blended, 'blendedPairwise_FW', path, show)
+    # plot_iterations_vs_objective_function(iterations_blended, objective_function_values_blended, 'blendedPairwise_FW', path, show)
+    # plot_dual_gap_vs_iterations(iterations_blended, dual_gap_values_blended, 'blendedPairwise_FW', path, show)
+    #
+    # # Plot graphs for one_plus_eps_MEB_approximation
+    # plot_cpu_time_vs_dual_gap(cpu_time_approx, dual_gap_values_approx, 'one_plus_eps_MEB_approximation', path, show)
+    # plot_active_set_size_vs_dual_gap(active_set_sizes_approx, dual_gap_values_approx,'one_plus_eps_MEB_approximation', path, show)
+    # plot_cpu_time_vs_objective_function(cpu_time_approx, objective_function_values_approx,'one_plus_eps_MEB_approximation', path, show)
+    # plot_iterations_vs_objective_function(iterations_approx, objective_function_values_approx,'one_plus_eps_MEB_approximation', path, show)
+    # plot_dual_gap_vs_iterations(iterations_approx, dual_gap_values_approx, 'one_plus_eps_MEB_approximation', path, show)

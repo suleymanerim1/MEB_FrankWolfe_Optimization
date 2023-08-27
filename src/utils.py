@@ -76,33 +76,39 @@ def plot_points_circle(A, r, c, title):
 
 # TODO: Marija- get a path for all graph functions,
 # Save the graphs inside that path.
-def plot_cpu_time_vs_dual_gap(cpu_time, dual_gap_values, algorithm_name):
+def plot_cpu_time_vs_dual_gap(cpu_time, dual_gap_values, algorithm_name, path, show = True):
     plt.plot(cpu_time, dual_gap_values, marker='o', label=algorithm_name)
     plt.xlabel('CPU Time')
     plt.ylabel('Dual Gap')
     plt.title('CPU Time vs Dual Gap')
     plt.grid(True)
     plt.legend()
-    plt.show()
+    plt.savefig(os.path.join(path, "cpu_time_vs_dual_gap.png"))
+    if show:
+        plt.show()
     # TODO: save given path-
 
-def plot_active_set_size_vs_dual_gap(active_set_sizes, dual_gap_values, algorithm_name):
+def plot_active_set_size_vs_dual_gap(active_set_sizes, dual_gap_values, algorithm_name, path,show = True):
     plt.plot(active_set_sizes, dual_gap_values, marker='o', label=algorithm_name)
     plt.xlabel('Size of Active Set')
     plt.ylabel('Dual Gap')
     plt.title('Size of Active Set vs Dual Gap')
     plt.grid(True)
-    plt.show()
+    plt.savefig(os.path.join(path, "active_set_size_vs_dual_gap.png"))
+    if show:
+        plt.show()
 
-def plot_cpu_time_vs_objective_function(cpu_time, objective_function_values, algorithm_name):
+def plot_cpu_time_vs_objective_function(cpu_time, objective_function_values, algorithm_name, path, show = True):
     plt.plot(cpu_time, objective_function_values, marker='o', label=algorithm_name)
     plt.xlabel('CPU Time')
     plt.ylabel('Objective Function Value')
     plt.title('CPU Time vs Objective Function')
     plt.grid(True)
-    plt.show()
+    plt.savefig(os.path.join(path, "cpu_time_vs_objective_function.png"))
+    if show:
+        plt.show()
 
-def plot_iterations_vs_objective_function(iterations, objective_function_values, algorithm_name):
+def plot_iterations_vs_objective_function(iterations, objective_function_values, algorithm_name, path, show = True):
     # TODO: Marija:Number of iterations will be given as scalar.
     # create a range from 0 to num_iterations and plot range(0-num iterations) vs objective function values
     plt.plot(iterations, objective_function_values, marker='o', label=algorithm_name)
@@ -110,9 +116,11 @@ def plot_iterations_vs_objective_function(iterations, objective_function_values,
     plt.ylabel('Objective Function Value')
     plt.title('Iterations vs Objective Function')
     plt.grid(True)
-    plt.show()
+    plt.savefig(os.path.join(path, "iterations_vs_objective_function.png"))
+    if show:
+        plt.show()
 
-def plot_dual_gap_vs_iterations(iterations, dual_gap_values, algorithm_name):
+def plot_dual_gap_vs_iterations(iterations, dual_gap_values, algorithm_name, path, show = True):
     # TODO: the same idea with iterations
     plt.plot(iterations, dual_gap_values, marker='o', label=algorithm_name)
     plt.xlabel('Iterations')
@@ -120,7 +128,9 @@ def plot_dual_gap_vs_iterations(iterations, dual_gap_values, algorithm_name):
     plt.title('Dual Gap vs Iterations')
     plt.grid(True)
     plt.legend()
-    plt.show()
+    plt.savefig(os.path.join(path, "dual_gap_vs_iterations.png"))
+    if show:
+        plt.show()
 
 def fermat_spiral(dot):
     data = []
