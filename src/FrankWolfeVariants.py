@@ -162,7 +162,7 @@ def awayStep_FW(A, eps, max_iter, line_search_strategy='golden_search'):
         # Step 11 - Calculate step size using line search
         if line_search_strategy == 'line_search_strategy':
             alpha_t = golden_section_search(dual_function, A, u, d_t, a=0, b=alpha_max)
-        # TODO: Add other line_search_strategies
+
         else:
             alpha_t = golden_section_search(dual_function, A, u, d_t, a=0, b=alpha_max)
 

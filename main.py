@@ -22,16 +22,16 @@ solver_methods = config.get('solver_methods')
 data_creation_method = config.get('data_creation_method')
 show_graphs = config.get('show_graphs')
 
-# TODO: Suleyman's question
-# What is support vector in graph?
 
-# TODO: return cpu time as cumulative time list -- for Süleyman
 # TODO: solve MEB problem and find anomaly --points for Suleyman
 # TODO: keep track of anomaly points --for Suleyman
 # TODO: important --- 3rd algorithm always stops at first iteration eps condition, check why?? -- for Suleyman
-# TODO: 2dn algoritm return negative and positive, check that it creates error
-# TODO: save graphs in png -- for Marija
+# TODO: 2nd algoritm return negative and positive, check that it creates error --for Suleyman
+# TODO: Add other line_search_strategies --for Suleyman
+
 # TODO: find 2 datasets to check -- for Marija
+# TODO: change size of active set in graph from float to int -- for Marija
+# TODO: comparison graphs, check and write (with graph show, save) -- for Marija
 
 
 if __name__ == '__main__':
@@ -99,15 +99,18 @@ if __name__ == '__main__':
                 "CPU_time": CPU_time_list_fw,
             }
 
-            # Plot graphs for awayStep_FW
-            plot_points_circle(A, radius_awayStep_FW, center_awayStep_FW, title, incremented_path, show_graphs)
             iterations_away = list(range(num_iterations_fw))
-            plot_cpu_time_vs_dual_gap(CPU_time_list_fw, dual_list_fw, title, incremented_path, show_graphs)
-            plot_active_set_size_vs_dual_gap(active_set_size_list_fw, dual_gap_list_fw, title, incremented_path,
+
+            # Plot graphs for awayStep_FW
+            graph_path = os.path.join(incremented_path, "asfw_graphs")
+            os.mkdir(graph_path)
+            plot_points_circle(A, radius_awayStep_FW, center_awayStep_FW, title, graph_path, show_graphs)
+            plot_cpu_time_vs_dual_gap(CPU_time_list_fw, dual_list_fw, title, graph_path, show_graphs)
+            plot_active_set_size_vs_dual_gap(active_set_size_list_fw, dual_gap_list_fw, title, graph_path,
                                              show_graphs)
-            plot_cpu_time_vs_objective_function(CPU_time_list_fw, dual_list_fw, title, incremented_path, show_graphs)
-            plot_iterations_vs_objective_function(iterations_away, dual_list_fw, title, incremented_path, show_graphs)
-            plot_dual_gap_vs_iterations(iterations_away, dual_gap_list_fw, title, incremented_path, show_graphs)
+            plot_cpu_time_vs_objective_function(CPU_time_list_fw, dual_list_fw, title, graph_path, show_graphs)
+            plot_iterations_vs_objective_function(iterations_away, dual_list_fw, title, graph_path, show_graphs)
+            plot_dual_gap_vs_iterations(iterations_away, dual_gap_list_fw, title, graph_path, show_graphs)
 
         if method == "bpfw":
             print("\n*****************")
@@ -142,17 +145,20 @@ if __name__ == '__main__':
                 "CPU_time": CPU_time_list_bpfw,
             }
 
-            # Plot graphs for blendedPairwise_FW
             iterations_blended = list(range(num_iterations_bpfw))
-            plot_points_circle(A, radius_bpfw, center_bpfw, title, incremented_path, show_graphs)
-            plot_cpu_time_vs_dual_gap(CPU_time_list_bpfw, dual_gap_list_bpfw, title, incremented_path, show_graphs)
-            plot_active_set_size_vs_dual_gap(active_set_size_list_bpfw, dual_gap_list_bpfw, title, incremented_path,
+
+            # Plot graphs for blendedPairwise_FW
+            graph_path = os.path.join(incremented_path, "bpfw_graphs")
+            os.mkdir(graph_path)
+            plot_points_circle(A, radius_bpfw, center_bpfw, title, graph_path, show_graphs)
+            plot_cpu_time_vs_dual_gap(CPU_time_list_bpfw, dual_gap_list_bpfw, title, graph_path, show_graphs)
+            plot_active_set_size_vs_dual_gap(active_set_size_list_bpfw, dual_gap_list_bpfw, title, graph_path,
                                              show_graphs)
-            plot_cpu_time_vs_objective_function(CPU_time_list_bpfw, dual_list_bpfw, title, incremented_path,
+            plot_cpu_time_vs_objective_function(CPU_time_list_bpfw, dual_list_bpfw, title, graph_path,
                                                 show_graphs)
-            plot_iterations_vs_objective_function(iterations_blended, dual_list_bpfw, title, incremented_path,
+            plot_iterations_vs_objective_function(iterations_blended, dual_list_bpfw, title, graph_path,
                                                   show_graphs)
-            plot_dual_gap_vs_iterations(iterations_blended, dual_gap_list_bpfw, title, incremented_path, show_graphs)
+            plot_dual_gap_vs_iterations(iterations_blended, dual_gap_list_bpfw, title, graph_path, show_graphs)
 
         if method == "appfw":
             print("\n*****************")
@@ -187,16 +193,18 @@ if __name__ == '__main__':
 
             # Plot graphs for one_plus_eps_MEB_approximation
             iterations_approx = list(range(num_iterations_aproxAlg))
-            plot_points_circle(A, radius_aproxAlg, center_aproxAlg, title, incremented_path, show_graphs)
-            plot_cpu_time_vs_dual_gap(CPU_time_list_aproxAlg, dual_gap_list_aproxAlg, title, incremented_path,
+            graph_path = os.path.join(incremented_path, "appfw_graphs")
+            os.mkdir(graph_path)
+            plot_points_circle(A, radius_aproxAlg, center_aproxAlg, title, graph_path, show_graphs)
+            plot_cpu_time_vs_dual_gap(CPU_time_list_aproxAlg, dual_gap_list_aproxAlg, title, graph_path,
                                       show_graphs)
             plot_active_set_size_vs_dual_gap(active_set_size_list_aproxAlg, dual_gap_list_aproxAlg, title,
-                                             incremented_path, show_graphs)
-            plot_cpu_time_vs_objective_function(CPU_time_list_aproxAlg, dual_list_aproxAlg, title, incremented_path,
+                                             graph_path, show_graphs)
+            plot_cpu_time_vs_objective_function(CPU_time_list_aproxAlg, dual_list_aproxAlg, title, graph_path,
                                                 show_graphs)
-            plot_iterations_vs_objective_function(iterations_approx, dual_list_aproxAlg, title, incremented_path,
+            plot_iterations_vs_objective_function(iterations_approx, dual_list_aproxAlg, title, graph_path,
                                                   show_graphs)
-            plot_dual_gap_vs_iterations(iterations_approx, dual_gap_list_aproxAlg, title, incremented_path, show_graphs)
+            plot_dual_gap_vs_iterations(iterations_approx, dual_gap_list_aproxAlg, title, graph_path, show_graphs)
 
     # Create yaml content
     output = {
