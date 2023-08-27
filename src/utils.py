@@ -73,7 +73,8 @@ def plot_points_circle(A, r, c, title, path, show = True):
     plt.savefig(os.path.join(path, "plot_points_circle.png"))
     if show:
         plt.show()
-    ax.legend().remove()
+    else:
+        plt.close()
 
 def plot_cpu_time_vs_dual_gap(cpu_time, dual_gap_values, algorithm_name, path, show = True):
     plt.plot(cpu_time, dual_gap_values, marker='o', label=algorithm_name)
@@ -85,6 +86,8 @@ def plot_cpu_time_vs_dual_gap(cpu_time, dual_gap_values, algorithm_name, path, s
     plt.savefig(os.path.join(path, "cpu_time_vs_dual_gap.png"))
     if show:
         plt.show()
+    else:
+        plt.close()
 
 def plot_active_set_size_vs_dual_gap(active_set_sizes, dual_gap_values, algorithm_name, path,show = True):
     plt.plot(active_set_sizes, dual_gap_values, marker='o', label=algorithm_name)
@@ -96,6 +99,8 @@ def plot_active_set_size_vs_dual_gap(active_set_sizes, dual_gap_values, algorith
     plt.savefig(os.path.join(path, "active_set_size_vs_dual_gap.png"))
     if show:
         plt.show()
+    else:
+        plt.close()
 
 def plot_cpu_time_vs_objective_function(cpu_time, objective_function_values, algorithm_name, path, show = True):
     plt.plot(cpu_time, objective_function_values, marker='o', label=algorithm_name)
@@ -107,6 +112,8 @@ def plot_cpu_time_vs_objective_function(cpu_time, objective_function_values, alg
     plt.savefig(os.path.join(path, "cpu_time_vs_objective_function.png"))
     if show:
         plt.show()
+    else:
+        plt.close()
 
 def plot_iterations_vs_objective_function(iterations, objective_function_values, algorithm_name, path, show = True):
     plt.plot(iterations, objective_function_values, marker='o', label=algorithm_name)
@@ -118,6 +125,8 @@ def plot_iterations_vs_objective_function(iterations, objective_function_values,
     plt.savefig(os.path.join(path, "iterations_vs_objective_function.png"))
     if show:
         plt.show()
+    else:
+        plt.close()
 
 def plot_dual_gap_vs_iterations(iterations, dual_gap_values, algorithm_name, path, show = True):
     plt.plot(iterations, dual_gap_values, marker='o', label=algorithm_name)
@@ -129,6 +138,8 @@ def plot_dual_gap_vs_iterations(iterations, dual_gap_values, algorithm_name, pat
     plt.savefig(os.path.join(path, "dual_gap_vs_iterations.png"))
     if show:
         plt.show()
+    else:
+        plt.close()
 
 def fermat_spiral(dot):
     data = []
