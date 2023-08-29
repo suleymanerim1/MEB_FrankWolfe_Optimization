@@ -4,10 +4,10 @@ epsilon: "1e-6"  # epsilon
 number_of_samples:  "2**8"  #m
 number_of_variables:  "2**1"  #n
 data_creation_method: "random"   # "random" or "fermat"
-show_graphs : True
+show_graphs : False
 
 # List
-solver_methods: ["appfw"]  # A combination of these 3 ["asfw", "bpfw", "appfw"]
+solver_methods: ["asfw", "bpfw", "appfw"]  # A combination of these 3 ["asfw", "bpfw", "appfw"]
 
 
 
