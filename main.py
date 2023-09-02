@@ -25,9 +25,9 @@ show_graphs = config.get('show_graphs')
 
 # TODO: solve MEB problem and find anomaly --points for Suleyman
 # TODO: keep track of anomaly points --for Suleyman
-# TODO: important --- 3rd algorithm always stops at first iteration eps condition, check why?? -- for Suleyman
 # TODO: 2nd algoritm return negative and positive, check that it creates error --for Suleyman
 # TODO: Add other line_search_strategies --for Suleyman
+# TODO: do graphs and prints a helper function to get rid of messy codes
 
 # TODO: find 2 datasets to check -- for Marija
 # TODO: change size of active set in graph from float to int -- for Marija
