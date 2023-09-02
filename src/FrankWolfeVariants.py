@@ -389,12 +389,10 @@ def one_plus_eps_MEB_approximation(A, eps, max_iter=1000):
     # Step 5 - Initialize center
     c = A @ u  # c should be n dimensional like points a
     # St ep 6 - objective function
-    #dual = dual_function(A, u)
     dual = dual_yildirim(A,u)
     logging.info(f"Dual function value found: {dual} ")
     dual_gap = dual_list[-1] - 0
     logging.info(f"Dual gap value found: {dual_gap} ")
-    # r2 = -dual  for classic dual
     r2 = dual  # r^2 is gamma -- radius^2
 
     # Step 7
@@ -423,17 +421,16 @@ def one_plus_eps_MEB_approximation(A, eps, max_iter=1000):
         # Step 15 - Update center, use convex combination of previous center and furthest point aK
         c = (1-alpha_k)*c + alpha_k * A[:, K]
         # Step 16 - Update active set
-        Xk.append(K)
+        if K not in Xk:
+            Xk.append(K)
         active_set_size_list.append(len(Xk))
         # Step 17  - Update gamma
-        #dual = dual_function(A, u)
         dual = dual_yildirim(A, u)
         logging.info(f"Dual function value found: {dual} ")
         dual_list.append(dual)
         dual_gap = dual_list[-1] - dual_list[-2]
         logging.info(f"Dual gap value found: {dual_gap} ")
         dual_gap_list.append(dual_gap)
-        # r2 = -dual
         r2 = dual
         # Step 18  - Update K (index of the furthest point in A from c)
         K = find_max_dist_idx(A, c)
@@ -462,6 +459,7 @@ def one_plus_eps_MEB_approximation(A, eps, max_iter=1000):
     logging.info(f"Last value of dual gap  {dual_gap:.3e}")
     logging.info(f"Total CPU time {total_time:.3e}")
     logging.info(f"Number of non-zero components of x = {active_set_size_list[-1]}")
+    logging.info(f"Active set: {Xk}")
     logging.info(f"Number of iterations = {k}")
 
     return c,approx_radius, active_set_size_list ,dual_gap_list, dual_list, CPU_time_list
