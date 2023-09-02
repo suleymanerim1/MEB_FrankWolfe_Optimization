@@ -423,6 +423,7 @@ def one_plus_eps_MEB_approximation(A, eps, max_iter=1000):
         # Step 16 - Update active set
         if K not in Xk:
             Xk.append(K)
+
         active_set_size_list.append(len(Xk))
         # Step 17  - Update gamma
         dual = dual_yildirim(A, u)
