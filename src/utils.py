@@ -104,6 +104,47 @@ def plot_points_circle(A, r, c, title, path, show = True):
     else:
         plt.close()
 
+def plot_test_data_and_circle(T,A, r, c, title, path, show = True):
+    # Separate x and y coordinates from A
+    x_coords = A[0]
+    y_coords = A[1]
+
+    # Create the figure and axes
+    fig, ax = plt.subplots()
+
+    # Plot the points as blue "+"
+    ax.plot(x_coords, y_coords, 'b+', label='Inside points')
+
+    # Plot the center as a blue thick dot
+    ax.plot(c[0], c[1], 'bo', markersize=10, label='Center')
+
+    # Plot test points
+    ax.plot(T[0], T[1], 'r*',label='test points')
+
+    # Plot the circle with black color
+    circle = Circle(c, radius = r, color='black', fill=False)
+    ax.add_patch(circle)
+
+    # Calculate distances from the center to each point
+    distances = np.linalg.norm(A - c[:, np.newaxis], axis=0)
+    # Find the indices of points that touch the boundary of the circle
+    touching_indices = np.where(np.abs(distances - r) < 1e-6)[0]
+    # Plot the points that touch the circle boundary as green "x"
+    ax.plot(x_coords[touching_indices], y_coords[touching_indices], 'gx', label='Support vectors')
+
+    ax.set_xlabel('X')
+    ax.set_ylabel('Y')
+    ax.legend()
+    ax.set_title(title)
+    # Set aspect ratio to be equal, so the circle isn't distorted
+    ax.set_aspect('equal', adjustable='datalim')
+    plt.savefig(os.path.join(path, "plot_points_circle.png"))
+    if show:
+        plt.show()
+    else:
+        plt.close()
+
+
 def plot_cpu_time_vs_dual_gap(cpu_time, dual_gap_values, algorithm_name, path, show = True):
     plt.plot(cpu_time, dual_gap_values, marker='o', label=algorithm_name)
     plt.xlabel('CPU Time')
@@ -182,7 +223,7 @@ def plot_graphs(title, show_graphs, graph_path,out_dict):
     os.mkdir(graph_path)
     iterations_list = list(range(num_iterations))
     # Plots to be showed/saved
-    plot_cpu_time_vs_dual_gap(CPU_time_list, dual_list, title, graph_path, show_graphs)
+    plot_cpu_time_vs_dual_gap(CPU_time_list, dual_gap_list, title, graph_path, show_graphs)
     plot_active_set_size_vs_dual_gap(active_set_size_list, dual_gap_list, title, graph_path, show_graphs)
     plot_cpu_time_vs_objective_function(CPU_time_list, dual_list, title, graph_path, show_graphs)
     plot_iterations_vs_objective_function(iterations_list, dual_list, title, graph_path, show_graphs)
@@ -203,8 +244,8 @@ def fermat_spiral(dot):
     f_s = np.concatenate((narr, -narr))
     return f_s
 
-def generateRandomMatrix(low,high,n,m):
-    return np.random.uniform(low=low,high=high, size= (n, m))
+def generateRandomMatrix(mu,sigma,n,m):
+    return np.random.normal(loc=mu,scale=sigma, size= (n, m))
 
 
 if __name__ == '__main__':

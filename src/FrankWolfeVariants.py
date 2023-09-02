@@ -89,18 +89,14 @@ def awayStep_FW(A, eps, max_iter, line_search_strategy='golden_search'):
     logging.info("Away Step Frank Wolfe algorithm first iteration started!")
 
     #initialize output lists
-    active_set_size_list = [1]
-    dual_gap_list = [0]
-    dual_list = [0]
+    active_set_size_list = []
+    dual_gap_list = []
+    dual_list = []
     total_time = 0
-    CPU_time_list = [0]
+    CPU_time_list = []
 
     n, m = A.shape
     logging.info(f"Dataset size: {m} points, each {n}-dimensional.")
-    # alpha_max = 1  # max step_size
-    # alpha_t = 0  # step_size at iteration t
-    dual = 0
-    iteration = 0
     # initial solution
     u = np.zeros(m)
     u[0] = 1e0
@@ -118,9 +114,10 @@ def awayStep_FW(A, eps, max_iter, line_search_strategy='golden_search'):
         dual = dual_function(A, u)
         logging.info(f"Dual function value found: {dual} ")
         dual_list.append(dual)
-        dual_gap = dual_list[-1]-dual_list[-2]
-        logging.info(f"Dual gap value found: {dual_gap} ")
-        dual_gap_list.append(dual_gap)
+        if iteration > 0 :
+            dual_gap = dual_list[-1]-dual_list[-2]
+            logging.info(f"Dual gap value found: {dual_gap} ")
+            dual_gap_list.append(dual_gap)
 
         # gradient evaluation
         grad = gradient(A, u)
@@ -203,7 +200,8 @@ def awayStep_FW(A, eps, max_iter, line_search_strategy='golden_search'):
         total_time = total_time + it_time
         CPU_time_list.append(total_time)
 
-
+    # this is a trick to make dual_gap list size equal to other lists
+    dual_gap_list.append(dual_gap)
 
     radius = np.sqrt(-dual)
     center = A @ u
@@ -229,11 +227,11 @@ def blendedPairwise_FW(A, eps, max_iter=1000):  # Tsuji Algorithm 1
     logging.info("Blended Pairwise Frank Wolfe algorithm first iteration started!")
 
     #initialize output lists
-    active_set_size_list = [1]
-    dual_gap_list = [0]
-    dual_list = [0]
+    active_set_size_list = []
+    dual_gap_list = []
+    dual_list = []
     total_time = 0
-    CPU_time_list = [0]
+    CPU_time_list = []
 
     n, m = A.shape
     # alpha_max = 1  # max step_size
@@ -259,9 +257,10 @@ def blendedPairwise_FW(A, eps, max_iter=1000):  # Tsuji Algorithm 1
         dual = dual_function(A, u)
         logging.info(f"Dual function value found: {dual} ")
         dual_list.append(dual)
-        dual_gap = dual_list[-1]-dual_list[-2]
-        logging.info(f"Dual gap value found: {dual_gap} ")
-        dual_gap_list.append(dual_gap)
+        if iteration > 0:
+            dual_gap = dual_list[-1]-dual_list[-2]
+            logging.info(f"Dual gap value found: {dual_gap} ")
+            dual_gap_list.append(dual_gap)
 
         # gradient evaluation
         grad = gradient(A, u)
@@ -340,6 +339,9 @@ def blendedPairwise_FW(A, eps, max_iter=1000):  # Tsuji Algorithm 1
         it_time = time.time() - t_start
         total_time = total_time + it_time
         CPU_time_list.append(total_time)
+
+    # this is a trick to make dual_gap list size equal to other lists
+    dual_gap_list.append(dual_gap)
 
     radius = np.sqrt(-dual)
     center = A @ u
