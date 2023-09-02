@@ -340,8 +340,9 @@ def find_max_dist_idx(A_mat, point):
 def calculate_delta(cntr, furthest_point, gamma):
     # Calculate termination criterion delta which should be greater than (1 + eps) - 1
     gamma += 1e-10  # To avoid division by 0
-    euclidean_distances = np.linalg.norm(furthest_point - cntr) / gamma - 1
-    return np.max(euclidean_distances)
+    euclidean_distance = np.linalg.norm(furthest_point - cntr)
+    delta = euclidean_distance / gamma - 1
+    return delta
 
 def one_plus_eps_MEB_approximation(A, eps, max_iter=1000):
     logging.info("(1+epsilon)-approximation algorithm first iteration started!")
@@ -370,12 +371,13 @@ def one_plus_eps_MEB_approximation(A, eps, max_iter=1000):
     active_set_size_list.append(len(Xk))
     # Step 5 - Initialize center
     c = A @ u  # c should be n dimensional like points a
-    # Step 6 - objective function
+    # St ep 6 - objective function
     dual = dual_function(A, u)
     logging.info(f"Dual function value found: {dual} ")
     dual_gap = dual_list[-1] - 0
     logging.info(f"Dual gap value found: {dual_gap} ")
     r2 = -dual  # r^2 is gamma -- radius^2
+
     # Step 7
     K = find_max_dist_idx(A, c)  # get the point index furthest from center c
     # Step 8  - Delta is termination criterion delta > (1+eps)^2 -1
