@@ -13,6 +13,23 @@ def dual_function(A, u):
     _, A_squared_u, sum_A_squared = compute_A_related_variables(A, u)
     return u.T @ A_squared_u - sum_A_squared.T @ u
 
+def dual_yildirim(A,u_vector):
+        # Refers to the first term of the equation
+        sum = 0
+
+        # Refers to the vector in the second term
+        n, m = A.shape
+        product = np.zeros(n)
+        for i in range(m):
+            # Extract row
+            col = A[:,i]
+
+            # Transpose is not needed for vectors multiplication
+            sum += u_vector[i] * np.dot(col.T, col)
+            product += u_vector[i] * col
+
+        return sum - np.dot(product.T, product)
+
 def gradient(A, u):
     _, A_squared_u, sum_A_squared = compute_A_related_variables(A, u)
     return 2 * A_squared_u - sum_A_squared
@@ -341,7 +358,7 @@ def calculate_delta(cntr, furthest_point, gamma):
     # Calculate termination criterion delta which should be greater than (1 + eps) - 1
     gamma += 1e-10  # To avoid division by 0
     euclidean_distance = np.linalg.norm(furthest_point - cntr)
-    delta = euclidean_distance / gamma - 1
+    delta = euclidean_distance ** 2 / gamma - 1
     return delta
 
 def one_plus_eps_MEB_approximation(A, eps, max_iter=1000):
@@ -372,11 +389,13 @@ def one_plus_eps_MEB_approximation(A, eps, max_iter=1000):
     # Step 5 - Initialize center
     c = A @ u  # c should be n dimensional like points a
     # St ep 6 - objective function
-    dual = dual_function(A, u)
+    #dual = dual_function(A, u)
+    dual = dual_yildirim(A,u)
     logging.info(f"Dual function value found: {dual} ")
     dual_gap = dual_list[-1] - 0
     logging.info(f"Dual gap value found: {dual_gap} ")
-    r2 = -dual  # r^2 is gamma -- radius^2
+    # r2 = -dual  for classic dual
+    r2 = dual  # r^2 is gamma -- radius^2
 
     # Step 7
     K = find_max_dist_idx(A, c)  # get the point index furthest from center c
@@ -385,43 +404,18 @@ def one_plus_eps_MEB_approximation(A, eps, max_iter=1000):
     # Step 9 - Initialize iterations
     k = 0
     # Step 10
-    while True:
+    delta_condition = delta > (1+eps)**2 - 1
+    iteration_condition = k < max_iter
+    while delta_condition and iteration_condition:
         t_start = time.time()
         # Step 11 - loop
 
         logging.info(f"--------------Iteration {k} -----------------")
-        if delta <= (1+eps)**2 - 1:
-            logging.info(f"Stopping condition delta <= (1+eps)**2 - 1 is met!")
-            it_time = time.time() - t_start
-            total_time = total_time + it_time
-            CPU_time_list.append(total_time)
-            active_set_size_list.append(len(Xk))
-            dual = dual_function(A, u)
-            logging.info(f"Dual function value found: {dual} ")
-            dual_list.append(dual)
-            dual_gap = dual_list[-1] - dual_list[-2]
-            logging.info(f"Dual gap value found: {dual_gap} ")
-            dual_gap_list.append(dual_gap)
-            break
-
-        elif k > max_iter:
-            logging.info(f"Stopping condition max iterations is met!")
-            it_time = time.time() - t_start
-            total_time = total_time + it_time
-            CPU_time_list.append(total_time)
-            active_set_size_list.append(len(Xk))
-            dual = dual_function(A, u)
-            logging.info(f"Dual function value found: {dual} ")
-            dual_list.append(dual)
-            dual_gap = dual_list[-1] - dual_list[-2]
-            logging.info(f"Dual gap value found: {dual_gap} ")
-            dual_gap_list.append(dual_gap)
-            break
-
         # Step 12
         alpha_k = delta/(2 * (1 + delta))
         # Step 13
         k = k + 1
+        iteration_condition = k < max_iter
         # Step 14 - Update u, use convex combination of u and unit simplex of index K
         eK = np.zeros(m_A)
         eK[K] = 1
@@ -432,23 +426,32 @@ def one_plus_eps_MEB_approximation(A, eps, max_iter=1000):
         Xk.append(K)
         active_set_size_list.append(len(Xk))
         # Step 17  - Update gamma
-        dual = dual_function(A, u)
+        #dual = dual_function(A, u)
+        dual = dual_yildirim(A, u)
         logging.info(f"Dual function value found: {dual} ")
         dual_list.append(dual)
         dual_gap = dual_list[-1] - dual_list[-2]
         logging.info(f"Dual gap value found: {dual_gap} ")
         dual_gap_list.append(dual_gap)
-        r2 = -dual
+        # r2 = -dual
+        r2 = dual
         # Step 18  - Update K (index of the furthest point in A from c)
         K = find_max_dist_idx(A, c)
         # Step 19
         delta = calculate_delta(c, A[:, K], r2)
+        delta_condition = delta > (1 + eps) ** 2 - 1
         # Step 20 - end loop
         # Track time
         it_time = time.time() - t_start
         total_time = total_time + it_time
         CPU_time_list.append(total_time)
     # Step 21 - Output
+
+    if not delta_condition:
+        logging.info(f"Stopping condition delta <= (1+eps)**2 - 1 is met!")
+    elif not iteration_condition:
+        logging.info(f"Stopping condition max iterations is met!")
+
     approx_radius = np.sqrt((1 + delta) * r2)
 
 
