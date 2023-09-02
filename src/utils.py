@@ -29,8 +29,35 @@ def increment_path(path, exist_ok=False, sep='', mkdir=False):
 
     return path
 
+def create_save_dict(out_dict):
+    # out_dict : the output dictionary returned after algorithm training
+    save_dict = {
+        "center": out_dict.get("center").tolist(),
+        "radius": out_dict.get("radius").tolist(),
+        "Number of iterations": out_dict.get("number_iterations"),
+        "Last_active_set_size": int(out_dict.get("active_set_size_list")[-1]),
+        "dual_function_list": [float(value) for value in out_dict.get("dual_list")],
+        "dual_gap_list": [float(value) for value in out_dict.get("dual_gap_list")],
+        "CPU_time": out_dict.get("CPU_time_list"),
+    }
+    return save_dict
 
+def print_on_console(out_dict):
+    # out_dict : the output dictionary returned after algorithm training
+    center = out_dict.get("center")
+    radius = out_dict.get("radius")
+    num_iterations = out_dict.get("number_iterations")
+    active_set_size_list = out_dict.get("active_set_size_list")
+    dual_list = out_dict.get("dual_list")
+    dual_gap_list = out_dict.get("dual_gap_list")
+    CPU_time_list = out_dict.get("CPU_time_list")
 
+    print(f"dual function = {dual_list[-1]:.3e}")
+    print(f"dual gap = {dual_gap_list[-1]:.3e}")
+    print(f"Number of non-zero components of x = {active_set_size_list[-1]}")
+    print(f"Number of iterations = {num_iterations}")
+    print(f"Total CPU time: {CPU_time_list[-1]}")
+    print(f"center: {center} and radius: {radius} ")
 
 def load_config(config_name,config_path):
     with open(os.path.join(config_path, config_name)) as file:
@@ -39,6 +66,7 @@ def load_config(config_name,config_path):
     return config
 
 
+# Plotting
 def plot_points_circle(A, r, c, title, path, show = True):
     # Separate x and y coordinates from A
     x_coords = A[0]
@@ -141,6 +169,28 @@ def plot_dual_gap_vs_iterations(iterations, dual_gap_values, algorithm_name, pat
     else:
         plt.close()
 
+
+def plot_graphs(title, show_graphs, graph_path,out_dict):
+
+    # out_dict : the output dictionary returned after algorithm training
+    num_iterations = out_dict.get("number_iterations")
+    active_set_size_list =out_dict.get("active_set_size_list")
+    dual_list=out_dict.get("dual_list")
+    dual_gap_list=out_dict.get("dual_gap_list")
+    CPU_time_list=out_dict.get("CPU_time_list")
+
+    os.mkdir(graph_path)
+    iterations_list = list(range(num_iterations))
+    # Plots to be showed/saved
+    plot_cpu_time_vs_dual_gap(CPU_time_list, dual_list, title, graph_path, show_graphs)
+    plot_active_set_size_vs_dual_gap(active_set_size_list, dual_gap_list, title, graph_path, show_graphs)
+    plot_cpu_time_vs_objective_function(CPU_time_list, dual_list, title, graph_path, show_graphs)
+    plot_iterations_vs_objective_function(iterations_list, dual_list, title, graph_path, show_graphs)
+    plot_dual_gap_vs_iterations(iterations_list, dual_gap_list, title, graph_path, show_graphs)
+
+
+
+# Data Creation
 def fermat_spiral(dot):
     data = []
     d = dot * 0.1
@@ -153,8 +203,8 @@ def fermat_spiral(dot):
     f_s = np.concatenate((narr, -narr))
     return f_s
 
-def generateRandomMatrix(n, m):
-    return np.random.randn(n, m)
+def generateRandomMatrix(low,high,n,m):
+    return np.random.uniform(low=low,high=high, size= (n, m))
 
 
 if __name__ == '__main__':

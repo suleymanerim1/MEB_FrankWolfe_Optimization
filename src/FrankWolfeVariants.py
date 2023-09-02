@@ -216,7 +216,14 @@ def awayStep_FW(A, eps, max_iter, line_search_strategy='golden_search'):
     logging.info(f"Number of non-zero components of x = {active_set_size_list[-1]}")
     logging.info(f"Number of iterations = {len(dual_list)}")
 
-    return center,radius, active_set_size_list ,dual_gap_list, dual_list, CPU_time_list
+    output = {"center":center,
+                   "radius":radius,
+                    "number_iterations": len(dual_list),
+                   "active_set_size_list": active_set_size_list,
+                   "dual_gap_list": dual_gap_list,
+                   "dual_list" : dual_list,
+                   "CPU_time_list": CPU_time_list}
+    return output
 
 def blendedPairwise_FW(A, eps, max_iter=1000):  # Tsuji Algorithm 1
     logging.info("Blended Pairwise Frank Wolfe algorithm first iteration started!")
@@ -344,7 +351,15 @@ def blendedPairwise_FW(A, eps, max_iter=1000):  # Tsuji Algorithm 1
     logging.info(f"Total CPU time {total_time:.3e}")
     logging.info(f"Number of non-zero components of x = {active_set_size_list[-1]}")
     logging.info(f"Number of iterations = {len(dual_list)}")
-    return center,radius, active_set_size_list ,dual_gap_list, dual_list, CPU_time_list
+
+    output = {"center":center,
+                   "radius":radius,
+                    "number_iterations": len(dual_list),
+                   "active_set_size_list": active_set_size_list,
+                   "dual_gap_list": dual_gap_list,
+                   "dual_list" : dual_list,
+                   "CPU_time_list": CPU_time_list}
+    return output
 
 def find_max_dist_idx(A_mat, point):
 
@@ -466,7 +481,12 @@ def one_plus_eps_MEB_approximation(A, eps, max_iter=1000):
     logging.info(f"Active set: {Xk}")
     logging.info(f"Number of iterations = {k}")
 
-    return c,approx_radius, active_set_size_list ,dual_gap_list, dual_list, CPU_time_list
-
-
+    output = {"center":c,
+                   "radius":approx_radius,
+                    "number_iterations": len(dual_list),
+                   "active_set_size_list": active_set_size_list,
+                   "dual_gap_list": dual_gap_list,
+                   "dual_list" : dual_list,
+                   "CPU_time_list": CPU_time_list}
+    return output
 
