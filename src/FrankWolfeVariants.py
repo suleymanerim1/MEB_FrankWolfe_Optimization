@@ -366,8 +366,8 @@ def one_plus_eps_MEB_approximation(A, eps, max_iter=1000):
 
     #initialize output lists
     active_set_size_list = []
-    dual_gap_list = [0]
-    dual_list = [0]
+    dual_gap_list = []
+    dual_list = []
     total_time = 0
     CPU_time_list = [0]
 
@@ -390,8 +390,10 @@ def one_plus_eps_MEB_approximation(A, eps, max_iter=1000):
     c = A @ u  # c should be n dimensional like points a
     # St ep 6 - objective function
     dual = dual_yildirim(A,u)
+    dual_list.append(dual)
     logging.info(f"Dual function value found: {dual} ")
     dual_gap = dual_list[-1] - 0
+    dual_gap_list.append(dual)
     logging.info(f"Dual gap value found: {dual_gap} ")
     r2 = dual  # r^2 is gamma -- radius^2
 
@@ -421,10 +423,11 @@ def one_plus_eps_MEB_approximation(A, eps, max_iter=1000):
         # Step 15 - Update center, use convex combination of previous center and furthest point aK
         c = (1-alpha_k)*c + alpha_k * A[:, K]
         # Step 16 - Update active set
+
         if K not in Xk:
             Xk.append(K)
-
         active_set_size_list.append(len(Xk))
+
         # Step 17  - Update gamma
         dual = dual_yildirim(A, u)
         logging.info(f"Dual function value found: {dual} ")
