@@ -9,9 +9,9 @@ from src.utils import create_save_dict, print_on_console, plot_graphs
 # Change only this
 yaml_name = "exp1.yaml"
 
-# folder to load config file
+# Folder to load config file
 config_path = "configs/"
-# hyperparameters
+# Hyperparameters
 config = load_config(yaml_name, config_path)
 maxiter = eval(config.get('maxiter'))
 epsilon = eval(config.get('epsilon'))
@@ -21,16 +21,15 @@ solver_methods = config.get('solver_methods')
 data_creation_method = config.get('data_creation_method')
 show_graphs = config.get('show_graphs')
 test = config.get('test')
+line_search_strategy = config.get('line_search_strategy')
 
 # TODO: solve MEB problem and find anomaly --points for Suleyman
 # TODO: keep track of anomaly points --for Suleyman
-# TODO: 2nd algorithm return negative and positive, check that it creates error --for Suleyman
-# TODO: Add other line_search_strategies --for Suleyman
+# TODO: Add other line_search_strategies (Armijo) -- for Suleyman
 # TODO: do graphs and prints a helper function to get rid of messy codes
 # TODO: check graphs lists of first and second algorithm
 
 # TODO: find 2 datasets to check -- for Marija
-# TODO: change size of active set in graph from float to int -- for Marija
 # TODO: comparison graphs, check and write (with graph show, save) -- for Marija
 # TODO: if you add any new graph function, you should also call that graph function in plot graphs function
 # in utils. I collected all graphs functions inside that.
@@ -72,7 +71,7 @@ if __name__ == '__main__':
             print("*****************")
 
             logging.info("\nASFW algorithm started!")
-            out_dict = awayStep_FW(A, epsilon, maxiter)
+            out_dict = awayStep_FW(A, epsilon, line_search_strategy, maxiter)
 
             # Print results:
             print_on_console(out_dict)
@@ -94,12 +93,11 @@ if __name__ == '__main__':
 
             logging.info("\nBPFW algorithm started!")
             out_dict = blendedPairwise_FW(A, epsilon, maxiter)
-            # TODO: Debug - Here for dual_bp sometimes we get positive value, sometimes negative.
 
             # Print results:
             print_on_console(out_dict)
 
-            # create dict to save results on YAML
+            # Create dict to save results on YAML
             bpfw = create_save_dict(out_dict)
 
             # Plot graphs for blendedPairwise_FW

@@ -2,13 +2,13 @@
 maxiter: "100"  # max iteration
 epsilon: "1e-6"  # epsilon
 number_of_samples:  "2**10"  #m
-number_of_variables:  "2**8"  #n
+number_of_variables:  "2**6"  #n
 data_creation_method: "random"   # "random" or "fermat"
 show_graphs : False
+line_search_strategy: 'golden_search'
 
 # List
-# solver_methods: ["asfw", "bpfw", "appfw"]  # A combination of these 3 ["asfw", "bpfw", "appfw"]
-solver_methods: ["asfw"]  # A combination of these 3 ["asfw", "bpfw", "appfw"]
+solver_methods: ["asfw", "bpfw", "appfw"]  # A combination of these 3 ["asfw", "bpfw", "appfw"]
 
 
 
