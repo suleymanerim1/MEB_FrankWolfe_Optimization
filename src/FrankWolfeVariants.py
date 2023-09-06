@@ -73,6 +73,9 @@ def golden_section_search(func, A, u, d_t, a, b,
 
     return (a + b) / 2
 
+def LMO(grad):
+    return np.argmin(grad)
+
 def awayStep_FW(A, eps, max_iter, line_search_strategy='golden_search'):
     # Lacoste-Julien
     logging.info("Away Step Frank Wolfe algorithm first iteration started!")
@@ -87,15 +90,19 @@ def awayStep_FW(A, eps, max_iter, line_search_strategy='golden_search'):
     dual_k = 0
     dual_gap = 0
 
+    number_AW = 0
+    number_drop = 0
+    number_FW = 0
+
     n, m = A.shape
     logging.info(f"Dataset size: {m} points, each {n}-dimensional.")
-    # initial solution
+    # Initial solution
     u_k = np.zeros(m)
     u_k[0] = 1e0
 
     # Step 1 - Initialization
     St = np.zeros(m)
-    St[np.where(u_k > 0)[0]] = 1  # active set St -- initialize
+    St[np.where(u_k > 0)[0]] = 1  # Initialize active set St
 
     # Step 2 - Loop
     for iteration in range(max_iter):
@@ -111,7 +118,7 @@ def awayStep_FW(A, eps, max_iter, line_search_strategy='golden_search'):
         grad = compute_gradient(A, u_k)
 
         # Step 3 - Solution of FW problem
-        s_t_idx = np.argmin(grad)  # Find the index which makes gradient min
+        s_t_idx = LMO(grad)  # Find the index which makes gradient min
         s_t = np.zeros(m)  # Create m-dimensional array and set e_i = 1
         s_t[s_t_idx] = 1.0
         logging.info(f"FW min grad unit simplex index found: {s_t_idx}")
@@ -149,7 +156,6 @@ def awayStep_FW(A, eps, max_iter, line_search_strategy='golden_search'):
             alpha_max = 1  # Set max step_size
             logging.info(f"Choose Frank Wolfe direction, step_size_max: {alpha_max}")
             fw_check = True
-
         # Step 8 - Else
         else:
             # Step 9 - Choose away direction and max feasible step-size
@@ -172,12 +178,22 @@ def awayStep_FW(A, eps, max_iter, line_search_strategy='golden_search'):
         u_k = u_k + alpha_t * d_t
 
         # Step 13 - Update active set (Lacoste-Juline pg.4 1st paragraph)
-        if fw_check:  # fw step used
+        if fw_check:  # FW step used
+            number_FW += 1
             St = (1 - alpha_t) * St
             St[s_t_idx] = St[s_t_idx] + alpha_t
-        else:  # away step used
+            # Exceptional case: step-size of 1, this collapses the active set!
+            if alpha_t > 1 - np.spacing(1):  # Take a full step
+                St = np.zeros(m)
+                St[s_t_idx] = 1
+        else:  # Away step used
             St = (1 + alpha_t) * St
-            St[v_t_idx] = St[v_t_idx] - alpha_t
+            if abs(alpha_t - alpha_max) < 10 * np.spacing(1):  # Drop step
+                number_drop += 1
+                St[v_t_idx] = 0
+            else:
+                number_AW += 1
+                St[v_t_idx] = St[v_t_idx] - alpha_t
         active_set_size_list.append(np.sum(np.abs(St) >= 0.0001))
         # Step 14 end for
 
@@ -187,15 +203,17 @@ def awayStep_FW(A, eps, max_iter, line_search_strategy='golden_search'):
 
     radius = np.sqrt(-dual_k)
     center = A @ u_k
-    # (256 x 2) x (2
 
     logging.info("\n-----------Away step Frank Wolfe finished!--------------")
     logging.info(f"center: {center} and radius: {radius} ")
-    logging.info(f"Last value of dual function {dual_k:.3e}")
-    logging.info(f"Last value of dual gap  {dual_gap:.3e}")
-    logging.info(f"Total CPU time {total_time:.3e}")
-    logging.info(f"Number of non-zero components of x = {active_set_size_list[-1]}")
-    logging.info(f"Number of iterations = {len(dual_list)}")
+    logging.info(f"Last value of dual function: {dual_k:.3e}")
+    logging.info(f"Last value of dual gap: {dual_gap:.3e}")
+    logging.info(f"Total CPU time: {total_time:.3e}")
+    logging.info(f"Number of non-zero components of x: {active_set_size_list[-1]}")
+    logging.info(f"Number of iterations: {len(dual_list)}")
+    logging.info(f"FW steps: {number_FW}")
+    logging.info(f"Away steps: {number_AW}")
+    logging.info(f"Drop steps: {number_drop}")
 
     output = {"center": center,
               "radius": radius,

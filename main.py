@@ -2,7 +2,8 @@ import yaml
 import os
 from src.logger import my_logger
 from src.FrankWolfeVariants import awayStep_FW, blendedPairwise_FW, one_plus_eps_MEB_approximation
-from src.utils import increment_path, load_config, generate_random_matrix_normal, plot_points_circle, generate_fermat_spiral
+from src.utils import increment_path, load_config, generate_random_matrix_normal, plot_points_circle,\
+    generate_fermat_spiral
 from src.utils import create_save_dict, print_on_console, plot_graphs
 
 # Change only this
@@ -41,7 +42,7 @@ if __name__ == '__main__':
     base_path = 'runs/'
     experiment_path = os.path.join(base_path, os.path.splitext(yaml_name)[0])
     # if there is an experiment with same experiment.yaml, increment_path_number exp1, exp2....
-    incremented_path = increment_path(experiment_path, exist_ok=False, sep='_', mkdir=True)
+    incremented_path = increment_path(experiment_path, exist_ok=False, sep='', mkdir=True)
     print(f"Results will be saved: {incremented_path}")
 
     logging = my_logger(incremented_path)
@@ -76,13 +77,14 @@ if __name__ == '__main__':
             # Print results:
             print_on_console(out_dict)
 
-            # create dict to save results on YAML
+            # Create dict to save results on YAML
             asfw = create_save_dict(out_dict)
 
             # Plot graphs for awayStep_FW
             graph_path = os.path.join(incremented_path, "asfw_graphs")
             plot_graphs(title, show_graphs, graph_path, out_dict)
-            plot_points_circle(A, out_dict.get("radius"), out_dict.get("center"), title, graph_path, show_graphs)
+            if n == 2:
+                plot_points_circle(A, out_dict.get("radius"), out_dict.get("center"), title, graph_path, show_graphs)
 
         if method == "bpfw":
             print("\n*****************")
@@ -103,7 +105,8 @@ if __name__ == '__main__':
             # Plot graphs for blendedPairwise_FW
             graph_path = os.path.join(incremented_path, "bpfw_graphs")
             plot_graphs(title, show_graphs, graph_path, out_dict)
-            plot_points_circle(A, out_dict.get("radius"), out_dict.get("center"), title, graph_path, show_graphs)
+            if n == 2:
+                plot_points_circle(A, out_dict.get("radius"), out_dict.get("center"), title, graph_path, show_graphs)
 
         if method == "appfw":
             print("\n*****************")
@@ -123,7 +126,8 @@ if __name__ == '__main__':
             # Plot graphs for one_plus_eps_MEB_approximation
             graph_path = os.path.join(incremented_path, "appfw_graphs")
             plot_graphs(title, show_graphs, graph_path, out_dict)
-            plot_points_circle(A, out_dict.get("radius"), out_dict.get("center"), title, graph_path, show_graphs)
+            if n == 2:
+                plot_points_circle(A, out_dict.get("radius"), out_dict.get("center"), title, graph_path, show_graphs)
 
             # if test:
             #     # center

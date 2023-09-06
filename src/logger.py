@@ -5,7 +5,7 @@ from datetime import datetime
 def my_logger(path):
 
     LOG_FILE = f"{datetime.now().strftime('%m_%d_%Y_%H_%M_%S')}.log"
-    logs_path = os.path.join(path,LOG_FILE)
+    logs_path = os.path.join(path, LOG_FILE)
     os.makedirs(logs_path, exist_ok=True)  # exist_ok means append in file
 
     LOG_FILE_PATH = os.path.join(logs_path, LOG_FILE)
@@ -17,5 +17,7 @@ def my_logger(path):
     )
 
     return logging
+
+
 if __name__ == '__main__':
     logging.info("Logging has started")
