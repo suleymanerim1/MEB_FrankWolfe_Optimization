@@ -7,7 +7,8 @@ data_creation_method: "random"   # "random" or "fermat"
 show_graphs : False
 
 # List
-solver_methods: ["asfw", "bpfw", "appfw"]  # A combination of these 3 ["asfw", "bpfw", "appfw"]
+# solver_methods: ["asfw", "bpfw", "appfw"]  # A combination of these 3 ["asfw", "bpfw", "appfw"]
+solver_methods: ["asfw"]  # A combination of these 3 ["asfw", "bpfw", "appfw"]
 
 
 
