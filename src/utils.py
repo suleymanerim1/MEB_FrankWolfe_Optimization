@@ -8,33 +8,53 @@ from pathlib import Path
 
 # Create result save directory
 # Create run folders for experiment result saving
-
 def increment_path(path, exist_ok=False, sep='', mkdir=False):
     # Increment file or directory path, i.e. runs/exp --> runs/exp{sep}2, runs/exp{sep}3, ... etc.
     path = Path(path)  # os-agnostic
-    p = ""
     if path.exists() and not exist_ok:
-        path = Path(path.as_posix()[:-1])
+        path, suffix = (path.with_suffix(''), path.suffix) if path.is_file() else (path, '')
+
+        # Method 1
         for n in range(2, 9999):
-            p = f'{path}{sep}{n}'  # increment path
+            p = f'{path}{sep}{n}{suffix}'  # increment path
             if not os.path.exists(p):  #
                 break
         path = Path(p)
+
     if mkdir:
         path.mkdir(parents=True, exist_ok=True)  # make directory
+
     return path
+
 
 def create_save_dict(out_dict):
     # out_dict : the output dictionary returned after algorithm training
-    save_dict = {
-        "center": out_dict.get("center").tolist(),
-        "radius": out_dict.get("radius").tolist(),
-        "Number of iterations": out_dict.get("number_iterations"),
-        "Last_active_set_size": int(out_dict.get("active_set_size_list")[-1]),
-        "dual_function_list": [float(value) for value in out_dict.get("dual_list")],
-        "dual_gap_list": [float(value) for value in out_dict.get("dual_gap_list")],
-        "CPU_time": out_dict.get("CPU_time_list"),
-    }
+
+    save_dict = {}
+    if out_dict.get("name") in ["asfw", "bpfw"]:
+        save_dict = {
+            "name" : out_dict.get("name"),
+            "center": out_dict.get("center").tolist(),
+            "radius": out_dict.get("radius").tolist(),
+            "Number of iterations": out_dict.get("number_iterations"),
+            "active_set_size_list": [int(value) for value in out_dict.get("active_set_size_list")],
+            "dual_function_list": [float(value) for value in out_dict.get("dual_list")],
+            "dual_gap_list": [float(value) for value in out_dict.get("dual_gap_list")],
+            "CPU_time": out_dict.get("CPU_time_list"),
+        }
+
+    elif out_dict.get("name") == "appfw":
+        save_dict = {
+            "name" : out_dict.get("name"),
+            "center": out_dict.get("center").tolist(),
+            "radius": out_dict.get("radius").tolist(),
+            "Number of iterations": out_dict.get("number_iterations"),
+            "active_set_size_list": [int(value) for value in out_dict.get("active_set_size_list")],
+            "dual_function_list": [float(value) for value in out_dict.get("dual_list")],
+            "delta_list": [float(value) for value in out_dict.get("delta_list")],
+            "CPU_time": out_dict.get("CPU_time_list"),
+        }
+
     return save_dict
 
 def print_on_console(out_dict):
@@ -42,16 +62,23 @@ def print_on_console(out_dict):
     center = out_dict.get("center")
     radius = out_dict.get("radius")
     num_iterations = out_dict.get("number_iterations")
-    active_set_size_list = out_dict.get("active_set_size_list")
-    dual_list = out_dict.get("dual_list")
-    dual_gap_list = out_dict.get("dual_gap_list")
-    CPU_time_list = out_dict.get("CPU_time_list")
+    active_set_size = out_dict.get("active_set_size_list")[-1]
+    dual = out_dict.get("dual_list")[-1]
+    CPU_time = out_dict.get("CPU_time_list")[-1]
 
-    print(f"dual function = {dual_list[-1]:.3e}")
-    print(f"dual gap = {dual_gap_list[-1]:.3e}")
-    print(f"Number of non-zero components of x = {active_set_size_list[-1]}")
+
+    print(f"dual function = {dual:.3e}")
+
+    if out_dict.get("name") in ["asfw", "bpfw"]:
+        dual_gap = out_dict.get("dual_gap_list")[-1]
+        print(f"dual gap = {dual_gap:.3e}")
+    elif out_dict.get("name") == "appfw":
+        delta = out_dict.get("delta_list")[-1]
+        print(f"delta = {delta:.3e}")
+
+    print(f"Number of non-zero components of x = {active_set_size}")
     print(f"Number of iterations = {num_iterations}")
-    print(f"Total CPU time: {CPU_time_list[-1]}")
+    print(f"Total CPU time: {CPU_time}")
     print(f"center: {center} and radius: {radius} ")
 
 def load_config(config_name, config_path):
@@ -214,12 +241,21 @@ def plot_graphs(title, show_graphs, graph_path, out_dict):
     os.mkdir(graph_path)
     iterations_list = list(range(num_iterations))
 
-    # Plots to be showed/saved
-    plot_cpu_time_vs_dual_gap(CPU_time_list, dual_gap_list, title, graph_path, show_graphs)
-    plot_active_set_size_vs_dual_gap(active_set_size_list, dual_gap_list, title, graph_path, show_graphs)
     plot_cpu_time_vs_objective_function(CPU_time_list, dual_list, title, graph_path, show_graphs)
     plot_iterations_vs_objective_function(iterations_list, dual_list, title, graph_path, show_graphs)
-    plot_dual_gap_vs_iterations(iterations_list, dual_gap_list, title, graph_path, show_graphs)
+
+    # Plots to be showed/saved
+    if out_dict.get("name") in ["asfw", "bpfw"]:
+        plot_cpu_time_vs_dual_gap(CPU_time_list, dual_gap_list, title, graph_path, show_graphs)
+        plot_active_set_size_vs_dual_gap(active_set_size_list, dual_gap_list, title, graph_path, show_graphs)
+        plot_dual_gap_vs_iterations(iterations_list, dual_gap_list, title, graph_path, show_graphs)
+    elif out_dict.get("name") == "appfw":
+        pass
+        #TODO: Marija - generate below graphs with same name and inputs
+        #plot_cpu_time_vs_delta(CPU_time_list, delta_list, title, graph_path, show_graphs)
+        #plot_active_set_size_vs_delta(active_set_size_list, delta_list, title, graph_path, show_graphs)
+        #plot_delta_vs_iterations(iterations_list, delta_list, title, graph_path, show_graphs)
+
 
 def generate_fermat_spiral(dot):
     data = []

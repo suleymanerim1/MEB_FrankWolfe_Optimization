@@ -3,11 +3,13 @@ import math
 import time
 from src.logger import logging
 
+
 def compute_dual_function(A, u):
     first_term = u.T @ A.T @ A @ u
-    Z = np.sum(A**2, axis=0)
+    Z = np.sum(A ** 2, axis=0)
     second_term = Z.T @ u
     return first_term - second_term
+
 
 def compute_dual_Yildirim(A, u_vector):
     n, m = A.shape
@@ -19,9 +21,11 @@ def compute_dual_Yildirim(A, u_vector):
         second_term_product += u_vector[i] * col
     return first_term_sum - np.dot(second_term_product.T, second_term_product)
 
+
 def compute_gradient(A, u):
     Z = np.sum(A ** 2, axis=0)
     return 2 * A.T @ A @ u - Z
+
 
 def golden_section_search(func, A, u, d_t, a, b,
                           tol=1e-6, max_iter=100):
@@ -73,8 +77,10 @@ def golden_section_search(func, A, u, d_t, a, b,
 
     return (a + b) / 2
 
+
 def LMO(grad):
     return np.argmin(grad)
+
 
 def compute_vertex_away_or_FW_local(active_set_weights, gradient, dim,
                                     localFW=False):
@@ -88,6 +94,7 @@ def compute_vertex_away_or_FW_local(active_set_weights, gradient, dim,
     v_t = np.zeros(dim)  # Create m-dimensional array and set v_t = 1 and others to 0
     v_t[v_t_idx] = 1.0
     return v_t, v_t_idx
+
 
 def awayStep_FW(A, eps, line_search_strategy,
                 max_iter=1000):
@@ -169,7 +176,7 @@ def awayStep_FW(A, eps, line_search_strategy,
         # Step 5 - If FW gap is small enough, break
         g_FW = -grad.T @ d_FW  # FW gap
         dual_gap_list.append(g_FW)
-        if g_FW  <= eps:
+        if g_FW <= eps:
             logging.info(f"Stopping condition gap < epsilon is met!")
             iter_time = time.time() - t_start
             total_time = total_time + iter_time
@@ -244,14 +251,17 @@ def awayStep_FW(A, eps, line_search_strategy,
     logging.info(f"Away steps: {number_AW}")
     logging.info(f"Drop steps: {number_drop}")
 
-    output = {"center": center,
-              "radius": radius,
-              "number_iterations": len(dual_list),
-              "active_set_size_list": active_set_size_list,
-              "dual_gap_list": dual_gap_list,
-              "dual_list": dual_list,
-              "CPU_time_list": CPU_time_list}
+    output = {
+        "name": "asfw",
+        "center": center,
+        "radius": radius,
+        "number_iterations": len(dual_list),
+        "active_set_size_list": active_set_size_list,
+        "dual_gap_list": dual_gap_list,
+        "dual_list": dual_list,
+        "CPU_time_list": CPU_time_list}
     return output
+
 
 def blendedPairwise_FW(A, eps, line_search_strategy,
                        max_iter=1000):
@@ -406,19 +416,23 @@ def blendedPairwise_FW(A, eps, line_search_strategy,
     logging.info(f"Descent steps: {number_descent}")
     logging.info(f"Drop steps: {number_drop}")
 
-    output = {"center": center,
-              "radius": radius,
-              "number_iterations": len(dual_list),
-              "active_set_size_list": active_set_size_list,
-              "dual_gap_list": dual_gap_list,
-              "dual_list": dual_list,
-              "CPU_time_list": CPU_time_list}
+    output = {
+        "name": "bpfw",
+        "center": center,
+        "radius": radius,
+        "number_iterations": len(dual_list),
+        "active_set_size_list": active_set_size_list,
+        "dual_gap_list": dual_gap_list,
+        "dual_list": dual_list,
+        "CPU_time_list": CPU_time_list}
     return output
+
 
 def find_furthest_point_idx(A_mat, point):
     # Calculate squared Euclidean distances between the first point and all other points
     squared_distances = np.sum((A_mat - point[:, np.newaxis]) ** 2, axis=0)
     return np.argmax(squared_distances)
+
 
 def calculate_delta(cntr, furthest_point, gamma):
     # Calculate termination criterion delta which should be greater than (1 + eps) - 1
@@ -429,6 +443,7 @@ def calculate_delta(cntr, furthest_point, gamma):
     squared_distance = np.sum((furthest_point - cntr) ** 2)
     delta = squared_distance / gamma - 1
     return delta
+
 
 def one_plus_eps_MEB_approximation(A, eps,
                                    max_iter=1000):
@@ -445,15 +460,15 @@ def one_plus_eps_MEB_approximation(A, eps,
     logging.info(f"Dataset size: {m_A} points, each {n_A}-dimensional.")
 
     # Step 1
-    alpha = find_furthest_point_idx(A, A[:, 0])  # Get the index of the point furthest from first point in A (index 0)
-    beta = find_furthest_point_idx(A, A[:, alpha])  # Get the index of the point furthest from point a in A
+    a = find_furthest_point_idx(A, A[:, 0])  # Get the index of the point furthest from first point in A (index 0)
+    b = find_furthest_point_idx(A, A[:, a])  # Get the index of the point furthest from point a in A
     # Step 2
     u_k = np.zeros(m_A)
     # Step 3
-    u_k[alpha] = 0.5
-    u_k[beta] = 0.5
+    u_k[a] = 0.5
+    u_k[b] = 0.5
     # Step 4 - Create active set (Here active set includes the indices, in FW version it includes weights of indices)
-    Xk = [alpha, beta]
+    Xk = [a, b]
     active_set_size_list.append(int(len(Xk)))
     # Step 5 - Initialize center
     c_k = A @ u_k  # c should be n dimensional like points a
@@ -471,14 +486,14 @@ def one_plus_eps_MEB_approximation(A, eps,
     # Step 9 - Initialize iterations
     k = 0
     # Step 10 - Stopping conditions
-    deltaHasNotReachedThreshold = delta_k > (1+eps)**2 - 1
+    deltaHasNotReachedThreshold = delta_k > (1 + eps) ** 2 - 1
     maxIterNotReached = k < max_iter
     # Step 11 - Loop
     while deltaHasNotReachedThreshold and maxIterNotReached:
         t_start = time.time()
         logging.info(f"--------------Iteration {k} -----------------")
         # Step 12
-        alpha_k = delta_k/(2 * (1 + delta_k))
+        alpha_k = delta_k / (2 * (1 + delta_k))
         # Step 13
         k = k + 1
         maxIterNotReached = k < max_iter
@@ -527,11 +542,13 @@ def one_plus_eps_MEB_approximation(A, eps,
     logging.info(f"Number of iterations = {k}")
 
     # Step 21 - Output
-    output = {"center": c_k,
-              "radius": approx_radius,
-              "number_iterations": len(dual_list),
-              "active_set_size_list": active_set_size_list,
-              "dual_gap_list": delta_list,
-              "dual_list": dual_list,
-              "CPU_time_list": CPU_time_list}
+    output = {
+        "name": "appfw",
+        "center": c_k,
+        "radius": approx_radius,
+        "number_iterations": len(dual_list),
+        "active_set_size_list": active_set_size_list,
+        "delta_list": delta_list,
+        "dual_list": dual_list,
+        "CPU_time_list": CPU_time_list}
     return output

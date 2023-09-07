@@ -23,11 +23,9 @@ show_graphs = config.get('show_graphs')
 test = config.get('test')
 line_search_strategy = config.get('line_search_strategy')
 
-# TODO: solve MEB problem and find anomaly --points for Suleyman
-# TODO: keep track of anomaly points --for Suleyman
+# TODO: Create testing script
+# TODO: create functions to automatically arrange real data for train and testing
 # TODO: Add other line_search_strategies (Armijo) -- for Suleyman
-# TODO: do graphs and prints a helper function to get rid of messy codes
-# TODO: check graphs lists of first and second algorithm
 
 # TODO: find 2 datasets to check -- for Marija
 # TODO: comparison graphs, check and write (with graph show, save) -- for Marija
@@ -41,7 +39,7 @@ if __name__ == '__main__':
     base_path = 'runs/'
     experiment_path = os.path.join(base_path, os.path.splitext(yaml_name)[0])
     # if there is an experiment with same experiment.yaml, increment_path_number exp1, exp2....
-    incremented_path = increment_path(experiment_path, exist_ok=False, sep='', mkdir=True)
+    incremented_path = increment_path(experiment_path, exist_ok=False, sep='_', mkdir=True)
     print(f"Results will be saved: {incremented_path}")
 
     logging = my_logger(incremented_path)
@@ -78,7 +76,6 @@ if __name__ == '__main__':
 
             # Create dict to save results on YAML
             asfw = create_save_dict(out_dict)
-
             # Plot graphs for awayStep_FW
             graph_path = os.path.join(incremented_path, "asfw_graphs")
             plot_graphs(title, show_graphs, graph_path, out_dict)
