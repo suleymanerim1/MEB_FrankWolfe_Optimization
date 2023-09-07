@@ -78,6 +78,40 @@ def golden_section_search(func, A, u, d_t, a, b,
     return (a + b) / 2
 
 
+def armijo_search(func, gradient, A, u, alpha=1.0, c=0.1, rho=0.5, max_iter=100):
+    """
+    Armijo line search for finding a suitable step size.
+
+    Parameters:
+    - func: Objective function to minimize.
+    - gradient: Gradient of the objective function.
+    - A: data points
+    - x: Current parameter values.
+    - alpha: Initial step size (default is 1.0).
+    - c: Armijo condition constant (0 < c < 1, default is 0.1).
+    - rho: Reduction factor for step size (0 < rho < 1, default is 0.5).
+    - max_iter: Maximum number of iterations for the line search (default is 100).
+
+    Returns:
+    - alpha: Suitable step size satisfying the Armijo condition.
+    """
+    logging.info("Armijo started!")
+    for i in range(max_iter):
+        logging.info(f"Armijo iteration {i} new {alpha}")
+
+        new_u = u - alpha * gradient(A,u)
+        f_u = func(A, u)
+        f_new_u = func(A,new_u)
+        gradient_norm = np.linalg.norm(gradient(A,u))
+
+        # Armijo condition
+        if f_new_u <= f_u - c * alpha * gradient_norm ** 2:
+            return alpha  # Step size is acceptable
+
+        # Reduce step size
+        alpha *= rho
+    return alpha  # Return the best step size found within max_iter
+
 def LMO(grad):
     return np.argmin(grad)
 
@@ -351,12 +385,15 @@ def blendedPairwise_FW(A, eps, line_search_strategy,
             d_t = a_t - s_t  # Away vertex - local FW
             # Step 8 - Max step size
             alpha_max = u_t[a_t_idx]
+
             # Step 9 - Calculate step size using line search
-            if line_search_strategy == 'golden_search':
-                alpha_t = golden_section_search(compute_dual_function, A, u_t, d_t, a=0, b=alpha_max)
+            if line_search_strategy == 'armijo_search':
+                alpha_t = armijo_search(compute_dual_function, compute_gradient, A, u_t, alpha_max)
             else:
                 alpha_t = 2 / (iteration + 2)
             alpha_t = max(0.0, min(alpha_t, alpha_max))
+            logging.info(f"Optimal step size: {alpha_t}")
+
             # Step 10
             if alpha_t < alpha_max:
                 # Step 11
@@ -378,11 +415,12 @@ def blendedPairwise_FW(A, eps, line_search_strategy,
             number_FW += 1
             # Step 17
             alpha_max = 1.0
-            if line_search_strategy == 'golden_search':
-                alpha_t = golden_section_search(compute_dual_function, A, u_t, d_t, a=0, b=alpha_max)
+            if line_search_strategy == 'armijo_search':
+                alpha_t = armijo_search(compute_dual_function, compute_gradient, A, u_t, alpha_max)
             else:
                 alpha_t = 2 / (iteration + 2)
             alpha_t = max(0.0, min(alpha_t, alpha_max))
+            logging.info(f"Optimal step size: {alpha_t}")
             logging.info(f"Choose Frank Wolfe step taken, step_size: {alpha_t}")
             # Step 18
             if alpha_t == 1:

@@ -25,8 +25,7 @@ line_search_strategy = config.get('line_search_strategy')
 
 # TODO: Create testing script
 # TODO: create functions to automatically arrange real data for train and testing
-# TODO: Add other line_search_strategies (Armijo) -- for Suleyman
-
+# TODO: make yildirim algorithm use same objective function
 # TODO: find 2 datasets to check -- for Marija
 # TODO: comparison graphs, check and write (with graph show, save) -- for Marija
 # TODO: if you add any new graph function, you should also call that graph function in plot graphs function
@@ -89,7 +88,7 @@ if __name__ == '__main__':
             print("*****************")
 
             logging.info("\nBPFW algorithm started!")
-            out_dict = blendedPairwise_FW(A, epsilon, maxiter)
+            out_dict = blendedPairwise_FW(A, epsilon, "armijo_search",maxiter)
 
             # Print results:
             print_on_console(out_dict)
