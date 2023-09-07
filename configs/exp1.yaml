@@ -1,14 +1,23 @@
-# The below variables should be given in " "
+# General setting
+show_graphs : False
+
+# Experiment Inputs
 maxiter: "100"  # max iteration
 epsilon: "1e-6"  # epsilon
-number_of_samples:  "2**10"  #m
-number_of_variables:  "2**6"  #n
-data_creation_method: "random"   # "random" or "fermat"
-show_graphs : False
-line_search_strategy: 'golden_search'
 
-# List
-solver_methods: ["asfw", "bpfw", "appfw"]  # A combination of these 3 ["asfw", "bpfw", "appfw"]
+# Algorithms
+solver_methods: ["appfw"]  # A combination of these 3 ["asfw", "bpfw", "appfw"]
+line_search_asfw: "golden_search"
+line_search_bpfw: "armijo_search"
+
+# Data Creation
+data:
+  method: "random_standard"  # choose one of ["random_standard","random_uniform", "fermat","data1","data2"]
+  number_of_samples: "2**10"  #m
+  number_of_variables:  "2**6"  #n
+
+
+
 
 
 
