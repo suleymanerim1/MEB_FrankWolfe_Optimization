@@ -20,9 +20,9 @@ test = config.get('test')
 # TODO: Create testing script
 # TODO: create functions to automatically arrange real data for train and testing
 # TODO: make yildirim algorithm use same objective function
+
 # TODO: find 2 datasets to check -- for Marija
 # TODO: comparison graphs, check and write (with graph show, save) -- for Marija
-# TODO: if you add any new graph function, you should also call that graph function in plot graphs function
 # in utils. I collected all graphs functions inside that.
 
 
@@ -115,14 +115,13 @@ if __name__ == '__main__':
                 plot_points_circle(A, out_dict.get("radius"), out_dict.get("center"), title, graph_path, show_graphs)
 
             # if test:
-            #     # center
-            #     # radius
-            #     # test data
             #     graph_path = os.path.join(incremented_path, "test_graphs")
             #     os.mkdir(graph_path)
             #     plot_points_circle(T, radius_aproxAlg, center_aproxAlg, title, graph_path, show_graphs)
+            #     true_negative = 0
             #     true_positive = 0
             #     false_negative = 0
+            #     false_positive = 0
             #     for point_idx in range(m):
             #         dist = np.linalg.norm(T[:, point_idx] - center_aproxAlg)
             #         if dist > radius_aproxAlg:

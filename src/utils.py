@@ -229,13 +229,53 @@ def plot_dual_gap_vs_iterations(iterations, dual_gap_values, algorithm_name, pat
     else:
         plt.close()
 
+def plot_cpu_time_vs_delta(cpu_time, delta_list, algorithm_name, path, show = True):
+    plt.plot(cpu_time, delta_list, marker='o', label=algorithm_name)
+    plt.xlabel('CPU Time')
+    plt.ylabel('Delta')
+    plt.title('CPU Time vs Delta')
+    plt.grid(True)
+    plt.legend()
+    plt.savefig(os.path.join(path, "cpu_time_vs_delta.png"))
+    if show:
+        plt.show()
+    else:
+        plt.close()
+
+def plot_active_set_size_vs_delta(active_set_sizes, delta_list, algorithm_name, path, show = True):
+    plt.plot(active_set_sizes, delta_list, marker='o', label=algorithm_name)
+    plt.xlabel('Size of Active Set')
+    plt.ylabel('Delta')
+    plt.title('Size of Active Set vs Delta')
+    plt.grid(True)
+    plt.legend()
+    plt.savefig(os.path.join(path, "active_set_size_vs_delta.png"))
+    if show:
+        plt.show()
+    else:
+        plt.close()
+
+def plot_delta_vs_iterations(iterations, delta_list, algorithm_name, path, show = True):
+    plt.plot(iterations, delta_list, marker='o', label=algorithm_name)
+    plt.xlabel('Iterations')
+    plt.ylabel('Delta')
+    plt.title('Delta vs Iterations')
+    plt.grid(True)
+    plt.legend()
+    plt.savefig(os.path.join(path, "delta_vs_iterations.png"))
+    if show:
+        plt.show()
+    else:
+        plt.close()
+
+
+
 def plot_graphs(title, show_graphs, graph_path, out_dict):
 
     # out_dict : the output dictionary returned after algorithm training
     num_iterations = out_dict.get("number_iterations")
     active_set_size_list = out_dict.get("active_set_size_list")
     dual_list = out_dict.get("dual_list")
-    dual_gap_list = out_dict.get("dual_gap_list")
     CPU_time_list = out_dict.get("CPU_time_list")
 
     os.mkdir(graph_path)
@@ -246,15 +286,15 @@ def plot_graphs(title, show_graphs, graph_path, out_dict):
 
     # Plots to be showed/saved
     if out_dict.get("name") in ["asfw", "bpfw"]:
+        dual_gap_list = out_dict.get("dual_gap_list")
         plot_cpu_time_vs_dual_gap(CPU_time_list, dual_gap_list, title, graph_path, show_graphs)
         plot_active_set_size_vs_dual_gap(active_set_size_list, dual_gap_list, title, graph_path, show_graphs)
         plot_dual_gap_vs_iterations(iterations_list, dual_gap_list, title, graph_path, show_graphs)
     elif out_dict.get("name") == "appfw":
-        pass
-        #TODO: Marija - generate below graphs with same name and inputs
-        #plot_cpu_time_vs_delta(CPU_time_list, delta_list, title, graph_path, show_graphs)
-        #plot_active_set_size_vs_delta(active_set_size_list, delta_list, title, graph_path, show_graphs)
-        #plot_delta_vs_iterations(iterations_list, delta_list, title, graph_path, show_graphs)
+        delta_list = out_dict.get("delta_list")
+        plot_cpu_time_vs_delta(CPU_time_list, delta_list, title, graph_path, show_graphs)
+        plot_active_set_size_vs_delta(active_set_size_list, delta_list, title, graph_path, show_graphs)
+        plot_delta_vs_iterations(iterations_list, delta_list, title, graph_path, show_graphs)
 
 
 def create_data(data_config):
