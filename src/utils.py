@@ -257,6 +257,21 @@ def plot_graphs(title, show_graphs, graph_path, out_dict):
         #plot_delta_vs_iterations(iterations_list, delta_list, title, graph_path, show_graphs)
 
 
+def create_data(data_config):
+    data_creation_method = data_config.get('method')
+    m = eval(data_config.get('number_of_samples'))
+    n = eval(data_config.get('number_of_variables'))
+
+    if data_creation_method == "random_standard":
+        A = generate_random_matrix_normal(0, 0.6, n, m)
+        # if test:
+        #    T = generate_random_matrix_normal(0.7, 1, n, m)
+    elif data_creation_method == "fermat":
+        A = generate_fermat_spiral(m).T
+    elif data_creation_method == "random_uniform":
+        A = generate_random_matrix_uniform(0, 0.6, n, m)
+
+    return A
 def generate_fermat_spiral(dot):
     data = []
     d = dot * 0.1

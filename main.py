@@ -2,26 +2,20 @@ import yaml
 import os
 from src.logger import my_logger
 from src.FrankWolfeVariants import awayStep_FW, blendedPairwise_FW, one_plus_eps_MEB_approximation
-from src.utils import increment_path, load_config, generate_random_matrix_normal, plot_points_circle,\
-    generate_fermat_spiral
-from src.utils import create_save_dict, print_on_console, plot_graphs
+from src.utils import increment_path, load_config, plot_points_circle
+from src.utils import create_data, create_save_dict, print_on_console, plot_graphs
 
 # Change only this
 yaml_name = "exp1.yaml"
 
 # Folder to load config file
 config_path = "configs/"
-# Hyperparameters
+# Configuration
 config = load_config(yaml_name, config_path)
+show_graphs = config.get('show_graphs')
 maxiter = eval(config.get('maxiter'))
 epsilon = eval(config.get('epsilon'))
-m = eval(config.get('number_of_samples'))
-n = eval(config.get('number_of_variables'))
-solver_methods = config.get('solver_methods')
-data_creation_method = config.get('data_creation_method')
-show_graphs = config.get('show_graphs')
 test = config.get('test')
-line_search_strategy = config.get('line_search_strategy')
 
 # TODO: Create testing script
 # TODO: create functions to automatically arrange real data for train and testing
@@ -32,33 +26,28 @@ line_search_strategy = config.get('line_search_strategy')
 # in utils. I collected all graphs functions inside that.
 
 
+# Save path
+base_path = 'runs/'
+experiment_path = os.path.join(base_path, os.path.splitext(yaml_name)[0])
+# if there is an experiment with same experiment.yaml, increment_path_number exp1, exp2....
+incremented_path = increment_path(experiment_path, exist_ok=False, sep='_', mkdir=True)
+print(f"Results will be saved: {incremented_path}")
+
+
+logging = my_logger(incremented_path)
+logging.info("Creating data points")
+# Create Data
+A = create_data(config.get('data'))
+n, m = A.shape
+
 if __name__ == '__main__':
-
-    # Save path
-    base_path = 'runs/'
-    experiment_path = os.path.join(base_path, os.path.splitext(yaml_name)[0])
-    # if there is an experiment with same experiment.yaml, increment_path_number exp1, exp2....
-    incremented_path = increment_path(experiment_path, exist_ok=False, sep='_', mkdir=True)
-    print(f"Results will be saved: {incremented_path}")
-
-    logging = my_logger(incremented_path)
-
-    logging.info("Creating data points")
-    # Create Data
-    if data_creation_method == "random":
-        A = generate_random_matrix_normal(0, 0.6, n, m)
-        if test:
-            T = generate_random_matrix_normal(0.7, 1, n, m)
-    elif data_creation_method == "fermat":
-        A = generate_fermat_spiral(m).T
-    else:
-        pass  # TODO: choose 2 datasets and add in this method
-        A = generate_random_matrix_normal(0, 0.6, n, m)
 
     # Initialize YAML dicts
     asfw = {}
     bpfw = {}
     appfw = {}
+
+    solver_methods = config.get('solver_methods')
     for method in solver_methods:
 
         if method == "asfw":
@@ -68,6 +57,7 @@ if __name__ == '__main__':
             print("*****************")
 
             logging.info("\nASFW algorithm started!")
+            line_search_strategy = config.get('line_search_asfw')
             out_dict = awayStep_FW(A, epsilon, line_search_strategy, maxiter)
 
             # Print results:
@@ -88,7 +78,8 @@ if __name__ == '__main__':
             print("*****************")
 
             logging.info("\nBPFW algorithm started!")
-            out_dict = blendedPairwise_FW(A, epsilon, "armijo_search",maxiter)
+            line_search_strategy = config.get('line_search_bpfw')
+            out_dict = blendedPairwise_FW(A, epsilon, line_search_strategy, maxiter)
 
             # Print results:
             print_on_console(out_dict)
