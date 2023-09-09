@@ -6,15 +6,21 @@ maxiter: "100"  # max iteration
 epsilon: "1e-6"  # epsilon
 
 # Algorithms
-solver_methods: ["asfw", "bpfw", "appfw"]  # A combination of these 3 ["asfw", "bpfw", "appfw"]
+solver_methods: ["asfw", "bpfw", "appfw"] # A combination of these 3 ["asfw", "bpfw", "appfw"]
 line_search_asfw: "golden_search"
 line_search_bpfw: "armijo_search"
 
 # Data Creation
 data:
   method: "custom1"  # choose one of ["random_standard","random_uniform", "fermat","data1","data2"]
+  # below attributes does not work when custom data is used.
+  test_split: "0.2"
   number_of_samples: "2**10"  #m
   number_of_variables:  "2**6"  #n
+
+
+# Test
+test: True
 
 
 
