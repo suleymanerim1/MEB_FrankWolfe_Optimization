@@ -5,6 +5,9 @@ import numpy as np
 import os
 import yaml
 from pathlib import Path
+import pandas as pd
+from sklearn.model_selection import train_test_split
+
 
 # Create result save directory
 # Create run folders for experiment result saving
@@ -310,8 +313,50 @@ def create_data(data_config):
         A = generate_fermat_spiral(m).T
     elif data_creation_method == "random_uniform":
         A = generate_random_matrix_uniform(0, 0.6, n, m)
-
+    elif data_creation_method == "custom1":
+        A = generate_custom1(train=True)
     return A
+
+def generate_custom1(train=True):
+    df = pd.read_csv('datasets/daphnet_freezing.arff', header=None)
+    df = df.rename(columns={14: 'y'})
+
+    # Create training and testing sets
+    train, test = train_test_split(df, test_size=0.1)
+
+    X = train[train.y == 0]
+
+    # Remove generated row names and class column (y)
+    X = X.drop(columns=['y'])
+
+    # Normalize data
+    X = (X - X.min()) / (X.max() - X.min())
+    # Convert to np
+    X = X.to_numpy()
+
+    # Create the test data
+    M = test[test.y == 0]
+
+    # Remove generated row names and class column (y)
+    M = M.drop(columns=['id', 'y'])
+
+    # Normalize data
+    M = (M - M.min()) / (M.max() - M.min())
+    # Convert to np
+    M = M.to_numpy()
+
+    # Create the test data
+
+    Y = test[test.y == 1]
+
+    # Remove generated row names and class column (y)
+    Y = Y.drop(columns=['id', 'y'])
+
+    # Normalize data
+    Y = (Y - Y.min()) / (Y.max() - Y.min())
+
+    # Convert to np
+    Y = Y.to_numpy()
 def generate_fermat_spiral(dot):
     data = []
     d = dot * 0.1

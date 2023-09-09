@@ -5,6 +5,7 @@ from src.FrankWolfeVariants import awayStep_FW, blendedPairwise_FW, one_plus_eps
 from src.utils import increment_path, load_config, plot_points_circle
 from src.utils import create_data, create_save_dict, print_on_console, plot_graphs
 
+
 # Change only this
 yaml_name = "exp1.yaml"
 
@@ -117,14 +118,14 @@ if __name__ == '__main__':
             # if test:
             #     graph_path = os.path.join(incremented_path, "test_graphs")
             #     os.mkdir(graph_path)
-            #     plot_points_circle(T, radius_aproxAlg, center_aproxAlg, title, graph_path, show_graphs)
+            #     plot_points_circle(T, out_dict.get("radius"), out_dict.get("center"), title, graph_path, show_graphs)
             #     true_negative = 0
             #     true_positive = 0
             #     false_negative = 0
             #     false_positive = 0
             #     for point_idx in range(m):
-            #         dist = np.linalg.norm(T[:, point_idx] - center_aproxAlg)
-            #         if dist > radius_aproxAlg:
+            #         dist = np.linalg.norm(T[:, point_idx] - out_dict.get("center"))
+            #         if dist > out_dict.get("radius"):
             #             true_positive += 1
             #         else:
             #             false_negative += 1
