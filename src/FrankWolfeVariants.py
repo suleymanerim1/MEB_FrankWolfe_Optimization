@@ -169,7 +169,8 @@ def awayStep_FW(A, eps, line_search_strategy,
     number_FW = 0
 
     n, m = A.shape
-    logging.info(f"Dataset size: {m} points, each {n}-dimensional.")
+    logging.info(f"Train Dataset size: {m} points, each {n}-dimensional.")
+
     # Initial solution
     u_t = np.zeros(m)
     u_t[0] = 1e0
@@ -329,7 +330,7 @@ def blendedPairwise_FW(A, eps, line_search_strategy,
     CPU_time_list = []
 
     n, m = A.shape
-    logging.info(f"Dataset size: {m} points, each {n}-dimensional.")
+    logging.info(f"Train Dataset size: {m} points, each {n}-dimensional.")
 
     dual_t = 0
     FW_gap_t = eps + 1.0
@@ -495,7 +496,7 @@ def one_plus_eps_MEB_approximation(A, eps,
     CPU_time_list = [0]
 
     n_A, m_A = np.shape(A)
-    logging.info(f"Dataset size: {m_A} points, each {n_A}-dimensional.")
+    logging.info(f"Train Dataset size: {m_A} points, each {n_A}-dimensional.")
 
     # Step 1
     a = find_furthest_point_idx(A, A[:, 0])  # Get the index of the point furthest from first point in A (index 0)

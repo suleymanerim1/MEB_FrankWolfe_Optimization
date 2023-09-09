@@ -3,7 +3,7 @@ import os
 from src.logger import my_logger
 from src.FrankWolfeVariants import awayStep_FW, blendedPairwise_FW, one_plus_eps_MEB_approximation
 from src.utils import increment_path, load_config, plot_points_circle
-from src.utils import create_data, create_save_dict, print_on_console, plot_graphs
+from src.utils import create_data, create_save_dict, print_on_console, plot_graphs, test_algorithm
 
 
 # Change only this
@@ -34,20 +34,26 @@ experiment_path = os.path.join(base_path, os.path.splitext(yaml_name)[0])
 incremented_path = increment_path(experiment_path, exist_ok=False, sep='_', mkdir=True)
 print(f"Results will be saved: {incremented_path}")
 
-
+# Create logger
 logging = my_logger(incremented_path)
 logging.info("Creating data points")
+
 # Create Data
-A = create_data(config.get('data'))
+A,test_data = create_data(config.get('data'))
 n, m = A.shape
 
 if __name__ == '__main__':
 
     # Initialize YAML dicts
-    asfw = {}
-    bpfw = {}
-    appfw = {}
+    asfw_train = {}
+    bpfw_train = {}
+    appfw_train = {}
+    if test:
+        asfw_test = {}
+        bpfw_test = {}
+        appfw_test = {}
 
+    # Start Algorithms
     solver_methods = config.get('solver_methods')
     for method in solver_methods:
 
@@ -65,12 +71,17 @@ if __name__ == '__main__':
             print_on_console(out_dict)
 
             # Create dict to save results on YAML
-            asfw = create_save_dict(out_dict)
+            asfw_train = create_save_dict(out_dict)
             # Plot graphs for awayStep_FW
             graph_path = os.path.join(incremented_path, "asfw_graphs")
             plot_graphs(title, show_graphs, graph_path, out_dict)
             if n == 2:
                 plot_points_circle(A, out_dict.get("radius"), out_dict.get("center"), title, graph_path, show_graphs)
+
+            # test_data,center, radius
+            if test:
+                logging.info("ASFW Test")
+                asfw_test = test_algorithm(test_data,out_dict.get("center"), out_dict.get("radius"))
 
         if method == "bpfw":
             print("\n*****************")
@@ -86,13 +97,18 @@ if __name__ == '__main__':
             print_on_console(out_dict)
 
             # Create dict to save results on YAML
-            bpfw = create_save_dict(out_dict)
+            bpfw_train = create_save_dict(out_dict)
 
             # Plot graphs for blendedPairwise_FW
             graph_path = os.path.join(incremented_path, "bpfw_graphs")
             plot_graphs(title, show_graphs, graph_path, out_dict)
             if n == 2:
                 plot_points_circle(A, out_dict.get("radius"), out_dict.get("center"), title, graph_path, show_graphs)
+
+            # test_data,center, radius
+            if test:
+                logging.info("BPFW Test")
+                bpfw_test = test_algorithm(test_data,out_dict.get("center"), out_dict.get("radius"))
 
         if method == "appfw":
             print("\n*****************")
@@ -107,7 +123,7 @@ if __name__ == '__main__':
             print_on_console(out_dict)
 
             # create dict to save results on YAML
-            appfw = create_save_dict(out_dict)
+            appfw_train = create_save_dict(out_dict)
 
             # Plot graphs for one_plus_eps_MEB_approximation
             graph_path = os.path.join(incremented_path, "appfw_graphs")
@@ -115,32 +131,33 @@ if __name__ == '__main__':
             if n == 2:
                 plot_points_circle(A, out_dict.get("radius"), out_dict.get("center"), title, graph_path, show_graphs)
 
-            # if test:
-            #     graph_path = os.path.join(incremented_path, "test_graphs")
-            #     os.mkdir(graph_path)
-            #     plot_points_circle(T, out_dict.get("radius"), out_dict.get("center"), title, graph_path, show_graphs)
-            #     true_negative = 0
-            #     true_positive = 0
-            #     false_negative = 0
-            #     false_positive = 0
-            #     for point_idx in range(m):
-            #         dist = np.linalg.norm(T[:, point_idx] - out_dict.get("center"))
-            #         if dist > out_dict.get("radius"):
-            #             true_positive += 1
-            #         else:
-            #             false_negative += 1
-            #     print(f"true positive {true_positive}/{(m)}")
-            #     print(f"false negative {false_negative}/{m}")
+            # test_data,center, radius
+            if test:
+                logging.info("APPFW Test")
+                appfw_test = test_algorithm(test_data,out_dict.get("center"), out_dict.get("radius"))
+
 
     # Create yaml content
     output = {
         'config': config,
-        'asfw': asfw,
-        'bpfw': bpfw,
-        'appfw': appfw,
+        'train':
+            {
+                'train_points': m,
+                'asfw': asfw_train,
+                'bpfw': bpfw_train,
+                'appfw': appfw_train,
+            },
+        'test':
+            {
+                'test_points': len(test_data[1]),
+                'asfw': asfw_test,
+                'bpfw': bpfw_test,
+                'appfw': appfw_test,
+            }
     }
+
 
     # Save output yaml file
     with open(os.path.join(incremented_path, 'output.yaml'), 'w') as file:
-        yaml.dump(output, file)
+        yaml.dump(output, file, sort_keys = False)
         logging.info(f"Output.yaml created")
