@@ -95,9 +95,9 @@ def armijo_search(func, gradient, A, u, alpha=1.0, c=0.1, rho=0.5, max_iter=100)
     Returns:
     - alpha: Suitable step size satisfying the Armijo condition.
     """
-    logging.info("Armijo started!")
+    #logging.info("Armijo started!")
     for i in range(max_iter):
-        logging.info(f"Armijo iteration {i} new {alpha}")
+        #logging.info(f"Armijo iteration {i} new {alpha}")
 
         new_u = u - alpha * gradient(A,u)
         f_u = func(A, u)
@@ -512,10 +512,10 @@ def one_plus_eps_MEB_approximation(A, eps,
     # Step 5 - Initialize center
     c_k = A @ u_k  # c should be n dimensional like points a
     # Step 6 - objective function
-    dual_k = compute_dual_Yildirim(A, u_k)
+    dual_k = compute_dual_function(A, u_k)
     logging.info(f"Dual function value found: {dual_k} ")
     dual_list.append(dual_k)
-    r2 = dual_k  # r^2 is gamma (radius^2)
+    r2 = -dual_k  # r^2 is gamma (radius^2)
     # Step 7
     K = find_furthest_point_idx(A, c_k)  # Get the index of the point furthest from the center c
     # Step 8 - Delta is termination criterion delta > (1+eps)^2 - 1
@@ -547,10 +547,10 @@ def one_plus_eps_MEB_approximation(A, eps,
             Xk.append(K)
         active_set_size_list.append(int(len(Xk)))
         # Step 17 - Update gamma (r2)
-        dual_k = compute_dual_Yildirim(A, u_k)
+        dual_k = compute_dual_function(A, u_k)
         logging.info(f"Dual function value found: {dual_k} ")
         dual_list.append(dual_k)
-        r2 = dual_k
+        r2 = -dual_k
         # Step 18 - Update K (index of the furthest point in A from point c)
         K = find_furthest_point_idx(A, c_k)
         # Step 19

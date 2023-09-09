@@ -18,9 +18,7 @@ maxiter = eval(config.get('maxiter'))
 epsilon = eval(config.get('epsilon'))
 test = config.get('test')
 
-# TODO: Create testing script
 # TODO: create functions to automatically arrange real data for train and testing
-# TODO: make yildirim algorithm use same objective function
 
 # TODO: find 2 datasets to check -- for Marija
 # TODO: comparison graphs, check and write (with graph show, save) -- for Marija
@@ -137,9 +135,16 @@ if __name__ == '__main__':
                 appfw_test = test_algorithm(test_data,out_dict.get("center"), out_dict.get("radius"))
 
 
+
+
+
+    data_method = config.get("data").get("method")
+    if data_method not in ["random_standard"]:
+        del config["data"]["number_of_samples"]
+        del config["data"]["number_of_variables"]
+
     # Create yaml content
     output = {
-        'config': config,
         'train':
             {
                 'train_points': m,
@@ -153,7 +158,8 @@ if __name__ == '__main__':
                 'asfw': asfw_test,
                 'bpfw': bpfw_test,
                 'appfw': appfw_test,
-            }
+            },
+        'config': config
     }
 
 

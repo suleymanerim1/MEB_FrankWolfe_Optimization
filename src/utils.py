@@ -44,10 +44,10 @@ def create_save_dict(out_dict):
             "center": out_dict.get("center").tolist(),
             "radius": out_dict.get("radius").tolist(),
             "Number of iterations": out_dict.get("number_iterations"),
-            "active_set_size_list": [int(value) for value in out_dict.get("active_set_size_list")],
-            "dual_function_list": [float(value) for value in out_dict.get("dual_list")],
-            "dual_gap_list": [float(value) for value in out_dict.get("dual_gap_list")],
-            "CPU_time": out_dict.get("CPU_time_list"),
+            "active_set_size": int(out_dict.get("active_set_size_list")[-1]),
+            "dual_function": float(out_dict.get("dual_list")[-1]),
+            "dual_gap": float(out_dict.get("dual_gap_list")[-1]),
+            "CPU_time": out_dict.get("CPU_time_list")[-1],
         }
 
     elif out_dict.get("name") == "appfw":
@@ -56,10 +56,10 @@ def create_save_dict(out_dict):
             "center": out_dict.get("center").tolist(),
             "radius": out_dict.get("radius").tolist(),
             "Number of iterations": out_dict.get("number_iterations"),
-            "active_set_size_list": [int(value) for value in out_dict.get("active_set_size_list")],
-            "dual_function_list": [float(value) for value in out_dict.get("dual_list")],
-            "delta_list": [float(value) for value in out_dict.get("delta_list")],
-            "CPU_time": out_dict.get("CPU_time_list"),
+            "active_set_size": int(out_dict.get("active_set_size_list")[-1]),
+            "dual_function": float(out_dict.get("dual_list")[-1]),
+            "delta": float(out_dict.get("delta_list")[-1]),
+            "CPU_time": out_dict.get("CPU_time_list")[-1],
         }
 
     return save_dict
@@ -327,20 +327,22 @@ def create_data(data_config):
     m = eval(data_config.get('number_of_samples'))
     n = eval(data_config.get('number_of_variables'))
     test_split = eval(data_config.get('test_split'))
-
+    train_split = 1 - test_split
 
     if data_creation_method == "random_standard":
-        train_split = 1-test_split
+
         train = generate_random_matrix_normal(0, 0.6, n*train_split, m*train_split)
         T_0 = generate_random_matrix_normal(0, 0.6, n*(test_split/2), m*(test_split/2))
         T_1 = generate_random_matrix_normal(0.6, 1, n*(test_split/2), m*(test_split/2))
         test_X = np.hstack((T_0, T_1))
         test_Y = [0] * len(T_0) + [1] * len(T_1)
 
-    elif data_creation_method == "fermat":
-        train = generate_fermat_spiral(m).T
-    elif data_creation_method == "random_uniform":
-        train = generate_random_matrix_uniform(0, 0.6, n, m)
+    # elif data_creation_method == "fermat":
+    #     # TODO: for Dejan -- what should be the logic to create fermat test and train
+    #     train = generate_fermat_spiral(m).T
+    # elif data_creation_method == "random_uniform":
+    #     train = generate_random_matrix_uniform(0, 0.6, n*train_split, m*train_split)
+
     elif data_creation_method == "daphnet_freezing_data":
         train, test_X, test_Y = daphnet_freezing_data(test_split)
 
@@ -354,39 +356,30 @@ def daphnet_freezing_data(test_split):
     # Create training and testing sets
     train, test = train_test_split(df, test_size=test_split)
 
+    # Normalize data
+    train = normalize_data(train)
+
     X = train[train.y == 0]
 
     # Remove generated row names and class column (y)
     X = X.drop(columns=['y'])
 
-    # Normalize data
-    X = normalize_data(X)
-
     # Convert to np and transpose to make same with algorithm matrix type (n,m) number features, number variables
     train_data = X.to_numpy().T
 
-    # Create the test good data
-    T_0 = test[test.y == 0]
+    len_good = (test["y"] == 0).sum()
+    len_anomaly = (test["y"] == 0).sum()
 
     # Remove generated row names and class column (y)
-    T_0 = T_0.drop(columns=['y'])
-
-    # Create the test anomaly data
-    T_1 = test[test.y == 1]
-
-    # Remove generated row names and class column (y)
-    T_1 = T_1.drop(columns=['y'])
-
-    # concat good and anomaly test data
-    test_X = pd.concat([T_0, T_1], axis=0)
+    test = test.drop(columns=['y'])
 
     # normalize data
-    test_X = normalize_data(test_X)
+    test_X = normalize_data(test)
 
     # convert it to numpy and algorithm format (n,m) (features,data points)
     test_X = test_X.to_numpy().T
     # create a list of zeros and ones for good and anomaly points
-    test_Y = [0] * len(T_0) + [1] * len(T_1)
+    test_Y = [0] * len_good + [1] * len_anomaly
 
     return train_data, test_X, test_Y
 
