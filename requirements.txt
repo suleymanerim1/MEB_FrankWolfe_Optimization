@@ -3,4 +3,5 @@ numpy
 matplotlib
 PyYAML
 scikit-learn
+seaborn
 # -e .

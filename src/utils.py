@@ -1,6 +1,8 @@
 import math
 import matplotlib.pyplot as plt
 from matplotlib.patches import Circle
+import seaborn as sns
+sns.set_style("darkgrid")
 import numpy as np
 import os
 import yaml
@@ -168,7 +170,8 @@ def plot_test_data_and_circle(T, A, r, c, title, path, show=True):
         plt.close()
 
 def plot_cpu_time_vs_dual_gap(cpu_time, dual_gap_values, algorithm_name, path, show=True):
-    plt.plot(cpu_time, dual_gap_values, marker='o', label=algorithm_name)
+    #plt.plot(cpu_time, dual_gap_values, marker='o', label=algorithm_name)
+    sns.lineplot(x=cpu_time, y=dual_gap_values, marker='o', label=algorithm_name)
     plt.xlabel('CPU Time')
     plt.ylabel('Dual Gap')
     plt.title('CPU Time vs Dual Gap')
@@ -181,7 +184,8 @@ def plot_cpu_time_vs_dual_gap(cpu_time, dual_gap_values, algorithm_name, path, s
         plt.close()
 
 def plot_active_set_size_vs_dual_gap(active_set_sizes, dual_gap_values, algorithm_name, path, show=True):
-    plt.plot(active_set_sizes, dual_gap_values, marker='o', label=algorithm_name)
+    #plt.plot(active_set_sizes, dual_gap_values, marker='o', label=algorithm_name)
+    sns.lineplot(x=active_set_sizes, y=dual_gap_values, marker='o', label=algorithm_name)
     plt.xlabel('Size of Active Set')
     plt.ylabel('Dual Gap')
     plt.title('Size of Active Set vs Dual Gap')
@@ -194,7 +198,8 @@ def plot_active_set_size_vs_dual_gap(active_set_sizes, dual_gap_values, algorith
         plt.close()
 
 def plot_cpu_time_vs_objective_function(cpu_time, objective_function_values, algorithm_name, path, show=True):
-    plt.plot(cpu_time, objective_function_values, marker='o', label=algorithm_name)
+    #plt.plot(cpu_time, objective_function_values, marker='o', label=algorithm_name)
+    sns.lineplot(x=cpu_time, y=objective_function_values, marker='o', label=algorithm_name)
     plt.xlabel('CPU Time')
     plt.ylabel('Objective Function Value')
     plt.title('CPU Time vs Objective Function')
@@ -207,7 +212,8 @@ def plot_cpu_time_vs_objective_function(cpu_time, objective_function_values, alg
         plt.close()
 
 def plot_iterations_vs_objective_function(iterations, objective_function_values, algorithm_name, path, show=True):
-    plt.plot(iterations, objective_function_values, marker='o', label=algorithm_name)
+    #plt.plot(iterations, objective_function_values, marker='o', label=algorithm_name)
+    sns.lineplot(x=iterations, y=objective_function_values, marker='o', label=algorithm_name)
     plt.xlabel('Iterations')
     plt.ylabel('Objective Function Value')
     plt.title('Iterations vs Objective Function')
@@ -220,7 +226,8 @@ def plot_iterations_vs_objective_function(iterations, objective_function_values,
         plt.close()
 
 def plot_dual_gap_vs_iterations(iterations, dual_gap_values, algorithm_name, path, show=True):
-    plt.plot(iterations, dual_gap_values, marker='o', label=algorithm_name)
+    #plt.plot(iterations, dual_gap_values, marker='o', label=algorithm_name)
+    sns.lineplot(x=iterations, y=dual_gap_values, marker='o', label=algorithm_name)
     plt.xlabel('Iterations')
     plt.ylabel('Dual Gap')
     plt.title('Dual Gap vs Iterations')
@@ -233,7 +240,8 @@ def plot_dual_gap_vs_iterations(iterations, dual_gap_values, algorithm_name, pat
         plt.close()
 
 def plot_cpu_time_vs_delta(cpu_time, delta_list, algorithm_name, path, show = True):
-    plt.plot(cpu_time, delta_list, marker='o', label=algorithm_name)
+    #plt.plot(cpu_time, delta_list, marker='o', label=algorithm_name)
+    sns.lineplot(x=cpu_time, y=delta_list, marker='o', label=algorithm_name)
     plt.xlabel('CPU Time')
     plt.ylabel('Delta')
     plt.title('CPU Time vs Delta')
@@ -246,7 +254,8 @@ def plot_cpu_time_vs_delta(cpu_time, delta_list, algorithm_name, path, show = Tr
         plt.close()
 
 def plot_active_set_size_vs_delta(active_set_sizes, delta_list, algorithm_name, path, show = True):
-    plt.plot(active_set_sizes, delta_list, marker='o', label=algorithm_name)
+    #plt.plot(active_set_sizes, delta_list, marker='o', label=algorithm_name)
+    sns.lineplot(x=active_set_sizes, y=delta_list, marker='o', label=algorithm_name)
     plt.xlabel('Size of Active Set')
     plt.ylabel('Delta')
     plt.title('Size of Active Set vs Delta')
@@ -259,7 +268,8 @@ def plot_active_set_size_vs_delta(active_set_sizes, delta_list, algorithm_name, 
         plt.close()
 
 def plot_delta_vs_iterations(iterations, delta_list, algorithm_name, path, show = True):
-    plt.plot(iterations, delta_list, marker='o', label=algorithm_name)
+    #plt.plot(iterations, delta_list, marker='o', label=algorithm_name)
+    sns.lineplot(x=iterations, y=delta_list, marker='o', label=algorithm_name)
     plt.xlabel('Iterations')
     plt.ylabel('Delta')
     plt.title('Delta vs Iterations')
