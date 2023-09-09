@@ -2,13 +2,15 @@ import math
 import matplotlib.pyplot as plt
 from matplotlib.patches import Circle
 import seaborn as sns
-sns.set_style("darkgrid")
 import numpy as np
 import os
 import yaml
 from pathlib import Path
 import pandas as pd
 from sklearn.model_selection import train_test_split
+from src.logger import logging
+
+sns.set_style("darkgrid")
 
 
 # Create result save directory
@@ -38,7 +40,7 @@ def create_save_dict(out_dict):
     save_dict = {}
     if out_dict.get("name") in ["asfw", "bpfw"]:
         save_dict = {
-            "name" : out_dict.get("name"),
+            "name": out_dict.get("name"),
             "center": out_dict.get("center").tolist(),
             "radius": out_dict.get("radius").tolist(),
             "Number of iterations": out_dict.get("number_iterations"),
@@ -50,7 +52,7 @@ def create_save_dict(out_dict):
 
     elif out_dict.get("name") == "appfw":
         save_dict = {
-            "name" : out_dict.get("name"),
+            "name": out_dict.get("name"),
             "center": out_dict.get("center").tolist(),
             "radius": out_dict.get("radius").tolist(),
             "Number of iterations": out_dict.get("number_iterations"),
@@ -62,6 +64,7 @@ def create_save_dict(out_dict):
 
     return save_dict
 
+
 def print_on_console(out_dict):
     # out_dict : the output dictionary returned after algorithm training
     center = out_dict.get("center")
@@ -70,7 +73,6 @@ def print_on_console(out_dict):
     active_set_size = out_dict.get("active_set_size_list")[-1]
     dual = out_dict.get("dual_list")[-1]
     CPU_time = out_dict.get("CPU_time_list")[-1]
-
 
     print(f"dual function = {dual:.3e}")
 
@@ -86,10 +88,12 @@ def print_on_console(out_dict):
     print(f"Total CPU time: {CPU_time}")
     print(f"center: {center} and radius: {radius} ")
 
+
 def load_config(config_name, config_path):
     with open(os.path.join(config_path, config_name)) as file:
         config = yaml.safe_load(file)
     return config
+
 
 # Plotting
 
@@ -128,6 +132,7 @@ def plot_points_circle(A, r, c, title, path, show=True):
         plt.show()
     else:
         plt.close()
+
 
 def plot_test_data_and_circle(T, A, r, c, title, path, show=True):
     # Separate x and y coordinates from A
@@ -169,8 +174,9 @@ def plot_test_data_and_circle(T, A, r, c, title, path, show=True):
     else:
         plt.close()
 
+
 def plot_cpu_time_vs_dual_gap(cpu_time, dual_gap_values, algorithm_name, path, show=True):
-    #plt.plot(cpu_time, dual_gap_values, marker='o', label=algorithm_name)
+    # plt.plot(cpu_time, dual_gap_values, marker='o', label=algorithm_name)
     sns.lineplot(x=cpu_time, y=dual_gap_values, marker='o', label=algorithm_name)
     plt.xlabel('CPU Time')
     plt.ylabel('Dual Gap')
@@ -183,8 +189,9 @@ def plot_cpu_time_vs_dual_gap(cpu_time, dual_gap_values, algorithm_name, path, s
     else:
         plt.close()
 
+
 def plot_active_set_size_vs_dual_gap(active_set_sizes, dual_gap_values, algorithm_name, path, show=True):
-    #plt.plot(active_set_sizes, dual_gap_values, marker='o', label=algorithm_name)
+    # plt.plot(active_set_sizes, dual_gap_values, marker='o', label=algorithm_name)
     sns.lineplot(x=active_set_sizes, y=dual_gap_values, marker='o', label=algorithm_name)
     plt.xlabel('Size of Active Set')
     plt.ylabel('Dual Gap')
@@ -197,8 +204,9 @@ def plot_active_set_size_vs_dual_gap(active_set_sizes, dual_gap_values, algorith
     else:
         plt.close()
 
+
 def plot_cpu_time_vs_objective_function(cpu_time, objective_function_values, algorithm_name, path, show=True):
-    #plt.plot(cpu_time, objective_function_values, marker='o', label=algorithm_name)
+    # plt.plot(cpu_time, objective_function_values, marker='o', label=algorithm_name)
     sns.lineplot(x=cpu_time, y=objective_function_values, marker='o', label=algorithm_name)
     plt.xlabel('CPU Time')
     plt.ylabel('Objective Function Value')
@@ -211,8 +219,9 @@ def plot_cpu_time_vs_objective_function(cpu_time, objective_function_values, alg
     else:
         plt.close()
 
+
 def plot_iterations_vs_objective_function(iterations, objective_function_values, algorithm_name, path, show=True):
-    #plt.plot(iterations, objective_function_values, marker='o', label=algorithm_name)
+    # plt.plot(iterations, objective_function_values, marker='o', label=algorithm_name)
     sns.lineplot(x=iterations, y=objective_function_values, marker='o', label=algorithm_name)
     plt.xlabel('Iterations')
     plt.ylabel('Objective Function Value')
@@ -225,8 +234,9 @@ def plot_iterations_vs_objective_function(iterations, objective_function_values,
     else:
         plt.close()
 
+
 def plot_dual_gap_vs_iterations(iterations, dual_gap_values, algorithm_name, path, show=True):
-    #plt.plot(iterations, dual_gap_values, marker='o', label=algorithm_name)
+    # plt.plot(iterations, dual_gap_values, marker='o', label=algorithm_name)
     sns.lineplot(x=iterations, y=dual_gap_values, marker='o', label=algorithm_name)
     plt.xlabel('Iterations')
     plt.ylabel('Dual Gap')
@@ -239,8 +249,9 @@ def plot_dual_gap_vs_iterations(iterations, dual_gap_values, algorithm_name, pat
     else:
         plt.close()
 
-def plot_cpu_time_vs_delta(cpu_time, delta_list, algorithm_name, path, show = True):
-    #plt.plot(cpu_time, delta_list, marker='o', label=algorithm_name)
+
+def plot_cpu_time_vs_delta(cpu_time, delta_list, algorithm_name, path, show=True):
+    # plt.plot(cpu_time, delta_list, marker='o', label=algorithm_name)
     sns.lineplot(x=cpu_time, y=delta_list, marker='o', label=algorithm_name)
     plt.xlabel('CPU Time')
     plt.ylabel('Delta')
@@ -253,8 +264,9 @@ def plot_cpu_time_vs_delta(cpu_time, delta_list, algorithm_name, path, show = Tr
     else:
         plt.close()
 
-def plot_active_set_size_vs_delta(active_set_sizes, delta_list, algorithm_name, path, show = True):
-    #plt.plot(active_set_sizes, delta_list, marker='o', label=algorithm_name)
+
+def plot_active_set_size_vs_delta(active_set_sizes, delta_list, algorithm_name, path, show=True):
+    # plt.plot(active_set_sizes, delta_list, marker='o', label=algorithm_name)
     sns.lineplot(x=active_set_sizes, y=delta_list, marker='o', label=algorithm_name)
     plt.xlabel('Size of Active Set')
     plt.ylabel('Delta')
@@ -267,8 +279,9 @@ def plot_active_set_size_vs_delta(active_set_sizes, delta_list, algorithm_name, 
     else:
         plt.close()
 
-def plot_delta_vs_iterations(iterations, delta_list, algorithm_name, path, show = True):
-    #plt.plot(iterations, delta_list, marker='o', label=algorithm_name)
+
+def plot_delta_vs_iterations(iterations, delta_list, algorithm_name, path, show=True):
+    # plt.plot(iterations, delta_list, marker='o', label=algorithm_name)
     sns.lineplot(x=iterations, y=delta_list, marker='o', label=algorithm_name)
     plt.xlabel('Iterations')
     plt.ylabel('Delta')
@@ -282,9 +295,7 @@ def plot_delta_vs_iterations(iterations, delta_list, algorithm_name, path, show 
         plt.close()
 
 
-
 def plot_graphs(title, show_graphs, graph_path, out_dict):
-
     # out_dict : the output dictionary returned after algorithm training
     num_iterations = out_dict.get("number_iterations")
     active_set_size_list = out_dict.get("active_set_size_list")
@@ -310,29 +321,38 @@ def plot_graphs(title, show_graphs, graph_path, out_dict):
         plot_delta_vs_iterations(iterations_list, delta_list, title, graph_path, show_graphs)
 
 
+# Data Generation
 def create_data(data_config):
     data_creation_method = data_config.get('method')
     m = eval(data_config.get('number_of_samples'))
     n = eval(data_config.get('number_of_variables'))
+    test_split = eval(data_config.get('test_split'))
+
 
     if data_creation_method == "random_standard":
-        A = generate_random_matrix_normal(0, 0.6, n, m)
-        # if test:
-        #    T = generate_random_matrix_normal(0.7, 1, n, m)
-    elif data_creation_method == "fermat":
-        A = generate_fermat_spiral(m).T
-    elif data_creation_method == "random_uniform":
-        A = generate_random_matrix_uniform(0, 0.6, n, m)
-    elif data_creation_method == "custom1":
-        A = generate_custom1(train=True)
-    return A
+        train_split = 1-test_split
+        train = generate_random_matrix_normal(0, 0.6, n*train_split, m*train_split)
+        T_0 = generate_random_matrix_normal(0, 0.6, n*(test_split/2), m*(test_split/2))
+        T_1 = generate_random_matrix_normal(0.6, 1, n*(test_split/2), m*(test_split/2))
+        test_X = np.hstack((T_0, T_1))
+        test_Y = [0] * len(T_0) + [1] * len(T_1)
 
-def generate_custom1(train=True):
+    elif data_creation_method == "fermat":
+        train = generate_fermat_spiral(m).T
+    elif data_creation_method == "random_uniform":
+        train = generate_random_matrix_uniform(0, 0.6, n, m)
+    elif data_creation_method == "daphnet_freezing_data":
+        train, test_X, test_Y = daphnet_freezing_data(test_split)
+
+    return train, (test_X, test_Y)
+
+# daphnet_freezing_data
+def daphnet_freezing_data(test_split):
     df = pd.read_csv('datasets/daphnet_freezing.arff', header=None)
     df = df.rename(columns={14: 'y'})
 
     # Create training and testing sets
-    train, test = train_test_split(df, test_size=0.1)
+    train, test = train_test_split(df, test_size=test_split)
 
     X = train[train.y == 0]
 
@@ -340,33 +360,37 @@ def generate_custom1(train=True):
     X = X.drop(columns=['y'])
 
     # Normalize data
-    X = (X - X.min()) / (X.max() - X.min())
-    # Convert to np
-    X = X.to_numpy()
+    X = normalize_data(X)
 
-    # Create the test data
-    M = test[test.y == 0]
+    # Convert to np and transpose to make same with algorithm matrix type (n,m) number features, number variables
+    train_data = X.to_numpy().T
 
-    # Remove generated row names and class column (y)
-    M = M.drop(columns=['id', 'y'])
-
-    # Normalize data
-    M = (M - M.min()) / (M.max() - M.min())
-    # Convert to np
-    M = M.to_numpy()
-
-    # Create the test data
-
-    Y = test[test.y == 1]
+    # Create the test good data
+    T_0 = test[test.y == 0]
 
     # Remove generated row names and class column (y)
-    Y = Y.drop(columns=['id', 'y'])
+    T_0 = T_0.drop(columns=['y'])
 
-    # Normalize data
-    Y = (Y - Y.min()) / (Y.max() - Y.min())
+    # Create the test anomaly data
+    T_1 = test[test.y == 1]
 
-    # Convert to np
-    Y = Y.to_numpy()
+    # Remove generated row names and class column (y)
+    T_1 = T_1.drop(columns=['y'])
+
+    # concat good and anomaly test data
+    test_X = pd.concat([T_0, T_1], axis=0)
+
+    # normalize data
+    test_X = normalize_data(test_X)
+
+    # convert it to numpy and algorithm format (n,m) (features,data points)
+    test_X = test_X.to_numpy().T
+    # create a list of zeros and ones for good and anomaly points
+    test_Y = [0] * len(T_0) + [1] * len(T_1)
+
+    return train_data, test_X, test_Y
+
+
 def generate_fermat_spiral(dot):
     data = []
     d = dot * 0.1
@@ -379,8 +403,106 @@ def generate_fermat_spiral(dot):
     f_s = np.concatenate((narr, -narr))
     return f_s
 
+
 def generate_random_matrix_normal(mu, sigma, m, n):
     return np.random.normal(loc=mu, scale=sigma, size=(m, n))
 
+
 def generate_random_matrix_uniform(low, high, m, n):
     return np.random.uniform(low, high, size=(m, n))
+
+
+def normalize_data(df):
+    df = (df - df.min()) / (df.max() - df.min())
+    return df
+
+
+# Algorithm Testing
+def test_algorithm(test_data, center, radius):
+    # test_data = (test_X, test_Y)
+    # 0: good, 1: anomaly
+    logging.info("\n----Testing Started------")
+
+    true_negative = 0
+    true_positive = 0
+    false_negative = 0
+    false_positive = 0
+    test_X, test_Y = test_data
+    number_of_test_points = test_X.shape[1]
+
+    for point_idx in range(number_of_test_points):
+
+        point = test_X[:, point_idx]
+        y = test_Y[point_idx]
+        assert y in [0, 1], "Variable must be either 0 or 1"
+        dist = calculate_euc_distance(point, center)
+
+        #logging.info(f"y:{y},dist>radius: {dist > radius},  distance: {dist}, radius {radius}")
+        if y == 1:  # Then point is anomaly
+            if dist > radius:  # then point is out of circle and it is anomaly
+                true_positive += 1
+                #logging.info(f"true positive ++, {true_positive}")
+            else:  # Then point is inside circle but it is anomaly
+                false_negative += 1
+                #logging.info(f"false negative ++, {false_negative}")
+        else:  # Then point is good
+            if dist > radius:  # Then point is out of circle but it is good
+                false_positive += 1
+                #logging.info(f"false_positive ++, {false_positive}")
+            else:  # Then point is in circle and it is good
+                true_negative += 1
+                #logging.info(f"true_negative ++, {true_negative}")
+
+    logging.info(f"total points: {test_X.shape[1]}")
+    logging.info(f"true positive: {true_positive}")
+    logging.info(f"false negative: {false_negative}")
+    logging.info(f"false positive: {false_positive}")
+    logging.info(f"true_negative: {true_negative}")
+
+    out_dict = {
+        "tp": true_positive,
+        "tn": true_negative,
+        "fp": false_positive,
+        "fn": false_negative
+    }
+
+    return create_test_save_dict(out_dict)
+
+
+def create_test_save_dict(out_dict):
+    TP = out_dict.get("tp")
+    FP = out_dict.get("fp")
+    TN = out_dict.get("tn")
+    FN = out_dict.get("fn")
+
+    if TP+FP == 0:
+        precision = 0
+    else:
+        precision = TP / (TP + FP)
+
+    if TP+FN ==0:
+        recall = 0
+    else:
+        recall = TP / (TP + FN)
+
+    if precision == 0 or recall == 0:
+        f1 = 0
+    else:
+        f1 = 2 * (precision * recall) / (precision+recall)
+
+
+    save_dict = {
+        "true_positive": TP,
+        "true_negative": TN,
+        "false_positive": FP,
+        "false_negative": FN,
+        "precision": precision,
+        "recall": recall,
+        "f1_score": f1
+    }
+
+    return save_dict
+
+
+def calculate_euc_distance(point1, point2):
+    return np.linalg.norm(point1 - point2)
