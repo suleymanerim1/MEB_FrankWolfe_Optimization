@@ -8,6 +8,7 @@ import yaml
 from pathlib import Path
 import pandas as pd
 from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import MinMaxScaler
 from src.logger import logging
 
 sns.set_style("darkgrid")
@@ -177,7 +178,7 @@ def plot_test_data_and_circle(T, A, r, c, title, path, show=True):
 
 def plot_cpu_time_vs_dual_gap(cpu_time, dual_gap_values, algorithm_name, path, show=True):
     # plt.plot(cpu_time, dual_gap_values, marker='o', label=algorithm_name)
-    sns.lineplot(x=cpu_time, y=dual_gap_values, marker='o', label=algorithm_name)
+    sns.lineplot(x=cpu_time, y=dual_gap_values, marker='o', label=algorithm_name, errorbar=None)
     plt.xlabel('CPU Time')
     plt.ylabel('Dual Gap')
     plt.title('CPU Time vs Dual Gap')
@@ -192,7 +193,7 @@ def plot_cpu_time_vs_dual_gap(cpu_time, dual_gap_values, algorithm_name, path, s
 
 def plot_active_set_size_vs_dual_gap(active_set_sizes, dual_gap_values, algorithm_name, path, show=True):
     # plt.plot(active_set_sizes, dual_gap_values, marker='o', label=algorithm_name)
-    sns.lineplot(x=active_set_sizes, y=dual_gap_values, marker='o', label=algorithm_name)
+    sns.lineplot(x=active_set_sizes, y=dual_gap_values, marker='o', label=algorithm_name, errorbar=None)
     plt.xlabel('Size of Active Set')
     plt.ylabel('Dual Gap')
     plt.title('Size of Active Set vs Dual Gap')
@@ -207,7 +208,7 @@ def plot_active_set_size_vs_dual_gap(active_set_sizes, dual_gap_values, algorith
 
 def plot_cpu_time_vs_objective_function(cpu_time, objective_function_values, algorithm_name, path, show=True):
     # plt.plot(cpu_time, objective_function_values, marker='o', label=algorithm_name)
-    sns.lineplot(x=cpu_time, y=objective_function_values, marker='o', label=algorithm_name)
+    sns.lineplot(x=cpu_time, y=objective_function_values, marker='o', label=algorithm_name, errorbar=None)
     plt.xlabel('CPU Time')
     plt.ylabel('Objective Function Value')
     plt.title('CPU Time vs Objective Function')
@@ -222,7 +223,7 @@ def plot_cpu_time_vs_objective_function(cpu_time, objective_function_values, alg
 
 def plot_iterations_vs_objective_function(iterations, objective_function_values, algorithm_name, path, show=True):
     # plt.plot(iterations, objective_function_values, marker='o', label=algorithm_name)
-    sns.lineplot(x=iterations, y=objective_function_values, marker='o', label=algorithm_name)
+    sns.lineplot(x=iterations, y=objective_function_values, marker='o', label=algorithm_name, errorbar=None)
     plt.xlabel('Iterations')
     plt.ylabel('Objective Function Value')
     plt.title('Iterations vs Objective Function')
@@ -237,7 +238,7 @@ def plot_iterations_vs_objective_function(iterations, objective_function_values,
 
 def plot_dual_gap_vs_iterations(iterations, dual_gap_values, algorithm_name, path, show=True):
     # plt.plot(iterations, dual_gap_values, marker='o', label=algorithm_name)
-    sns.lineplot(x=iterations, y=dual_gap_values, marker='o', label=algorithm_name)
+    sns.lineplot(x=iterations, y=dual_gap_values, marker='o', label=algorithm_name, errorbar=None)
     plt.xlabel('Iterations')
     plt.ylabel('Dual Gap')
     plt.title('Dual Gap vs Iterations')
@@ -252,7 +253,7 @@ def plot_dual_gap_vs_iterations(iterations, dual_gap_values, algorithm_name, pat
 
 def plot_cpu_time_vs_delta(cpu_time, delta_list, algorithm_name, path, show=True):
     # plt.plot(cpu_time, delta_list, marker='o', label=algorithm_name)
-    sns.lineplot(x=cpu_time, y=delta_list, marker='o', label=algorithm_name)
+    sns.lineplot(x=cpu_time, y=delta_list, marker='o', label=algorithm_name, errorbar=None)
     plt.xlabel('CPU Time')
     plt.ylabel('Delta')
     plt.title('CPU Time vs Delta')
@@ -267,7 +268,7 @@ def plot_cpu_time_vs_delta(cpu_time, delta_list, algorithm_name, path, show=True
 
 def plot_active_set_size_vs_delta(active_set_sizes, delta_list, algorithm_name, path, show=True):
     # plt.plot(active_set_sizes, delta_list, marker='o', label=algorithm_name)
-    sns.lineplot(x=active_set_sizes, y=delta_list, marker='o', label=algorithm_name)
+    sns.lineplot(x=active_set_sizes, y=delta_list, marker='o', label=algorithm_name, errorbar=None)
     plt.xlabel('Size of Active Set')
     plt.ylabel('Delta')
     plt.title('Size of Active Set vs Delta')
@@ -282,7 +283,7 @@ def plot_active_set_size_vs_delta(active_set_sizes, delta_list, algorithm_name, 
 
 def plot_delta_vs_iterations(iterations, delta_list, algorithm_name, path, show=True):
     # plt.plot(iterations, delta_list, marker='o', label=algorithm_name)
-    sns.lineplot(x=iterations, y=delta_list, marker='o', label=algorithm_name)
+    sns.lineplot(x=iterations, y=delta_list, marker='o', label=algorithm_name, errorbar=None)
     plt.xlabel('Iterations')
     plt.ylabel('Delta')
     plt.title('Delta vs Iterations')
@@ -331,9 +332,9 @@ def create_data(data_config):
 
     if data_creation_method == "random_standard":
 
-        train = generate_random_matrix_normal(0, 0.6, n*train_split, m*train_split)
-        T_0 = generate_random_matrix_normal(0, 0.6, n*(test_split/2), m*(test_split/2))
-        T_1 = generate_random_matrix_normal(0.6, 1, n*(test_split/2), m*(test_split/2))
+        train = generate_random_matrix_normal(0, 0.6, n * train_split, m * train_split)
+        T_0 = generate_random_matrix_normal(0, 0.6, n * (test_split / 2), m * (test_split / 2))
+        T_1 = generate_random_matrix_normal(0.6, 1, n * (test_split / 2), m * (test_split / 2))
         test_X = np.hstack((T_0, T_1))
         test_Y = [0] * len(T_0) + [1] * len(T_1)
 
@@ -346,7 +347,10 @@ def create_data(data_config):
     elif data_creation_method == "daphnet_freezing_data":
         train, test_X, test_Y = daphnet_freezing_data(test_split)
 
+    elif data_creation_method == "metro_train_data":
+        train, test_X, test_Y = metro_train_data(test_split)
     return train, (test_X, test_Y)
+
 
 # daphnet_freezing_data
 def daphnet_freezing_data(test_split):
@@ -356,16 +360,52 @@ def daphnet_freezing_data(test_split):
     # Create training and testing sets
     train, test = train_test_split(df, test_size=test_split)
 
+    X = train[train.y == 0]
+
+    # Remove generated row names and class column (y)
+    X = X.drop(columns=['y'])
+
     # Normalize data
-    train = normalize_data(train)
+    scalar = MinMaxScaler()
+    train_data = scalar.fit_transform(X).T
+
+    len_good = (test["y"] == 0).sum()
+    len_anomaly = (test["y"] == 1).sum()
+
+    # Remove generated row names and class column (y)
+    test = test.drop(columns=['y'])
+
+    # normalize data
+    test_X = scalar.fit_transform(test).T
+
+    # create a list of zeros and ones for good and anomaly points
+    test_Y = [0] * len_good + [1] * len_anomaly
+
+    return train_data, test_X, test_Y
+
+
+# metro_train_data
+def metro_train_data(test_split):
+    df = pd.read_csv('datasets/metro_train.csv')
+    columns = ['TP2', 'TP3', 'H1', 'DV_pressure', 'Reservoirs', 'Oil_temperature', 'Motor_current', 'COMP']
+    df = df[columns]
+    df = df.rename(columns={"COMP": 'y'})
+
+    # make anomaly as 1 and good as 0 (to make it suitable for algortihms)
+    df['y'] = df['y'].replace({0: 1, 1: 0})
+
+    # Create training and testing sets
+    train, test = train_test_split(df, test_size=test_split)
+
+    # Normalize data
+    scalar = MinMaxScaler()
 
     X = train[train.y == 0]
 
     # Remove generated row names and class column (y)
     X = X.drop(columns=['y'])
 
-    # Convert to np and transpose to make same with algorithm matrix type (n,m) number features, number variables
-    train_data = X.to_numpy().T
+    train_data = scalar.fit_transform(X).T
 
     len_good = (test["y"] == 0).sum()
     len_anomaly = (test["y"] == 0).sum()
@@ -374,10 +414,11 @@ def daphnet_freezing_data(test_split):
     test = test.drop(columns=['y'])
 
     # normalize data
-    test_X = normalize_data(test)
+    test_X = scalar.fit_transform(test)
 
-    # convert it to numpy and algorithm format (n,m) (features,data points)
-    test_X = test_X.to_numpy().T
+    # normalize data
+    test_X = scalar.fit_transform(test).T
+
     # create a list of zeros and ones for good and anomaly points
     test_Y = [0] * len_good + [1] * len_anomaly
 
@@ -405,11 +446,6 @@ def generate_random_matrix_uniform(low, high, m, n):
     return np.random.uniform(low, high, size=(m, n))
 
 
-def normalize_data(df):
-    df = (df - df.min()) / (df.max() - df.min())
-    return df
-
-
 # Algorithm Testing
 def test_algorithm(test_data, center, radius):
     # test_data = (test_X, test_Y)
@@ -430,21 +466,21 @@ def test_algorithm(test_data, center, radius):
         assert y in [0, 1], "Variable must be either 0 or 1"
         dist = calculate_euc_distance(point, center)
 
-        #logging.info(f"y:{y},dist>radius: {dist > radius},  distance: {dist}, radius {radius}")
+        # logging.info(f"y:{y},dist>radius: {dist > radius},  distance: {dist}, radius {radius}")
         if y == 1:  # Then point is anomaly
             if dist > radius:  # then point is out of circle and it is anomaly
                 true_positive += 1
-                #logging.info(f"true positive ++, {true_positive}")
+                # logging.info(f"true positive ++, {true_positive}")
             else:  # Then point is inside circle but it is anomaly
                 false_negative += 1
-                #logging.info(f"false negative ++, {false_negative}")
+                # logging.info(f"false negative ++, {false_negative}")
         else:  # Then point is good
             if dist > radius:  # Then point is out of circle but it is good
                 false_positive += 1
-                #logging.info(f"false_positive ++, {false_positive}")
+                # logging.info(f"false_positive ++, {false_positive}")
             else:  # Then point is in circle and it is good
                 true_negative += 1
-                #logging.info(f"true_negative ++, {true_negative}")
+                # logging.info(f"true_negative ++, {true_negative}")
 
     logging.info(f"total points: {test_X.shape[1]}")
     logging.info(f"true positive: {true_positive}")
@@ -468,12 +504,12 @@ def create_test_save_dict(out_dict):
     TN = out_dict.get("tn")
     FN = out_dict.get("fn")
 
-    if TP+FP == 0:
+    if TP + FP == 0:
         precision = 0
     else:
         precision = TP / (TP + FP)
 
-    if TP+FN ==0:
+    if TP + FN == 0:
         recall = 0
     else:
         recall = TP / (TP + FN)
@@ -481,8 +517,7 @@ def create_test_save_dict(out_dict):
     if precision == 0 or recall == 0:
         f1 = 0
     else:
-        f1 = 2 * (precision * recall) / (precision+recall)
-
+        f1 = 2 * (precision * recall) / (precision + recall)
 
     save_dict = {
         "true_positive": TP,
