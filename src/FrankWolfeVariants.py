@@ -2,7 +2,7 @@ import numpy as np
 import math
 import time
 from src.logger import logging
-
+from deprecated import deprecated
 
 def compute_dual_function(A, u):
     first_term = u.T @ A.T @ A @ u
@@ -10,7 +10,7 @@ def compute_dual_function(A, u):
     second_term = Z.T @ u
     return first_term - second_term
 
-
+@deprecated(reason="This method is deprecated. Use compute_dual_function() instead.")
 def compute_dual_Yildirim(A, u_vector):
     n, m = A.shape
     first_term_sum = 0  # Refers to the first term of the equation
@@ -95,14 +95,14 @@ def armijo_search(func, gradient, A, u, alpha=1.0, c=0.1, rho=0.5, max_iter=100)
     Returns:
     - alpha: Suitable step size satisfying the Armijo condition.
     """
-    #logging.info("Armijo started!")
+    # logging.info("Armijo started!")
     for i in range(max_iter):
-        #logging.info(f"Armijo iteration {i} new {alpha}")
+        # logging.info(f"Armijo iteration {i} new {alpha}")
 
-        new_u = u - alpha * gradient(A,u)
+        new_u = u - alpha * gradient(A, u)
         f_u = func(A, u)
-        f_new_u = func(A,new_u)
-        gradient_norm = np.linalg.norm(gradient(A,u))
+        f_new_u = func(A, new_u)
+        gradient_norm = np.linalg.norm(gradient(A, u))
 
         # Armijo condition
         if f_new_u <= f_u - c * alpha * gradient_norm ** 2:
