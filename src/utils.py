@@ -18,6 +18,7 @@ sns.set_style("darkgrid")
 # Create run folders for experiment result saving
 def increment_path(path, exist_ok=False, sep='', mkdir=False):
     # Increment file or directory path, i.e. runs/exp --> runs/exp{sep}2, runs/exp{sep}3, ... etc.
+    p = ""
     path = Path(path)  # os-agnostic
     if path.exists() and not exist_ok:
         path, suffix = (path.with_suffix(''), path.suffix) if path.is_file() else (path, '')
@@ -329,6 +330,7 @@ def create_data(data_config):
     n = eval(data_config.get('number_of_variables'))
     test_split = eval(data_config.get('test_split'))
     train_split = 1 - test_split
+    train, test_X, test_Y = None, None, None
 
     if data_creation_method == "random_standard":
 
@@ -391,7 +393,7 @@ def metro_train_data(test_split):
     df = df[columns]
     df = df.rename(columns={"COMP": 'y'})
 
-    # make anomaly as 1 and good as 0 (to make it suitable for algortihms)
+    # make anomaly as 1 and good as 0 (to make it suitable for algorithms)
     df['y'] = df['y'].replace({0: 1, 1: 0})
 
     # Create training and testing sets
@@ -412,9 +414,6 @@ def metro_train_data(test_split):
 
     # Remove generated row names and class column (y)
     test = test.drop(columns=['y'])
-
-    # normalize data
-    test_X = scalar.fit_transform(test)
 
     # normalize data
     test_X = scalar.fit_transform(test).T

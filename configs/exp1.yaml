@@ -1,11 +1,11 @@
 # General setting
 show_graphs : False
 # Test
-test: True
+perform_test: True
 
 # Data Creation
 data:
-  method: "metro_train_data"  # choose one of ["random_standard","daphnet_freezing_data","metro_train_data"]
+  method: "daphnet_freezing_data"  # choose one of ["random_standard", "daphnet_freezing_data", "metro_train_data"]
   # below attributes does not work when custom data is used.
   test_split: "0.1"
   number_of_samples: "2**10"  #m

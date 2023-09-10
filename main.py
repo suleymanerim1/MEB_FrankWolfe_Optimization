@@ -15,10 +15,14 @@ config = load_config(yaml_name, config_path)
 show_graphs = config.get('show_graphs')
 maxiter = eval(config.get('maxiter'))
 epsilon = eval(config.get('epsilon'))
-test = config.get('test')
+perform_test = config.get('perform_test')
+
+# TODO (Marija): For every plot except the CPU time: x-axis should be a list of integers, however it shows floats.
+# Problematic graphs: Size of Active Set vs Delta, Iterations vs objective Function, Delta vs Iterations
+# TODO (Suleyman): Setting random_standard in exp1.yaml doesn't workS
 
 # TODO: check if a graph needs scaling and do when necessary
-# TODO: comparison graphs, check and write (with graph show, save) -- for Marija
+# TODO (Marija): comparison graphs, check and write (with graph show, save)
 # in utils. I collected all graphs functions inside that.
 
 
@@ -40,13 +44,8 @@ n, m = A.shape
 if __name__ == '__main__':
 
     # Initialize YAML dicts
-    asfw_train = {}
-    bpfw_train = {}
-    appfw_train = {}
-    if test:
-        asfw_test = {}
-        bpfw_test = {}
-        appfw_test = {}
+    asfw_train, bpfw_train, appfw_train = {}, {}, {}
+    asfw_test, bpfw_test, appfw_test = {}, {}, {}
 
     # Start Algorithms
     solver_methods = config.get('solver_methods')
@@ -74,7 +73,7 @@ if __name__ == '__main__':
                 plot_points_circle(A, out_dict.get("radius"), out_dict.get("center"), title, graph_path, show_graphs)
 
             # test_data,center, radius
-            if test:
+            if perform_test:
                 logging.info("ASFW Test")
                 asfw_test = test_algorithm(test_data, out_dict.get("center"), out_dict.get("radius"))
 
@@ -101,7 +100,7 @@ if __name__ == '__main__':
                 plot_points_circle(A, out_dict.get("radius"), out_dict.get("center"), title, graph_path, show_graphs)
 
             # test_data,center, radius
-            if test:
+            if perform_test:
                 logging.info("BPFW Test")
                 bpfw_test = test_algorithm(test_data, out_dict.get("center"), out_dict.get("radius"))
 
@@ -127,7 +126,7 @@ if __name__ == '__main__':
                 plot_points_circle(A, out_dict.get("radius"), out_dict.get("center"), title, graph_path, show_graphs)
 
             # test_data,center, radius
-            if test:
+            if perform_test:
                 logging.info("APPFW Test")
                 appfw_test = test_algorithm(test_data, out_dict.get("center"), out_dict.get("radius"))
 
