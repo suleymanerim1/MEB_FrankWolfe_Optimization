@@ -1,0 +1,36 @@
+A repo containing bunch of churn prediction datasets: https://github.com/selva86/datasets/tree/master
+
+1. Credit card fraud
+https://www.kaggle.com/code/janiobachmann/credit-fraud-dealing-with-imbalanced-datasets
+Anomalies: 0.17 % (class 1 = fraud)
+Total samples: 284,807
+Total features 30 
+
+2. Musk dataset
+https://archive.ics.uci.edu/dataset/74/musk+version+1
+Anomalies: 15% (class 1 = musk)
+Total samples: 6,598
+Total features: 166
+
+3. Metro train dataset
+https://www.kaggle.com/datasets/anshtanwar/metro-train-dataset?resource=download
+Anomalies: ?
+Total samples: 15,169,480
+Total features: 15
+
+4. Thyroid dataset
+https://odds.cs.stonybrook.edu/thyroid-disease-dataset/
+Anomalies: 2.5 (class = hyperfunction)
+Total samples: 3772
+Total features: 6 (real)
+
+
+5. KDD Cup 1999: Computer network intrusion detection
+https://www.kdd.org/kdd-cup/view/kdd-cup-1999/Tasks
+Anomalies: 20% (class normal)
+Total samples: 494021 
+Total features: 125
+
+For the last two, reffer to:
+https://arxiv.org/pdf/2010.03002.pdf
+https://cs.uwaterloo.ca/~y328yu/mypapers/nips19.pdf
