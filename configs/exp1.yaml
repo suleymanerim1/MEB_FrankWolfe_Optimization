@@ -5,20 +5,20 @@ test: True
 
 # Data Creation
 data:
-  method: "daphnet_freezing_data"  # choose one of ["random_standard","daphnet_freezing_data"]
+  method: "metro_train_data"  # choose one of ["random_standard","daphnet_freezing_data","metro_train_data"]
   # below attributes does not work when custom data is used.
-  test_split: "0.2"
+  test_split: "0.1"
   number_of_samples: "2**10"  #m
   number_of_variables:  "2**6"  #n
 
 # Experiment Inputs
-maxiter: "100"
-epsilon: "1e-6"
+maxiter: "1000"
+epsilon: "1e-2"
 
 # Algorithms
 solver_methods: ["appfw"] # A combination of these 3 ["asfw", "bpfw", "appfw"]
-line_search_asfw:        #"golden_search"
-line_search_bpfw:        #"armijo_search"
+line_search_asfw: "golden_search"        #"golden_search"
+line_search_bpfw: "armijo_search"        #"armijo_search"
 
 
 

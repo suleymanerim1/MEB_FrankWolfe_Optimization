@@ -5,7 +5,6 @@ from src.FrankWolfeVariants import awayStep_FW, blendedPairwise_FW, one_plus_eps
 from src.utils import increment_path, load_config, plot_points_circle
 from src.utils import create_data, create_save_dict, print_on_console, plot_graphs, test_algorithm
 
-
 # Change only this
 yaml_name = "exp1.yaml"
 
@@ -18,9 +17,7 @@ maxiter = eval(config.get('maxiter'))
 epsilon = eval(config.get('epsilon'))
 test = config.get('test')
 
-# TODO: create functions to automatically arrange real data for train and testing
-
-# TODO: find 2 datasets to check -- for Marija
+# TODO: check if a graph needs scaling and do when necessary
 # TODO: comparison graphs, check and write (with graph show, save) -- for Marija
 # in utils. I collected all graphs functions inside that.
 
@@ -37,7 +34,7 @@ logging = my_logger(incremented_path)
 logging.info("Creating data points")
 
 # Create Data
-A,test_data = create_data(config.get('data'))
+A, test_data = create_data(config.get('data'))
 n, m = A.shape
 
 if __name__ == '__main__':
@@ -79,7 +76,7 @@ if __name__ == '__main__':
             # test_data,center, radius
             if test:
                 logging.info("ASFW Test")
-                asfw_test = test_algorithm(test_data,out_dict.get("center"), out_dict.get("radius"))
+                asfw_test = test_algorithm(test_data, out_dict.get("center"), out_dict.get("radius"))
 
         if method == "bpfw":
             print("\n*****************")
@@ -106,7 +103,7 @@ if __name__ == '__main__':
             # test_data,center, radius
             if test:
                 logging.info("BPFW Test")
-                bpfw_test = test_algorithm(test_data,out_dict.get("center"), out_dict.get("radius"))
+                bpfw_test = test_algorithm(test_data, out_dict.get("center"), out_dict.get("radius"))
 
         if method == "appfw":
             print("\n*****************")
@@ -132,11 +129,7 @@ if __name__ == '__main__':
             # test_data,center, radius
             if test:
                 logging.info("APPFW Test")
-                appfw_test = test_algorithm(test_data,out_dict.get("center"), out_dict.get("radius"))
-
-
-
-
+                appfw_test = test_algorithm(test_data, out_dict.get("center"), out_dict.get("radius"))
 
     data_method = config.get("data").get("method")
     if data_method not in ["random_standard"]:
@@ -162,8 +155,7 @@ if __name__ == '__main__':
         'config': config
     }
 
-
     # Save output yaml file
     with open(os.path.join(incremented_path, 'output.yaml'), 'w') as file:
-        yaml.dump(output, file, sort_keys = False)
+        yaml.dump(output, file, sort_keys=False)
         logging.info(f"Output.yaml created")
