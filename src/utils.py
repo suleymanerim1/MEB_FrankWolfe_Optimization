@@ -10,6 +10,8 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler
 from src.logger import logging
+from src.FrankWolfeVariants import awayStep_FW, blendedPairwise_FW, one_plus_eps_MEB_approximation
+
 
 sns.set_style("darkgrid")
 
@@ -109,8 +111,8 @@ def plot_points_circle(A, r, c, title, path, show=True):
     # Plot the points as blue "+"
     ax.plot(x_coords, y_coords, 'b+', label='Inside points')
 
-    # Plot the center as a blue thick dot
-    ax.plot(c[0], c[1], 'bo', markersize=10, label='Center')
+    # Plot the center as a red thick dot
+    ax.plot(c[0], c[1], 'ro', markersize=10, label='Center')
 
     # Plot the circle with black color
     circle = Circle(c, r, color='black', fill=False)
@@ -121,7 +123,7 @@ def plot_points_circle(A, r, c, title, path, show=True):
     # Find the indices of points that touch the boundary of the circle
     touching_indices = np.where(np.abs(distances - r) < 1e-6)[0]
     # Plot the points that touch the circle boundary as green "x"
-    ax.plot(x_coords[touching_indices], y_coords[touching_indices], 'gx', label='Support vectors')
+    ax.plot(x_coords[touching_indices], y_coords[touching_indices], 'gX', markersize=10, label='Support vectors')
 
     ax.set_xlabel('X')
     ax.set_ylabel('Y')
@@ -332,19 +334,20 @@ def create_data(data_config):
     train_split = 1 - test_split
     train, test_X, test_Y = None, None, None
 
-    if data_creation_method == "random_standard":
-
-        train = generate_random_matrix_normal(0, 0.6, n * train_split, m * train_split)
-        T_0 = generate_random_matrix_normal(0, 0.6, n * (test_split / 2), m * (test_split / 2))
-        T_1 = generate_random_matrix_normal(0.6, 1, n * (test_split / 2), m * (test_split / 2))
+    if data_creation_method == "random_normal":
+        train = generate_random_matrix_normal(0, 0.6, n, int(m * train_split))
+        T_0 = generate_random_matrix_normal(0, 0.6, n, int(m * test_split * 0.5))
+        T_1 = generate_random_matrix_normal(0.6, 1, n, int(m * test_split * 0.5))
         test_X = np.hstack((T_0, T_1))
-        test_Y = [0] * len(T_0) + [1] * len(T_1)
+        test_Y = [0] * int(m * test_split * 0.5) + [1] * int(m * test_split * 0.5)
 
     # elif data_creation_method == "fermat":
-    #     # TODO: for Dejan -- what should be the logic to create fermat test and train
     #     train = generate_fermat_spiral(m).T
-    # elif data_creation_method == "random_uniform":
-    #     train = generate_random_matrix_uniform(0, 0.6, n*train_split, m*train_split)
+
+    elif data_creation_method == "random_uniform":
+        train = generate_random_matrix_uniform(0, 0.7, n, int(m * train_split))
+        test_X = generate_random_matrix_uniform(0.7, 1, n, int(m * test_split))
+        test_Y = [1] * int(m * test_split)
 
     elif data_creation_method == "daphnet_freezing_data":
         train, test_X, test_Y = daphnet_freezing_data(test_split)
@@ -533,3 +536,71 @@ def create_test_save_dict(out_dict):
 
 def calculate_euc_distance(point1, point2):
     return np.linalg.norm(point1 - point2)
+
+
+def execute_algorithm(method, A, config, incremented_path, test_data=None):
+
+    show_graphs = config.get('show_graphs')
+    maxIter = eval(config.get('maxiter'))
+    epsilon = eval(config.get('epsilon'))
+    perform_test = config.get('perform_test')
+
+    print("\n*****************")
+    title = "*  " + method + "  *"
+    print(title)
+    print("*****************")
+
+    logging.info("\n"+method+" algorithm started!")
+    out_dict = {}
+    if method == "asfw":
+        line_search_strategy = config.get('line_search_asfw')
+        out_dict = awayStep_FW(A, epsilon, line_search_strategy, maxIter)
+    elif method == "bpfw":
+        line_search_strategy = config.get('line_search_bpfw')
+        out_dict = blendedPairwise_FW(A, epsilon, line_search_strategy, maxIter)
+    elif method == "appfw":
+        out_dict = one_plus_eps_MEB_approximation(A, epsilon, maxIter)
+
+    # Print results:
+    print_on_console(out_dict)
+
+    # Create dict to save results on YAML
+    train_dict = create_save_dict(out_dict)
+    # Plot graphs for awayStep_FW
+    graph_path = os.path.join(incremented_path, method+"_graphs")
+    plot_graphs(title, show_graphs, graph_path, out_dict)
+    if A.shape[0] == 2:
+        plot_points_circle(A, out_dict.get("radius"), out_dict.get("center"), title, graph_path, show_graphs)
+
+    test_dict = None
+    # test_data, center, radius
+    if perform_test:
+        logging.info("ASFW Test")
+        test_dict = test_algorithm(test_data, out_dict.get("center"), out_dict.get("radius"))
+
+    return train_dict, test_dict
+
+def create_yaml(train_size, test_size, config, incremented_path,
+                asfw_train=None, asfw_test=None, bpfw_train=None, bpfw_test=None, appfw_train=None, appfw_test=None):
+    output = {
+        'train':
+            {
+                'train_points': train_size,
+                'asfw': asfw_train,
+                'bpfw': bpfw_train,
+                'appfw': appfw_train,
+            },
+        'test':
+            {
+                'test_points': test_size,
+                'asfw': asfw_test,
+                'bpfw': bpfw_test,
+                'appfw': appfw_test,
+            },
+        'config': config
+    }
+
+    # Save output yaml file
+    with open(os.path.join(incremented_path, 'output.yaml'), 'w') as file:
+        yaml.dump(output, file, sort_keys=False)
+        logging.info(f"Output.yaml created")
