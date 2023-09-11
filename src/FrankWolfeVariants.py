@@ -4,11 +4,13 @@ import time
 from src.logger import logging
 from deprecated import deprecated
 
+
 def compute_dual_function(A, u):
     first_term = u.T @ A.T @ A @ u
     Z = np.sum(A ** 2, axis=0)
     second_term = Z.T @ u
     return first_term - second_term
+
 
 @deprecated(reason="This method is deprecated. Use compute_dual_function() instead.")
 def compute_dual_Yildirim(A, u_vector):
@@ -78,6 +80,29 @@ def golden_section_search(func, A, u, d_t, a, b,
     return (a + b) / 2
 
 
+def backtracking_ls_FW(objectiveFunction, A, u, grad, direction, steps=100, ls_eps=0.01, ls_tau=0.5):
+    step_size = 1
+    grad_direction = np.inner(grad(A, u), direction)
+
+    i = 0
+    if grad_direction == 0:
+        return 0
+
+    old_point = objectiveFunction(A, u)
+    new_point = objectiveFunction(A, u + step_size * direction)
+
+    while (new_point - old_point) > ls_eps * step_size * grad_direction:
+        if i > steps:
+            if old_point - new_point >= 0:
+                return step_size
+            else:
+                return 0
+        step_size *= ls_tau
+        new_point = objectiveFunction(A, u + step_size * direction)
+        i += 1
+    return step_size
+
+
 def armijo_search(func, gradient, A, u, alpha=1.0, c=0.1, rho=0.5, max_iter=100):
     """
     Armijo line search for finding a suitable step size.
@@ -111,6 +136,20 @@ def armijo_search(func, gradient, A, u, alpha=1.0, c=0.1, rho=0.5, max_iter=100)
         # Reduce step size
         alpha *= rho
     return alpha  # Return the best step size found within max_iter
+
+
+def calculate_step_size(line_search_strategy, iteration, A, u_t, d_t,
+                        calc_dual_function, calc_gradient, alpha_max):
+    if line_search_strategy == 'golden_search':
+        alpha_t = golden_section_search(calc_dual_function, A, u_t, d_t, a=0, b=alpha_max)
+    elif line_search_strategy == 'armijo_search':
+        alpha_t = armijo_search(calc_dual_function, calc_gradient, A, u_t, alpha_max)
+    elif line_search_strategy == 'backtracking_ls_FW':
+        alpha_t = backtracking_ls_FW(calc_dual_function, A, u_t, calc_gradient, d_t)
+    else:
+        alpha_t = 2 / (iteration + 2)
+    return alpha_t
+
 
 def LMO(grad):
     return np.argmin(grad)
@@ -237,10 +276,8 @@ def awayStep_FW(A, eps, line_search_strategy,
         # Step 10 - End if
 
         # Step 11 - Calculate step size using line search
-        if line_search_strategy == 'golden_search':
-            alpha_t = golden_section_search(compute_dual_function, A, u_t, d_t, a=0, b=alpha_max)
-        else:
-            alpha_t = 2 / (iteration + 2)
+        alpha_t = calculate_step_size(line_search_strategy, iteration, A, u_t, d_t,
+                                      compute_dual_function, compute_gradient, alpha_max)
         alpha_t = max(0.0, min(alpha_t, alpha_max))
         logging.info(f"Step size is set. --> alpha_t: {alpha_t}")
 
@@ -388,10 +425,9 @@ def blendedPairwise_FW(A, eps, line_search_strategy,
             alpha_max = u_t[a_t_idx]
 
             # Step 9 - Calculate step size using line search
-            if line_search_strategy == 'armijo_search':
-                alpha_t = armijo_search(compute_dual_function, compute_gradient, A, u_t, alpha_max)
-            else:
-                alpha_t = 2 / (iteration + 2)
+            alpha_t = calculate_step_size(line_search_strategy, iteration, A, u_t, d_t,
+                                          compute_dual_function, compute_gradient, alpha_max)
+
             alpha_t = max(0.0, min(alpha_t, alpha_max))
             logging.info(f"Optimal step size: {alpha_t}")
 
@@ -422,7 +458,7 @@ def blendedPairwise_FW(A, eps, line_search_strategy,
                 alpha_t = 2 / (iteration + 2)
             alpha_t = max(0.0, min(alpha_t, alpha_max))
             logging.info(f"Optimal step size: {alpha_t}")
-            logging.info(f"Choose Frank Wolfe step taken, step_size: {alpha_t}")
+            logging.info(f"Frank Wolfe step taken, step_size: {alpha_t}")
             # Step 18
             if alpha_t == 1:
                 S_t = w_t

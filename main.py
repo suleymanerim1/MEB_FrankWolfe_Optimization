@@ -3,9 +3,6 @@ from src.logger import my_logger
 from src.utils import increment_path, load_config, create_data, execute_algorithm, create_yaml
 
 
-# TODO (Suleyman): Setting random_standard in exp1.yaml doesn't work
-# TODO (Suleyman): Re-enable fermat spiral - just to visualize the MEB training circle - we might use it for the report
-
 # TODO (Marija): For every plot except the CPU time: x-axis should be a list of integers, however it shows floats.
 # Problematic graphs: Size of Active Set vs Delta, Iterations vs objective Function, Delta vs Iterations
 # This problem occurs when the number of iterations/size of active set is small (< 10).
@@ -57,8 +54,13 @@ if __name__ == '__main__':
         del config["data"]["number_of_samples"]
         del config["data"]["number_of_variables"]
 
+    if perform_test:
+        test_size = len(test_data[1])
+    else:
+        test_size = 0
+
     # Create yaml content
-    create_yaml(m, len(test_data[1]), config, incremented_path,
+    create_yaml(m, test_size, config, incremented_path,
                 results.get('asfw', (None, None)),
                 results.get('bpfw', (None, None)),
                 results.get('appfw', (None, None)))
