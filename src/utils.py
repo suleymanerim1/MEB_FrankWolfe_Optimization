@@ -322,6 +322,81 @@ def plot_graphs(title, show_graphs, graph_path, out_dict):
         plot_delta_vs_iterations(iterations_list, delta_list, title, graph_path, show_graphs)
 
 
+# # Comparison plots
+# algorithm_names = ["appfw", "asfw", "bpfw"]
+# algorithm_data = {}
+#
+# for name in algorithm_names:
+#     algorithm_data[name] = {
+#         "num_iterations": out_dict.get(f"{name}_number_iterations"),
+#         "active_set_size_list": out_dict.get(f"{name}_active_set_size_list"),
+#         "dual_list": out_dict.get(f"{name}_dual_list"),
+#         "CPU_time_list": out_dict.get(f"{name}_CPU_time_list"),
+#     }
+#
+# # Use the common 'iterations_list' for all plots - not sure about this one !
+# # iterations_list = list(range(max([algorithm_data[name]["num_iterations"] for name in algorithm_names])))
+#
+# def plot_cpu_time_vs_objective_function_comparison(algorithm_data, algorithm_names,path, show=True):
+#     for name in algorithm_names:
+#         CPU_time_list = algorithm_data[name]["CPU_time_list"]
+#         dual_list = algorithm_data[name]["dual_list"]
+#
+#         if name == "appfw":
+#             plt.plot(CPU_time_list, dual_list, '--', linewidth=4, label=name)
+#         else:
+#             plt.plot(CPU_time_list, dual_list, label=name)
+#
+#     plt.xlabel('CPU time')
+#     plt.ylabel('Objective function')
+#     plt.title('CPU time per Objective Function')
+#     plt.legend()
+#     plt.savefig(os.path.join(path, "plot_cpu_time_vs_objective_function_comparison.png"))
+#     if show:
+#         plt.show()
+#
+#
+# def plot_num_iterations_vs_objective_function_comparison(algorithm_data, algorithm_names,path, show=True):
+#     for name in algorithm_names:
+#         num_iterations = algorithm_data[name]["num_iterations"]
+#         dual_list = algorithm_data[name]["dual_list"]
+#
+#         if name == "appfw":
+#             plt.plot(range(num_iterations), dual_list, '--', linewidth=4, label=name)
+#         else:
+#             plt.plot(range(num_iterations), dual_list, label=name)
+#
+#     plt.xlabel('Iteration number')
+#     plt.ylabel('Objective function')
+#     plt.title('Number of Iterations per Objective Function')
+#     plt.legend()
+#     plt.savefig(os.path.join(path, "plot_num_iterations_vs_objective_function_comparison.png"))
+#     if show:
+#         plt.show()
+#
+# def plot_active_set_size_vs_objective_function_comparison(algorithm_data, algorithm_names,path, show=True):
+#     for name in algorithm_names:
+#         active_set_size_list = algorithm_data[name]["active_set_size_list"]
+#         dual_list = algorithm_data[name]["dual_list"]
+#
+#         if name == "appfw":
+#             plt.plot(active_set_size_list, dual_list, '--', linewidth=4, label=name)
+#         else:
+#             plt.plot(active_set_size_list, dual_list, label=name)
+#
+#     plt.xlabel('Active Set Size')
+#     plt.ylabel('Objective function')
+#     plt.title('Active Set Size per Objective Function')
+#     plt.legend()
+#     plt.savefig(os.path.join(path, "plot_active_set_size_vs_objective_function_comparison.png"))
+#     if show:
+#         plt.show()
+#
+# plot_cpu_time_vs_objective_function_comparison(algorithm_data, algorithm_names, graph_path, show_graphs)
+# plot_num_iterations_vs_objective_function_comparison(algorithm_data, algorithm_names, graph_path, show_graphs)
+# plot_active_set_size_vs_objective_function_comparison(algorithm_data, algorithm_names, graph_path, show_graphs)
+
+
 # Data Generation
 def create_data(data_config):
     data_creation_method = data_config.get('method')
