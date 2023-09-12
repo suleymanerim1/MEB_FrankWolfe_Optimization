@@ -11,7 +11,7 @@ from src.utils import increment_path, load_config, create_data, execute_algorith
 # in utils. I collected all graphs functions inside that.
 
 # Change only this
-yaml_name = "exp1.yaml"
+yaml_name = "exp3_Uniform.yaml"
 
 config_path = "configs/"  # Folder to load config file
 # Configuration
