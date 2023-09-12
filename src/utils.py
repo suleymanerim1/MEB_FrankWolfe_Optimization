@@ -39,7 +39,7 @@ def increment_path(path, exist_ok=False, sep='', mkdir=False):
 
     return path
 
-
+@deprecated(reason="This method is deprecated. Use create_save_dict_full() instead.")
 def create_save_dict(out_dict):
     # out_dict : the output dictionary returned after algorithm training
 
@@ -66,6 +66,36 @@ def create_save_dict(out_dict):
             "dual_function": float(out_dict.get("dual_list")[-1]),
             "delta": float(out_dict.get("delta_list")[-1]),
             "CPU_time": out_dict.get("CPU_time_list")[-1],
+        }
+
+    return save_dict
+
+def create_save_dict_full(out_dict):
+    # out_dict : the output dictionary returned after algorithm training
+
+    save_dict = {}
+    if out_dict.get("name") in ["asfw", "bpfw"]:
+        save_dict = {
+            "name": out_dict.get("name"),
+            "center": out_dict.get("center").tolist(),
+            "radius": out_dict.get("radius").tolist(),
+            "Number of iterations": out_dict.get("number_iterations"),
+            "active_set_size": (out_dict.get("active_set_size_list")),
+            "dual_function": (out_dict.get("dual_list")),
+            "dual_gap": (out_dict.get("dual_gap_list")),
+            "CPU_time": out_dict.get("CPU_time_list"),
+        }
+
+    elif out_dict.get("name") == "appfw":
+        save_dict = {
+            "name": out_dict.get("name"),
+            "center": out_dict.get("center").tolist(),
+            "radius": out_dict.get("radius").tolist(),
+            "Number of iterations": out_dict.get("number_iterations"),
+            "active_set_size": (out_dict.get("active_set_size_list")),
+            "dual_function": (out_dict.get("dual_list")),
+            "delta": (out_dict.get("delta_list")),
+            "CPU_time": out_dict.get("CPU_time_list"),
         }
 
     return save_dict
@@ -331,6 +361,61 @@ def plot_graphs(title, show_graphs, graph_path, out_dict):
         plot_cpu_time_vs_delta(CPU_time_list, delta_list, title, graph_path, show_graphs)
         plot_active_set_size_vs_delta(active_set_size_list, delta_list, title, graph_path, show_graphs)
         plot_delta_vs_iterations(iterations_list, delta_list, title, graph_path, show_graphs)
+
+
+def plot_single_comparison_graph(train_dict, x_string, y_string, xlabel, ylabel, title):
+    plt.plot()
+    for key, value in train_dict.items():
+        if x_string == "Number of iterations":
+            x_axis = list(range(value[x_string]))
+        else:
+            x_axis = value[x_string]
+
+        if y_string == "dual_gap" and key == "appfw":
+            y_string = "delta"
+
+        plt.plot(x_axis, value[y_string], linewidth=2, label=key)
+
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
+    plt.title(title)
+    plt.legend()
+    plt.show()
+
+
+def plot_comparison_graphs(out_dict):
+    dual_function_list = []
+    train_dict = {key: value[0] for key, value in out_dict.items()}
+    plot_single_comparison_graph(train_dict, 'CPU_time', 'dual_function',
+                                 'CPU time', 'Objective function',
+                                 'CPU time vs Objective Function')
+    plot_single_comparison_graph(train_dict, 'active_set_size', 'dual_function',
+                                 'Active Set Size', 'Objective function',
+                                 'Active Set Size vs Objective Function')
+    plot_single_comparison_graph(train_dict, "Number of iterations", 'dual_function',
+                                 'Number of iterations', 'Objective function',
+                                 'Number of iterations vs Objective Function')
+
+    plot_single_comparison_graph(train_dict, "Number of iterations", 'dual_gap',
+                                 'Number of iterations', 'Dual Gap',
+                                 'Number of iterations vs Dual Gap')
+    plot_single_comparison_graph(train_dict, "CPU_time", 'dual_gap',
+                                 'CPU time', 'Dual Gap',
+                                 'CPU time vs Dual Gap')
+    plot_single_comparison_graph(train_dict, 'active_set_size', 'dual_gap',
+                                 'Active Set Size', 'Dual gap',
+                                 'Active Set Size vs Dual gap')
+
+    plot_single_comparison_graph(train_dict, "CPU_time", 'active_set_size',
+                                 'CPU time', 'Active set size',
+                                 'CPU time vs Active set size')
+    plot_single_comparison_graph(train_dict, 'Number of iterations', 'active_set_size',
+                                 'Number of iterations', 'Active set size',
+                                 'Number of iterations vs Active set size')
+
+
+
+
 
 
 # Data Generation
@@ -611,7 +696,7 @@ def execute_algorithm(method, A, config, incremented_path, test_data=None):
     print_on_console(out_dict)
 
     # Create dict to save results on YAML
-    train_dict = create_save_dict(out_dict)
+    train_dict = create_save_dict_full(out_dict)
     # Plot graphs for awayStep_FW
     graph_path = os.path.join(incremented_path, method+"_graphs")
     plot_graphs(title, show_graphs, graph_path, out_dict)
