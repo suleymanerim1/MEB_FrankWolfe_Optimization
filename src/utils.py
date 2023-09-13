@@ -363,7 +363,7 @@ def plot_graphs(title, show_graphs, graph_path, out_dict):
         plot_iterations_vs_delta(iterations_list, delta_list, title, graph_path, show_graphs)
 
 
-def plot_single_comparison_graph(train_dict, x_string, y_string, x_label, y_label, title,path,show=True):
+def plot_single_comparison_graph(train_dict, x_string, y_string, x_label, y_label, title, path, show=False):
     plt.plot()
     for key, value in train_dict.items():
         if x_string == "Number of iterations":
@@ -380,7 +380,7 @@ def plot_single_comparison_graph(train_dict, x_string, y_string, x_label, y_labe
     plt.ylabel(y_label)
     plt.title(title)
     plt.legend()
-    plt.savefig(os.path.join(path, title + "_.png"))
+    plt.savefig(os.path.join(path, title + ".png"))
     if show:
         plt.show()
     else:
@@ -388,34 +388,33 @@ def plot_single_comparison_graph(train_dict, x_string, y_string, x_label, y_labe
 
 
 def plot_comparison_graphs(out_dict, show_graphs, graph_path):
-    dual_function_list = []
     train_dict = {key: value[0] for key, value in out_dict.items()}
     plot_single_comparison_graph(train_dict, 'CPU_time', 'dual_function',
                                  'CPU time', 'Objective function',
-                                 'CPU time vs Objective Function',graph_path, show_graphs)
+                                 'CPU time vs Objective Function', graph_path, show_graphs)
     plot_single_comparison_graph(train_dict, 'active_set_size', 'dual_function',
                                  'Active Set Size', 'Objective function',
-                                 'Active Set Size vs Objective Function',graph_path, show_graphs)
+                                 'Active Set Size vs Objective Function', graph_path, show_graphs)
     plot_single_comparison_graph(train_dict, "Number of iterations", 'dual_function',
                                  'Number of iterations', 'Objective function',
-                                 'Number of iterations vs Objective Function',graph_path, show_graphs)
+                                 'Number of iterations vs Objective Function', graph_path, show_graphs)
 
     plot_single_comparison_graph(train_dict, "Number of iterations", 'dual_gap',
                                  'Number of iterations', 'Dual Gap',
-                                 'Number of iterations vs Dual Gap',graph_path, show_graphs)
+                                 'Number of iterations vs Dual Gap', graph_path, show_graphs)
     plot_single_comparison_graph(train_dict, "CPU_time", 'dual_gap',
                                  'CPU time', 'Dual Gap',
-                                 'CPU time vs Dual Gap',graph_path, show_graphs)
+                                 'CPU time vs Dual Gap', graph_path, show_graphs)
     plot_single_comparison_graph(train_dict, 'active_set_size', 'dual_gap',
                                  'Active Set Size', 'Dual gap',
-                                 'Active Set Size vs Dual gap',graph_path, show_graphs)
+                                 'Active Set Size vs Dual gap', graph_path, show_graphs)
 
     plot_single_comparison_graph(train_dict, "CPU_time", 'active_set_size',
                                  'CPU time', 'Active set size',
-                                 'CPU time vs Active set size',graph_path, show_graphs)
+                                 'CPU time vs Active set size', graph_path, show_graphs)
     plot_single_comparison_graph(train_dict, 'Number of iterations', 'active_set_size',
                                  'Number of iterations', 'Active set size',
-                                 'Number of iterations vs Active set size',graph_path, show_graphs)
+                                 'Number of iterations vs Active set size', graph_path, show_graphs)
 
 
 # Data Generation
@@ -451,6 +450,9 @@ def create_data(data_config):
     elif data_creation_method == "thyroid_data":
         train, test_X, test_Y = thyroid_data(test_split)
 
+    elif data_creation_method == 'breast_cancer_data':
+        train, test_X, test_Y = breast_cancer_data(test_split)
+
     return train, (test_X, test_Y)
 
 
@@ -484,6 +486,35 @@ def daphnet_freezing_data(test_split):
     test_Y = [0] * len_good + [1] * len_anomaly
 
     return train_data, test_X, test_Y
+
+
+def breast_cancer_data(test_split):
+    medical_df = pd.read_csv('datasets/breast_cancer_wisconsin.csv')
+    labels = medical_df['diagnosis']
+    labels = labels.map({'B': 0, 'M': 1})
+    features_to_drop = ['Unnamed: 32', 'id', 'diagnosis']
+    features = medical_df.drop(features_to_drop, axis=1)
+
+    nominal_data = features.loc[labels == 0, :]
+    nominal_labels = labels[labels == 0]
+    N_nominal = nominal_data.shape[0]
+
+    anomaly_data = features.loc[labels == 1, :]
+    anomaly_labels = labels[labels == 1]
+
+    randIdx = np.arange(N_nominal)
+    np.random.shuffle(randIdx)
+
+    N_train = int(N_nominal * (1 - test_split))
+
+    # (1 - test_split) nominal data as training set
+    X_train = nominal_data.iloc[randIdx[:N_train]].values
+
+    # test_split nominal data + all novel data as test set
+    X_test = np.concatenate((nominal_data.iloc[randIdx[N_train:]], anomaly_data), axis=0)
+    y_test = np.concatenate((nominal_labels.iloc[randIdx[N_train:]], anomaly_labels), axis=0)
+
+    return X_train.T, X_test.T, y_test
 
 
 def thyroid_data(test_split):

@@ -5,6 +5,11 @@ from src.logger import logging
 from deprecated import deprecated
 
 
+def compute_dual_function_optimized(A_squared_u, Z, u):
+    return 0.5 * u.T @ A_squared_u - Z.T @ u
+
+
+@deprecated(reason="This method is deprecated. Use compute_dual_function_optimized() instead.")
 def compute_dual_function(A, u):
     first_term = u.T @ A.T @ A @ u
     Z = np.sum(A ** 2, axis=0)
@@ -12,7 +17,7 @@ def compute_dual_function(A, u):
     return first_term - second_term
 
 
-@deprecated(reason="This method is deprecated. Use compute_dual_function() instead.")
+@deprecated(reason="This method is deprecated. Use compute_dual_function_optimized() instead.")
 def compute_dual_Yildirim(A, u_vector):
     n, m = A.shape
     first_term_sum = 0  # Refers to the first term of the equation
@@ -24,18 +29,24 @@ def compute_dual_Yildirim(A, u_vector):
     return first_term_sum - np.dot(second_term_product.T, second_term_product)
 
 
+def compute_gradient_optimized(A_squared_u, Z):
+    return A_squared_u - Z
+
+
+@deprecated(reason="This method is deprecated. Use compute_gradient_optimized() instead.")
 def compute_gradient(A, u):
     Z = np.sum(A ** 2, axis=0)
     return 2 * A.T @ A @ u - Z
 
 
-def golden_section_search(A, u, d_t, a, b,
-                          tol=1e-6, max_iter=100):
+def golden_section_search(A_squared, Z, u, d_t, a, b,
+                          tol=1e-6, max_iter=1000):
     """
     Perform exact line search using the golden section search method.
 
     Parameters:
-        A (matrix): points matrix (m,n)
+        A_squared (matrix): A.T @ A => (m,n) x (n,m) = (m,m)
+        Z (vector): sum of squares of A along the columns
         u (vector) : convex combination weights for MEB dual problem
         d_t (vector) : search direction for line search
         a (float): The left endpoint of the interval.
@@ -54,8 +65,8 @@ def golden_section_search(A, u, d_t, a, b,
 
     u1 = u + d_t * x1
     u2 = u + d_t * x2
-    dual1 = compute_dual_function(A, u1)
-    dual2 = compute_dual_function(A, u2)
+    dual1 = compute_dual_function_optimized(A_squared @ u1, Z, u1)
+    dual2 = compute_dual_function_optimized(A_squared @ u2, Z, u2)
 
     for _ in range(max_iter):
         if abs(b - a) < tol:
@@ -67,42 +78,19 @@ def golden_section_search(A, u, d_t, a, b,
             dual2 = dual1
             x1 = a + (1 - golden_ratio) * (b - a)
             u1 = u + d_t * x1
-            dual1 = compute_dual_function(A, u1)
+            dual1 = compute_dual_function_optimized(A_squared @ u1, Z, u1)
         else:
             a = x1
             x1 = x2
             dual1 = dual2
             x2 = a + golden_ratio * (b - a)
             u2 = u + d_t * x2
-            dual2 = compute_dual_function(A, u2)
+            dual2 = compute_dual_function_optimized(A_squared @ u2, Z, u2)
 
     return (a + b) / 2
 
 
-def backtracking_ls_FW(A, u, direction, steps=100, ls_eps=0.01, ls_tau=0.5):
-    step_size = 1
-    grad_direction = np.inner(compute_gradient(A, u), direction)
-
-    i = 0
-    if grad_direction == 0:
-        return 0
-
-    old_point = compute_dual_function(A, u)
-    new_point = compute_dual_function(A, u + step_size * direction)
-
-    while (new_point - old_point) > ls_eps * step_size * grad_direction:
-        if i > steps:
-            if old_point - new_point >= 0:
-                return step_size
-            else:
-                return 0
-        step_size *= ls_tau
-        new_point = compute_dual_function(A, u + step_size * direction)
-        i += 1
-    return step_size
-
-
-def armijo_search(A, u, alpha=1.0, c=0.1, rho=0.5, max_iter=100):
+def armijo_search(A_squared, Z, u, alpha=1.0, c=0.1, rho=0.5, max_iter=100):
     """
     Armijo line search for finding a suitable step size.
 
@@ -120,13 +108,13 @@ def armijo_search(A, u, alpha=1.0, c=0.1, rho=0.5, max_iter=100):
     - alpha: Suitable step size satisfying the Armijo condition.
     """
     # logging.info("Armijo started!")
+    grad = compute_gradient_optimized(A_squared @ u, Z)
+    gradient_norm = np.linalg.norm(grad)
+    f_u = compute_dual_function_optimized(A_squared @ u, Z, u)
     for i in range(max_iter):
         # logging.info(f"Armijo iteration {i} new {alpha}")
-
-        new_u = u - alpha * compute_gradient(A, u)
-        f_u = compute_dual_function(A, u)
-        f_new_u = compute_dual_function(A, new_u)
-        gradient_norm = np.linalg.norm(compute_gradient(A, u))
+        new_u = u - alpha * grad
+        f_new_u = compute_dual_function_optimized(A_squared @ new_u, Z, new_u)
 
         # Armijo condition
         if f_new_u <= f_u - c * alpha * gradient_norm ** 2:
@@ -137,49 +125,19 @@ def armijo_search(A, u, alpha=1.0, c=0.1, rho=0.5, max_iter=100):
     return alpha  # Return the best step size found within max_iter
 
 
-def exact_line_search(A, u_t, d_t, alpha_max):
-    """
-
-    Calculate the step size alpha_t using exact line search
-
-    Args:
-        A: nxm matrix, the columns represent points, and the rows represent features
-        u_t: current iterate
-        d_t: search direction
-        alpha_max: maximum step size
-
-    Returns:
-        step size alpha_t
-
-    """
-
-    # Initialize lower and upper bounds
-    alpha_l = 0.0
-    alpha_u = alpha_max
-
-    # Loop until convergence
-    while True:
-        # Evaluate the function at the midpoint
-        alpha_mid = (alpha_l + alpha_u) / 2.0
-        dual_f_mid = compute_dual_function(A, u_t + alpha_mid * d_t)
-
-        # Check if the midpoint is within the tolerance
-        if dual_f_mid <= compute_dual_function(A, u_t):
-            return alpha_mid
-
-        # Otherwise, update the lower and upper bounds
-        alpha_u = alpha_mid
+def exact_line_search(A_squared, d_t, gradient):
+    upper_term = gradient.T @ d_t
+    lower_term = (d_t.T @ A_squared @ d_t)
+    return abs(upper_term / lower_term)
 
 
-def calculate_step_size(line_search_strategy, iteration, A, u_t, d_t, alpha_max):
+def calculate_step_size(line_search_strategy, iteration, A_squared, Z, u_t, d_t, alpha_max, gradient):
     if line_search_strategy == 'golden_search':
-        alpha_t = golden_section_search(A, u_t, d_t, a=0, b=alpha_max)
+        alpha_t = golden_section_search(A_squared, Z, u_t, d_t, a=0, b=alpha_max)
     elif line_search_strategy == 'armijo_search':
-        alpha_t = armijo_search(A, u_t, alpha_max)
-    elif line_search_strategy == 'backtracking_ls_FW':
-        alpha_t = backtracking_ls_FW(A, u_t, d_t)
-    elif line_search_strategy == "exact_line_search":
-        alpha_t = exact_line_search(A, u_t, d_t, alpha_max)
+        alpha_t = armijo_search(A_squared, Z, u_t, alpha_max)
+    elif line_search_strategy == 'exact_line_search':
+        alpha_t = exact_line_search(A_squared, d_t, gradient)
     else:
         alpha_t = 2 / (iteration + 2)
     return alpha_t
@@ -244,6 +202,10 @@ def awayStep_FW(A, eps, line_search_strategy,
     n, m = A.shape
     logging.info(f"Train Dataset size: {m} points, each {n}-dimensional.")
 
+    # We do this to optimize the dual and gradient calculations
+    A_sq = 2 * A.T @ A
+    Z = np.sum(A ** 2, axis=0)
+
     # Initial solution
     u_t = np.zeros(m)
     u_t[0] = 1e0
@@ -258,12 +220,13 @@ def awayStep_FW(A, eps, line_search_strategy,
         logging.info(f"\n--------------Iteration {iteration} -----------------")
 
         # Objective function
-        dual_t = compute_dual_function(A, u_t)
+        A_sq_u = A_sq @ u_t  # We do this to optimize the dual and gradient calculations
+        dual_t = compute_dual_function_optimized(A_sq_u, Z, u_t)
         logging.info(f"Dual function value found: {dual_t} ")
         dual_list.append(dual_t)
 
         # Gradient evaluation
-        grad = compute_gradient(A, u_t)
+        grad = compute_gradient_optimized(A_sq_u, Z)
 
         # Step 3 - Solution of FW problem
         s_t_idx = LMO(grad)  # Find the index which makes gradient min
@@ -310,7 +273,7 @@ def awayStep_FW(A, eps, line_search_strategy,
         # Step 10 - End if
 
         # Step 11 - Calculate step size using line search
-        alpha_t = calculate_step_size(line_search_strategy, iteration, A, u_t, d_t, alpha_max)
+        alpha_t = calculate_step_size(line_search_strategy, iteration, A_sq, Z, u_t, d_t, alpha_max, grad)
         alpha_t = max(0.0, min(alpha_t, alpha_max))
         logging.info(f"Step size is set. --> alpha_t: {alpha_t}")
 
@@ -403,7 +366,7 @@ def blendedPairwise_FW(A, eps, line_search_strategy,
     logging.info(f"Train Dataset size: {m} points, each {n}-dimensional.")
 
     dual_t = 0
-    FW_gap_t = eps + 1.0
+    FW_gap_t = eps + 1.0  # Just to be able to enter the loop
     number_FW = 0
     number_descent = 0
     number_drop = 0
@@ -411,6 +374,10 @@ def blendedPairwise_FW(A, eps, line_search_strategy,
     # Initial solution
     u_t = np.zeros(m)
     u_t[0] = 1e0
+
+    # We do this to optimize the dual and gradient calculations
+    A_sq = 2 * A.T @ A
+    Z = np.sum(A ** 2, axis=0)
 
     # Step 1
     S_t = np.zeros(m)
@@ -424,12 +391,13 @@ def blendedPairwise_FW(A, eps, line_search_strategy,
         logging.info(f"\n--------------Iteration {iteration} -----------------")
 
         # Objective function
-        dual_t = compute_dual_function(A, u_t)
+        A_sq_u = A_sq @ u_t  # We do this to optimize the dual and gradient calculations
+        dual_t = compute_dual_function_optimized(A_sq_u, Z, u_t)
         logging.info(f"Dual function value found: {dual_t} ")
         dual_list.append(dual_t)
 
         # Gradient evaluation
-        grad_t = compute_gradient(A, u_t)
+        grad_t = compute_gradient_optimized(A_sq_u, Z)
 
         # Step 3 - Away vertex
         a_t, a_t_idx = compute_vertex_away_or_FW_local(S_t, grad_t, m)
@@ -458,7 +426,7 @@ def blendedPairwise_FW(A, eps, line_search_strategy,
             alpha_max = u_t[a_t_idx]
 
             # Step 9 - Calculate step size using line search
-            alpha_t = calculate_step_size(line_search_strategy, iteration, A, u_t, d_t, alpha_max)
+            alpha_t = calculate_step_size(line_search_strategy, iteration, A_sq, Z, u_t, d_t, alpha_max, grad_t)
 
             alpha_t = max(0.0, min(alpha_t, alpha_max))
             logging.info(f"Optimal step size: {alpha_t}")
@@ -484,7 +452,7 @@ def blendedPairwise_FW(A, eps, line_search_strategy,
             number_FW += 1
             # Step 17
             alpha_max = 1.0
-            alpha_t = calculate_step_size(line_search_strategy, iteration, A, u_t, d_t, alpha_max)
+            alpha_t = calculate_step_size(line_search_strategy, iteration, A_sq, Z, u_t, d_t, alpha_max, grad_t)
             alpha_t = max(0.0, min(alpha_t, alpha_max))
             logging.info(f"Optimal step size: {alpha_t}")
             logging.info(f"Frank Wolfe step taken, step_size: {alpha_t}")
@@ -563,6 +531,10 @@ def one_plus_eps_MEB_approximation(A, eps,
     n_A, m_A = np.shape(A)
     logging.info(f"Train Dataset size: {m_A} points, each {n_A}-dimensional.")
 
+    # We do this to optimize the dual and gradient calculations
+    A_sq = 2 * A.T @ A
+    Z = np.sum(A ** 2, axis=0)
+
     # Step 1
     a = find_furthest_point_idx(A, A[:, 0])  # Get the index of the point furthest from first point in A (index 0)
     b = find_furthest_point_idx(A, A[:, a])  # Get the index of the point furthest from point a in A
@@ -577,7 +549,7 @@ def one_plus_eps_MEB_approximation(A, eps,
     # Step 5 - Initialize center
     c_k = A @ u_k  # c should be n dimensional like points a
     # Step 6 - objective function
-    dual_k = compute_dual_function(A, u_k)
+    dual_k = compute_dual_function_optimized(A_sq @ u_k, Z, u_k)
     logging.info(f"Dual function value found: {dual_k} ")
     dual_list.append(dual_k)
     r2 = -dual_k  # r^2 is gamma (radius^2)
@@ -612,7 +584,7 @@ def one_plus_eps_MEB_approximation(A, eps,
             Xk.append(K)
         active_set_size_list.append(int(len(Xk)))
         # Step 17 - Update gamma (r2)
-        dual_k = compute_dual_function(A, u_k)
+        dual_k = compute_dual_function_optimized(A_sq @ u_k, Z, u_k)
         logging.info(f"Dual function value found: {dual_k} ")
         dual_list.append(dual_k)
         r2 = -dual_k
