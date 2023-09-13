@@ -14,9 +14,9 @@ data:
 
 # Experiment Inputs
 maxiter: "1000"
-epsilon: "1e-2"
+epsilon: "1e-3"
 
 # Algorithms
-solver_methods: ["appfw"] # A combination of these 3 ["asfw", "bpfw", "appfw"]
-line_search_asfw: "golden_search"        # "golden_search"
-line_search_bpfw: "armijo_search"        # "armijo_search"
+solver_methods: ["asfw", "bpfw", "appfw"] # A combination of these 3 ["asfw", "bpfw", "appfw"]
+line_search_asfw: "golden_search"        # "backtracking_ls_FW", "golden_search", "armijo_search", ""
+line_search_bpfw: "golden_search"        # "armijo_search", ""

@@ -29,13 +29,12 @@ def compute_gradient(A, u):
     return 2 * A.T @ A @ u - Z
 
 
-def golden_section_search(func, A, u, d_t, a, b,
+def golden_section_search(A, u, d_t, a, b,
                           tol=1e-6, max_iter=100):
     """
     Perform exact line search using the golden section search method.
 
     Parameters:
-        func (callable): The objective function to minimize.
         A (matrix): points matrix (m,n)
         u (vector) : convex combination weights for MEB dual problem
         d_t (vector) : search direction for line search
@@ -55,8 +54,8 @@ def golden_section_search(func, A, u, d_t, a, b,
 
     u1 = u + d_t * x1
     u2 = u + d_t * x2
-    dual1 = func(A, u1)
-    dual2 = func(A, u2)
+    dual1 = compute_dual_function(A, u1)
+    dual2 = compute_dual_function(A, u2)
 
     for _ in range(max_iter):
         if abs(b - a) < tol:
@@ -68,28 +67,28 @@ def golden_section_search(func, A, u, d_t, a, b,
             dual2 = dual1
             x1 = a + (1 - golden_ratio) * (b - a)
             u1 = u + d_t * x1
-            dual1 = func(A, u1)
+            dual1 = compute_dual_function(A, u1)
         else:
             a = x1
             x1 = x2
             dual1 = dual2
             x2 = a + golden_ratio * (b - a)
             u2 = u + d_t * x2
-            dual2 = func(A, u2)
+            dual2 = compute_dual_function(A, u2)
 
     return (a + b) / 2
 
 
-def backtracking_ls_FW(objectiveFunction, A, u, grad, direction, steps=100, ls_eps=0.01, ls_tau=0.5):
+def backtracking_ls_FW(A, u, direction, steps=100, ls_eps=0.01, ls_tau=0.5):
     step_size = 1
-    grad_direction = np.inner(grad(A, u), direction)
+    grad_direction = np.inner(compute_gradient(A, u), direction)
 
     i = 0
     if grad_direction == 0:
         return 0
 
-    old_point = objectiveFunction(A, u)
-    new_point = objectiveFunction(A, u + step_size * direction)
+    old_point = compute_dual_function(A, u)
+    new_point = compute_dual_function(A, u + step_size * direction)
 
     while (new_point - old_point) > ls_eps * step_size * grad_direction:
         if i > steps:
@@ -98,12 +97,12 @@ def backtracking_ls_FW(objectiveFunction, A, u, grad, direction, steps=100, ls_e
             else:
                 return 0
         step_size *= ls_tau
-        new_point = objectiveFunction(A, u + step_size * direction)
+        new_point = compute_dual_function(A, u + step_size * direction)
         i += 1
     return step_size
 
 
-def armijo_search(func, gradient, A, u, alpha=1.0, c=0.1, rho=0.5, max_iter=100):
+def armijo_search(A, u, alpha=1.0, c=0.1, rho=0.5, max_iter=100):
     """
     Armijo line search for finding a suitable step size.
 
@@ -124,10 +123,10 @@ def armijo_search(func, gradient, A, u, alpha=1.0, c=0.1, rho=0.5, max_iter=100)
     for i in range(max_iter):
         # logging.info(f"Armijo iteration {i} new {alpha}")
 
-        new_u = u - alpha * gradient(A, u)
-        f_u = func(A, u)
-        f_new_u = func(A, new_u)
-        gradient_norm = np.linalg.norm(gradient(A, u))
+        new_u = u - alpha * compute_gradient(A, u)
+        f_u = compute_dual_function(A, u)
+        f_new_u = compute_dual_function(A, new_u)
+        gradient_norm = np.linalg.norm(compute_gradient(A, u))
 
         # Armijo condition
         if f_new_u <= f_u - c * alpha * gradient_norm ** 2:
@@ -138,14 +137,49 @@ def armijo_search(func, gradient, A, u, alpha=1.0, c=0.1, rho=0.5, max_iter=100)
     return alpha  # Return the best step size found within max_iter
 
 
-def calculate_step_size(line_search_strategy, iteration, A, u_t, d_t,
-                        calc_dual_function, calc_gradient, alpha_max):
+def exact_line_search(A, u_t, d_t, alpha_max):
+    """
+
+    Calculate the step size alpha_t using exact line search
+
+    Args:
+        A: nxm matrix, the columns represent points, and the rows represent features
+        u_t: current iterate
+        d_t: search direction
+        alpha_max: maximum step size
+
+    Returns:
+        step size alpha_t
+
+    """
+
+    # Initialize lower and upper bounds
+    alpha_l = 0.0
+    alpha_u = alpha_max
+
+    # Loop until convergence
+    while True:
+        # Evaluate the function at the midpoint
+        alpha_mid = (alpha_l + alpha_u) / 2.0
+        dual_f_mid = compute_dual_function(A, u_t + alpha_mid * d_t)
+
+        # Check if the midpoint is within the tolerance
+        if dual_f_mid <= compute_dual_function(A, u_t):
+            return alpha_mid
+
+        # Otherwise, update the lower and upper bounds
+        alpha_u = alpha_mid
+
+
+def calculate_step_size(line_search_strategy, iteration, A, u_t, d_t, alpha_max):
     if line_search_strategy == 'golden_search':
-        alpha_t = golden_section_search(calc_dual_function, A, u_t, d_t, a=0, b=alpha_max)
+        alpha_t = golden_section_search(A, u_t, d_t, a=0, b=alpha_max)
     elif line_search_strategy == 'armijo_search':
-        alpha_t = armijo_search(calc_dual_function, calc_gradient, A, u_t, alpha_max)
+        alpha_t = armijo_search(A, u_t, alpha_max)
     elif line_search_strategy == 'backtracking_ls_FW':
-        alpha_t = backtracking_ls_FW(calc_dual_function, A, u_t, calc_gradient, d_t)
+        alpha_t = backtracking_ls_FW(A, u_t, d_t)
+    elif line_search_strategy == "exact_line_search":
+        alpha_t = exact_line_search(A, u_t, d_t, alpha_max)
     else:
         alpha_t = 2 / (iteration + 2)
     return alpha_t
@@ -158,10 +192,10 @@ def LMO(grad):
 def compute_vertex_away_or_FW_local(active_set_weights, gradient, dim,
                                     localFW=False):
     active_idxs_list = np.where(active_set_weights > 0)[0]
-    if localFW:
+    if localFW:  # local FW vertex
         min_grad_idx = np.argmin(gradient[active_idxs_list])  # Find min_grad_index from active set (St)
         v_t_idx = active_idxs_list[min_grad_idx]  # Set local FW index from active set (St)
-    else:
+    else:  # away vertex
         max_grad_idx = np.argmax(gradient[active_idxs_list])  # Find max_grad_index from active set (St)
         v_t_idx = active_idxs_list[max_grad_idx]  # Set away vertex index from active set (St)
     v_t = np.zeros(dim)  # Create m-dimensional array and set v_t = 1 and others to 0
@@ -276,8 +310,7 @@ def awayStep_FW(A, eps, line_search_strategy,
         # Step 10 - End if
 
         # Step 11 - Calculate step size using line search
-        alpha_t = calculate_step_size(line_search_strategy, iteration, A, u_t, d_t,
-                                      compute_dual_function, compute_gradient, alpha_max)
+        alpha_t = calculate_step_size(line_search_strategy, iteration, A, u_t, d_t, alpha_max)
         alpha_t = max(0.0, min(alpha_t, alpha_max))
         logging.info(f"Step size is set. --> alpha_t: {alpha_t}")
 
@@ -301,7 +334,7 @@ def awayStep_FW(A, eps, line_search_strategy,
                 S_t[v_t_idx] = 0
             else:
                 S_t[v_t_idx] = S_t[v_t_idx] - alpha_t
-        active_set_size_list.append(int(np.sum(np.abs(S_t) >= 0.0001)))
+        active_set_size_list.append(int(np.sum(np.abs(S_t) > 0)))
 
         # Step 14 end for
 
@@ -412,12 +445,12 @@ def blendedPairwise_FW(A, eps, line_search_strategy,
         w_t[w_t_idx] = 1.0
         logging.info(f"Global FW min grad unit simplex index found: {w_t_idx}")
 
-        FW_gap_t = max(0.0, grad_t.T @ (u_t - w_t))
+        FW_gap_t = grad_t.T @ (u_t - w_t)
         logging.info(f"Dual gap value found: {FW_gap_t} ")
         dual_gap_list.append(FW_gap_t)
 
         # Step 6 - Compare local pairwise gap and FW gap
-        local_pairwise_gap = max(0.0, grad_t.T @ (a_t - s_t))
+        local_pairwise_gap = grad_t.T @ (a_t - s_t)
         if local_pairwise_gap >= FW_gap_t:
             # Step 7
             d_t = a_t - s_t  # Away vertex - local FW
@@ -425,8 +458,7 @@ def blendedPairwise_FW(A, eps, line_search_strategy,
             alpha_max = u_t[a_t_idx]
 
             # Step 9 - Calculate step size using line search
-            alpha_t = calculate_step_size(line_search_strategy, iteration, A, u_t, d_t,
-                                          compute_dual_function, compute_gradient, alpha_max)
+            alpha_t = calculate_step_size(line_search_strategy, iteration, A, u_t, d_t, alpha_max)
 
             alpha_t = max(0.0, min(alpha_t, alpha_max))
             logging.info(f"Optimal step size: {alpha_t}")
@@ -434,7 +466,7 @@ def blendedPairwise_FW(A, eps, line_search_strategy,
             # Step 10
             if alpha_t < alpha_max:
                 # Step 11
-                S_t = S_t  # Descent step, do not update St
+                # S_t = S_t  # Descent step, do not update St
                 number_descent += 1
                 logging.info(f"Descent step taken, step_size: {alpha_t}")
             # Step 12
@@ -452,10 +484,7 @@ def blendedPairwise_FW(A, eps, line_search_strategy,
             number_FW += 1
             # Step 17
             alpha_max = 1.0
-            if line_search_strategy == 'armijo_search':
-                alpha_t = armijo_search(compute_dual_function, compute_gradient, A, u_t, alpha_max)
-            else:
-                alpha_t = 2 / (iteration + 2)
+            alpha_t = calculate_step_size(line_search_strategy, iteration, A, u_t, d_t, alpha_max)
             alpha_t = max(0.0, min(alpha_t, alpha_max))
             logging.info(f"Optimal step size: {alpha_t}")
             logging.info(f"Frank Wolfe step taken, step_size: {alpha_t}")
@@ -465,7 +494,7 @@ def blendedPairwise_FW(A, eps, line_search_strategy,
             else:
                 S_t[w_t_idx] = 1
         # Step 19 - End if
-        active_set_size_list.append(int(np.sum(np.abs(S_t) >= 0.0001)))
+        active_set_size_list.append(int(sum(S_t)))
 
         # Step 20
         u_t = u_t - alpha_t * d_t
