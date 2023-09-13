@@ -277,7 +277,7 @@ def plot_iterations_vs_objective_function(iterations, objective_function_values,
         plt.close()
 
 
-def plot_dual_gap_vs_iterations(iterations, dual_gap_values, algorithm_name, path, show=True):
+def plot_iterations_vs_dual_gap(iterations, dual_gap_values, algorithm_name, path, show=True):
     plt.plot(iterations, dual_gap_values, label=algorithm_name)
     # sns.lineplot(x=iterations, y=dual_gap_values, label=algorithm_name, errorbar=None)
     plt.xlabel('Iterations')
@@ -322,7 +322,7 @@ def plot_active_set_size_vs_delta(active_set_sizes, delta_list, algorithm_name, 
         plt.close()
 
 
-def plot_delta_vs_iterations(iterations, delta_list, algorithm_name, path, show=True):
+def plot_iterations_vs_delta(iterations, delta_list, algorithm_name, path, show=True):
     plt.plot(iterations, delta_list, label=algorithm_name)
     # sns.lineplot(x=iterations, y=delta_list, label=algorithm_name, errorbar=None)
     plt.xlabel('Iterations')
@@ -355,15 +355,15 @@ def plot_graphs(title, show_graphs, graph_path, out_dict):
         dual_gap_list = out_dict.get("dual_gap_list")
         plot_cpu_time_vs_dual_gap(CPU_time_list, dual_gap_list, title, graph_path, show_graphs)
         plot_active_set_size_vs_dual_gap(active_set_size_list, dual_gap_list, title, graph_path, show_graphs)
-        plot_dual_gap_vs_iterations(iterations_list, dual_gap_list, title, graph_path, show_graphs)
+        plot_iterations_vs_dual_gap(iterations_list, dual_gap_list, title, graph_path, show_graphs)
     elif out_dict.get("name") == "appfw":
         delta_list = out_dict.get("delta_list")
         plot_cpu_time_vs_delta(CPU_time_list, delta_list, title, graph_path, show_graphs)
         plot_active_set_size_vs_delta(active_set_size_list, delta_list, title, graph_path, show_graphs)
-        plot_delta_vs_iterations(iterations_list, delta_list, title, graph_path, show_graphs)
+        plot_iterations_vs_delta(iterations_list, delta_list, title, graph_path, show_graphs)
 
 
-def plot_single_comparison_graph(train_dict, x_string, y_string, xlabel, ylabel, title):
+def plot_single_comparison_graph(train_dict, x_string, y_string, x_label, y_label, title,path,show=True):
     plt.plot()
     for key, value in train_dict.items():
         if x_string == "Number of iterations":
@@ -376,41 +376,46 @@ def plot_single_comparison_graph(train_dict, x_string, y_string, xlabel, ylabel,
 
         plt.plot(x_axis, value[y_string], linewidth=2, label=key)
 
-    plt.xlabel(xlabel)
-    plt.ylabel(ylabel)
+    plt.xlabel(x_label)
+    plt.ylabel(y_label)
     plt.title(title)
     plt.legend()
-    plt.show()
+    plt.savefig(os.path.join(path, title + "_.png"))
+    if show:
+        plt.show()
+    else:
+        plt.close()
 
 
-def plot_comparison_graphs(out_dict):
+def plot_comparison_graphs(out_dict, show_graphs, graph_path):
+    dual_function_list = []
     train_dict = {key: value[0] for key, value in out_dict.items()}
     plot_single_comparison_graph(train_dict, 'CPU_time', 'dual_function',
                                  'CPU time', 'Objective function',
-                                 'CPU time vs Objective Function')
+                                 'CPU time vs Objective Function',graph_path, show_graphs)
     plot_single_comparison_graph(train_dict, 'active_set_size', 'dual_function',
                                  'Active Set Size', 'Objective function',
-                                 'Active Set Size vs Objective Function')
+                                 'Active Set Size vs Objective Function',graph_path, show_graphs)
     plot_single_comparison_graph(train_dict, "Number of iterations", 'dual_function',
                                  'Number of iterations', 'Objective function',
-                                 'Number of iterations vs Objective Function')
+                                 'Number of iterations vs Objective Function',graph_path, show_graphs)
 
     plot_single_comparison_graph(train_dict, "Number of iterations", 'dual_gap',
                                  'Number of iterations', 'Dual Gap',
-                                 'Number of iterations vs Dual Gap')
+                                 'Number of iterations vs Dual Gap',graph_path, show_graphs)
     plot_single_comparison_graph(train_dict, "CPU_time", 'dual_gap',
                                  'CPU time', 'Dual Gap',
-                                 'CPU time vs Dual Gap')
+                                 'CPU time vs Dual Gap',graph_path, show_graphs)
     plot_single_comparison_graph(train_dict, 'active_set_size', 'dual_gap',
                                  'Active Set Size', 'Dual gap',
-                                 'Active Set Size vs Dual gap')
+                                 'Active Set Size vs Dual gap',graph_path, show_graphs)
 
     plot_single_comparison_graph(train_dict, "CPU_time", 'active_set_size',
                                  'CPU time', 'Active set size',
-                                 'CPU time vs Active set size')
+                                 'CPU time vs Active set size',graph_path, show_graphs)
     plot_single_comparison_graph(train_dict, 'Number of iterations', 'active_set_size',
                                  'Number of iterations', 'Active set size',
-                                 'Number of iterations vs Active set size')
+                                 'Number of iterations vs Active set size',graph_path, show_graphs)
 
 
 # Data Generation
