@@ -7,7 +7,6 @@ from src.utils import increment_path, load_config, create_data, execute_algorith
 # Problematic graphs: Size of Active Set vs Delta, Iterations vs objective Function, Delta vs Iterations
 # This problem occurs when the number of iterations/size of active set is small (< 10).
 # TODO (Marija): Check if a graph needs scaling and do when necessary
-# TODO (Marija): comparison graphs, check and write (with graph show, save)
 # in utils. I collected all graphs functions inside that.
 
 # Change only this
@@ -50,7 +49,9 @@ if __name__ == '__main__':
         results[method] = (train, test)
         mc[method] = train
 
-    plot_comparison_graphs(results)
+    show_graphs = config.get('show_graphs')
+    graph_path = os.path.join(incremented_path)
+    plot_comparison_graphs(results, show_graphs, graph_path)
 
     data_method = config.get("data").get("method")
     if data_method not in ["random_standard"]:
