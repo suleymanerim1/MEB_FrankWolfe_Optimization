@@ -10,14 +10,12 @@ from src.utils import increment_path, load_config, create_data, execute_algorith
 # in utils. I collected all graphs functions inside that.
 
 # Change only this
-yaml_name = "exp8_Thyroid.yaml"
+yaml_name = "exp1.yaml"
 
 config_path = "configs/"  # Folder to load config file
 # Configuration
 config = load_config(yaml_name, config_path)
 show_graphs = config.get('show_graphs')
-maxIter = eval(config.get('maxiter'))
-epsilon = eval(config.get('epsilon'))
 perform_test = config.get('perform_test')
 
 # Save path
@@ -41,13 +39,12 @@ if __name__ == '__main__':
     # Create Data
     A, test_data = create_data(config.get('data'))
     n, m = A.shape
-    mc ={}
+
     # Start Algorithms
     solver_methods = config.get('solver_methods')
     for method in solver_methods:
         train, test = execute_algorithm(method, A, config, incremented_path, test_data)
         results[method] = (train, test)
-        mc[method] = train
 
     show_graphs = config.get('show_graphs')
     graph_path = os.path.join(incremented_path)
