@@ -70,6 +70,7 @@ def create_save_dict(out_dict):
 
     return save_dict
 
+
 def create_save_dict_full(out_dict):
     # out_dict : the output dictionary returned after algorithm training
 
@@ -222,10 +223,10 @@ def plot_cpu_time_vs_dual_gap(cpu_time, dual_gap_values, algorithm_name, path, s
     # sns.lineplot(x=cpu_time, y=dual_gap_values, label=algorithm_name, errorbar=None)
     plt.xlabel('CPU Time')
     plt.ylabel('Dual Gap')
-    plt.title('CPU Time vs Dual Gap')
+    plt.title('Dual Gap vs CPU Time')
     plt.grid(True)
     plt.legend()
-    plt.savefig(os.path.join(path, "cpu_time_vs_dual_gap.png"))
+    plt.savefig(os.path.join(path, "dual_gap_vs_cpu_time.png"))
     if show:
         plt.show()
     else:
@@ -237,10 +238,10 @@ def plot_active_set_size_vs_dual_gap(active_set_sizes, dual_gap_values, algorith
     # sns.lineplot(x=active_set_sizes, y=dual_gap_values, label=algorithm_name, errorbar=None)
     plt.xlabel('Size of Active Set')
     plt.ylabel('Dual Gap')
-    plt.title('Size of Active Set vs Dual Gap')
+    plt.title('Dual Gap vs Size of Active Set')
     plt.grid(True)
     plt.legend()
-    plt.savefig(os.path.join(path, "active_set_size_vs_dual_gap.png"))
+    plt.savefig(os.path.join(path, "dual_gap_vs_active_set_size.png"))
     if show:
         plt.show()
     else:
@@ -252,10 +253,10 @@ def plot_cpu_time_vs_objective_function(cpu_time, objective_function_values, alg
     # sns.lineplot(x=cpu_time, y=objective_function_values, label=algorithm_name, errorbar=None)
     plt.xlabel('CPU Time')
     plt.ylabel('Objective Function Value')
-    plt.title('CPU Time vs Objective Function')
+    plt.title('Objective Function vs CPU Time')
     plt.grid(True)
     plt.legend()
-    plt.savefig(os.path.join(path, "cpu_time_vs_objective_function.png"))
+    plt.savefig(os.path.join(path, "objective_function_vs_cpu_time.png"))
     if show:
         plt.show()
     else:
@@ -267,10 +268,10 @@ def plot_iterations_vs_objective_function(iterations, objective_function_values,
     # sns.lineplot(x=iterations, y=objective_function_values, label=algorithm_name, errorbar=None)
     plt.xlabel('Iterations')
     plt.ylabel('Objective Function Value')
-    plt.title('Iterations vs Objective Function')
+    plt.title('Objective Function vs Iterations')
     plt.grid(True)
     plt.legend()
-    plt.savefig(os.path.join(path, "iterations_vs_objective_function.png"))
+    plt.savefig(os.path.join(path, "objective_function_vs_iterations.png"))
     if show:
         plt.show()
     else:
@@ -297,10 +298,10 @@ def plot_cpu_time_vs_delta(cpu_time, delta_list, algorithm_name, path, show=True
     # sns.lineplot(x=cpu_time, y=delta_list, label=algorithm_name, errorbar=None)
     plt.xlabel('CPU Time')
     plt.ylabel('Delta')
-    plt.title('CPU Time vs Delta')
+    plt.title('Delta_vs_CPU Time')
     plt.grid(True)
     plt.legend()
-    plt.savefig(os.path.join(path, "cpu_time_vs_delta.png"))
+    plt.savefig(os.path.join(path, "delta_vs_cpu_time.png"))
     if show:
         plt.show()
     else:
@@ -312,10 +313,10 @@ def plot_active_set_size_vs_delta(active_set_sizes, delta_list, algorithm_name, 
     # sns.lineplot(x=active_set_sizes, y=delta_list, label=algorithm_name, errorbar=None)
     plt.xlabel('Size of Active Set')
     plt.ylabel('Delta')
-    plt.title('Size of Active Set vs Delta')
+    plt.title('Delta vs Size of Active Set')
     plt.grid(True)
     plt.legend()
-    plt.savefig(os.path.join(path, "active_set_size_vs_delta.png"))
+    plt.savefig(os.path.join(path, "delta_vs_active_set_size.png"))
     if show:
         plt.show()
     else:
@@ -363,7 +364,7 @@ def plot_graphs(title, show_graphs, graph_path, out_dict):
         plot_iterations_vs_delta(iterations_list, delta_list, title, graph_path, show_graphs)
 
 
-def plot_single_comparison_graph(train_dict, x_string, y_string, x_label, y_label, title, path, show=False):
+def plot_single_comparison_graph(train_dict, x_string, y_string, x_label, y_label, path, show=False):
     plt.plot()
     for key, value in train_dict.items():
         if x_string == "Number of iterations":
@@ -374,10 +375,11 @@ def plot_single_comparison_graph(train_dict, x_string, y_string, x_label, y_labe
         if y_string == "dual_gap" and key == "appfw":
             y_string = "delta"
 
-        plt.plot(x_axis, value[y_string], linewidth=2, label=key)
+        plt.plot(x_axis, value[y_string], linewidth=2, label=key.upper())
 
     plt.xlabel(x_label)
     plt.ylabel(y_label)
+    title = y_label + " vs " + x_label
     plt.title(title)
     plt.legend()
     plt.savefig(os.path.join(path, title + ".png"))
@@ -390,31 +392,21 @@ def plot_single_comparison_graph(train_dict, x_string, y_string, x_label, y_labe
 def plot_comparison_graphs(out_dict, show_graphs, graph_path):
     train_dict = {key: value[0] for key, value in out_dict.items()}
     plot_single_comparison_graph(train_dict, 'CPU_time', 'dual_function',
-                                 'CPU time', 'Objective function',
-                                 'CPU time vs Objective Function', graph_path, show_graphs)
+                                 'CPU time', 'Objective function', graph_path, show_graphs)
     plot_single_comparison_graph(train_dict, 'active_set_size', 'dual_function',
-                                 'Active Set Size', 'Objective function',
-                                 'Active Set Size vs Objective Function', graph_path, show_graphs)
+                                 'Active Set Size', 'Objective function', graph_path, show_graphs)
     plot_single_comparison_graph(train_dict, "Number of iterations", 'dual_function',
-                                 'Number of iterations', 'Objective function',
-                                 'Number of iterations vs Objective Function', graph_path, show_graphs)
-
+                                 'Number of iterations', 'Objective function', graph_path, show_graphs)
     plot_single_comparison_graph(train_dict, "Number of iterations", 'dual_gap',
-                                 'Number of iterations', 'Dual Gap',
-                                 'Number of iterations vs Dual Gap', graph_path, show_graphs)
+                                 'Number of iterations', 'Dual Gap', graph_path, show_graphs)
     plot_single_comparison_graph(train_dict, "CPU_time", 'dual_gap',
-                                 'CPU time', 'Dual Gap',
-                                 'CPU time vs Dual Gap', graph_path, show_graphs)
+                                 'CPU time', 'Dual Gap', graph_path, show_graphs)
     plot_single_comparison_graph(train_dict, 'active_set_size', 'dual_gap',
-                                 'Active Set Size', 'Dual gap',
-                                 'Active Set Size vs Dual gap', graph_path, show_graphs)
-
+                                 'Active Set Size', 'Dual gap', graph_path, show_graphs)
     plot_single_comparison_graph(train_dict, "CPU_time", 'active_set_size',
-                                 'CPU time', 'Active set size',
-                                 'CPU time vs Active set size', graph_path, show_graphs)
+                                 'CPU time', 'Active set size', graph_path, show_graphs)
     plot_single_comparison_graph(train_dict, 'Number of iterations', 'active_set_size',
-                                 'Number of iterations', 'Active set size',
-                                 'Number of iterations vs Active set size', graph_path, show_graphs)
+                                 'Number of iterations', 'Active set size', graph_path, show_graphs)
 
 
 # Data Generation
@@ -457,7 +449,9 @@ def create_data(data_config):
 
 
 # daphnet_freezing_data
-def daphnet_freezing_data(test_split):
+def daphnet_freezing_data(test_split, seed=123):
+    np.random.seed(seed)
+
     df = pd.read_csv('datasets/daphnet_freezing.arff', header=None)
     df = df.rename(columns={14: 'y'})
 
@@ -488,7 +482,9 @@ def daphnet_freezing_data(test_split):
     return train_data, test_X, test_Y
 
 
-def breast_cancer_data(test_split):
+def breast_cancer_data(test_split, seed=123):
+    np.random.seed(seed)
+
     medical_df = pd.read_csv('datasets/breast_cancer_wisconsin.csv')
     labels = medical_df['diagnosis']
     labels = labels.map({'B': 0, 'M': 1})
@@ -517,7 +513,8 @@ def breast_cancer_data(test_split):
     return X_train.T, X_test.T, y_test
 
 
-def thyroid_data(test_split):
+def thyroid_data(test_split, seed=123):
+    np.random.seed(seed)
 
     data = io.loadmat('datasets/thyroid.mat')
 
@@ -588,7 +585,8 @@ def metro_train_data(test_split):
     return train_data, test_X, test_Y
 
 
-def generate_fermat_spiral(dot):
+def generate_fermat_spiral(dot, seed=123):
+    np.random.seed(seed)
     data = []
     d = dot * 0.1
     for i in range(dot):
@@ -602,11 +600,13 @@ def generate_fermat_spiral(dot):
     return f_s
 
 
-def generate_random_matrix_normal(mu, sigma, m, n):
+def generate_random_matrix_normal(mu, sigma, m, n, seed=123):
+    np.random.seed(seed)
     return np.random.normal(loc=mu, scale=sigma, size=(m, n))
 
 
-def generate_random_matrix_uniform(low, high, m, n):
+def generate_random_matrix_uniform(low, high, m, n, seed=123):
+    np.random.seed(seed)
     return np.random.uniform(low, high, size=(m, n))
 
 
@@ -708,7 +708,7 @@ def execute_algorithm(method, A, config, incremented_path, test_data=None):
     perform_test = config.get('perform_test')
 
     print("\n*****************")
-    title = "*  " + method + "  *"
+    title = method.upper()
     print(title)
     print("*****************")
 
@@ -741,6 +741,7 @@ def execute_algorithm(method, A, config, incremented_path, test_data=None):
         test_dict = test_algorithm(test_data, out_dict.get("center"), out_dict.get("radius"))
 
     return train_dict, test_dict
+
 
 def create_yaml(train_size, test_size, config, incremented_path,
                 asfw_train=None, asfw_test=None, bpfw_train=None, bpfw_test=None, appfw_train=None, appfw_test=None):
