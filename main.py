@@ -3,6 +3,9 @@ from src.logger import my_logger
 from src.utils import increment_path, load_config, create_data, execute_algorithm, create_yaml, plot_comparison_graphs
 
 
+# TODO (Suleyman): Move plotting functions to plotting.py and data generation functions to data_generation.py
+# Suggestion by Dejan
+
 # TODO (Marija): For every plot except the CPU time: x-axis should be a list of integers, however it shows floats.
 # Problematic graphs: Size of Active Set vs Delta, Iterations vs objective Function, Delta vs Iterations
 # This problem occurs when the number of iterations/size of active set is small (< 10).
@@ -10,7 +13,7 @@ from src.utils import increment_path, load_config, create_data, execute_algorith
 # in utils. I collected all graphs functions inside that.
 
 # Change only this
-yaml_name = "exp9_BreastCancer.yaml"
+yaml_name = "exp1.yaml"
 
 config_path = "configs/"  # Folder to load config file
 # Configuration
