@@ -364,7 +364,11 @@ def plot_graphs(title, show_graphs, graph_path, out_dict):
         plot_iterations_vs_delta(iterations_list, delta_list, title, graph_path, show_graphs)
 
 
-def plot_single_comparison_graph(train_dict, x_string, y_string, x_label, y_label, path, show=False):
+import matplotlib.pyplot as plt
+import os
+
+
+def plot_single_comparison_graph(train_dict, x_string, y_string, x_label, y_label, path, show=False, transform= None):
     plt.plot()
     for key, value in train_dict.items():
         if x_string == "Number of iterations":
@@ -375,18 +379,27 @@ def plot_single_comparison_graph(train_dict, x_string, y_string, x_label, y_labe
         if y_string == "dual_gap" and key == "appfw":
             y_string = "delta"
 
-        plt.plot(x_axis, value[y_string], linewidth=2, label=key.upper())
+        line_style = '--' if key == 'bpfw' else '-'
+
+        plt.plot(x_axis, value[y_string], linewidth=2,linestyle=line_style, label=key.upper())
 
     plt.xlabel(x_label)
     plt.ylabel(y_label)
     title = y_label + " vs " + x_label
     plt.title(title)
     plt.legend()
+
+    if transform == 'log':
+        plt.yscale('log')  # Set y-axis to logarithmic scale
+    elif transform == 'exp':
+        plt.yscale('exp')
+
     plt.savefig(os.path.join(path, title + ".png"))
     if show:
         plt.show()
     else:
         plt.close()
+
 
 
 def plot_comparison_graphs(out_dict, show_graphs, graph_path):
