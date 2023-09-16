@@ -526,7 +526,7 @@ def one_plus_eps_MEB_approximation(A, eps,
     dual_list = []
     delta_list = []
     total_time = 0
-    CPU_time_list = [0]
+    CPU_time_list = []
 
     n_A, m_A = np.shape(A)
     logging.info(f"Train Dataset size: {m_A} points, each {n_A}-dimensional.")
@@ -536,6 +536,7 @@ def one_plus_eps_MEB_approximation(A, eps,
     Z = np.sum(A ** 2, axis=0)
 
     # Step 1
+    t_start = time.time()
     a = find_furthest_point_idx(A, A[:, 0])  # Get the index of the point furthest from first point in A (index 0)
     b = find_furthest_point_idx(A, A[:, a])  # Get the index of the point furthest from point a in A
     # Step 2
@@ -564,6 +565,12 @@ def one_plus_eps_MEB_approximation(A, eps,
     # Step 10 - Stopping conditions
     deltaHasNotReachedThreshold = delta_k > (1 + eps) ** 2 - 1
     maxIterNotReached = k < max_iter
+
+    # track first iteration time
+    iter_time = time.time() - t_start
+    total_time = total_time + iter_time
+    CPU_time_list.append(total_time)
+
     # Step 11 - Loop
     while deltaHasNotReachedThreshold and maxIterNotReached:
         t_start = time.time()
