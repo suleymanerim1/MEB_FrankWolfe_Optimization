@@ -381,7 +381,7 @@ def plot_single_comparison_graph(train_dict, x_string, y_string, x_label, y_labe
 
         line_style = '--' if key == 'bpfw' else '-'
 
-        plt.plot(x_axis, value[y_string], linewidth=2,linestyle=line_style, label=key.upper())
+        plt.plot(x_axis, value[y_string], linewidth=2,linestyle=line_style, label=key.upper(),marker="o",ms=7,markevery=[-1])
 
     plt.xlabel(x_label)
     plt.ylabel(y_label)
@@ -561,7 +561,9 @@ def thyroid_data(test_split, seed=123):
 
 
 # metro_train_data
-def metro_train_data(test_split):
+def metro_train_data(test_split, seed = 123, num_samples=5000):
+    np.random.seed(seed)
+
     df = pd.read_csv('datasets/metro_train.csv')
     columns = ['TP2', 'TP3', 'H1', 'DV_pressure', 'Reservoirs', 'Oil_temperature', 'Motor_current', 'COMP']
     df = df[columns]
@@ -569,6 +571,8 @@ def metro_train_data(test_split):
 
     # make anomaly as 1 and good as 0 (to make it suitable for algorithms)
     df['y'] = df['y'].replace({0: 1, 1: 0})
+
+    df = df.head(num_samples)
 
     # Create training and testing sets
     train, test = train_test_split(df, test_size=test_split)
@@ -594,6 +598,9 @@ def metro_train_data(test_split):
 
     # create a list of zeros and ones for good and anomaly points
     test_Y = [0] * len_good + [1] * len_anomaly
+
+    count_ones = test_Y.count(1)
+    print("Number of anomalies (1s) in test_Y:", count_ones)
 
     return train_data, test_X, test_Y
 
