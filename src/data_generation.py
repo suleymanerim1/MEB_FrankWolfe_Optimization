@@ -80,7 +80,7 @@ def daphnet_freezing_data(test_split, scale_data=True, seed=123):
     y_test = np.concatenate((nominal_labels.iloc[randIdx[N_train:]], anomaly_labels), axis=0)
 
     if scale_data:
-        scaler = StandardScaler()
+        scaler = StandardScaler()  # MinMaxScaler()
         X_train = scaler.fit_transform(X_train)
         X_test = scaler.transform(X_test)
 
@@ -114,8 +114,8 @@ def musk_data(test_split, scale_data=True, seed=123):
     y_test = np.concatenate((nominal_labels.iloc[randIdx[N_train:]], anomaly_labels), axis=0)
 
     if scale_data:
-        scaler = StandardScaler()
-        X_train = scaler.fit_transform(nominal_data)
+        scaler = StandardScaler()  # MinMaxScaler()
+        X_train = scaler.fit_transform(X_train)
         X_test = scaler.fit_transform(X_test)
 
     return X_train.T, X_test.T, y_test
@@ -149,7 +149,7 @@ def customer_churn_data(test_split, scale_data=True, seed=123):
 
     if scale_data:
         scaler = StandardScaler()
-        X_train = scaler.fit_transform(nominal_data)
+        X_train = scaler.fit_transform(X_train)
         X_test = scaler.fit_transform(X_test)
 
     return X_train.T, X_test.T, y_test
@@ -184,8 +184,8 @@ def breast_cancer_data(test_split, scale_data=True, seed=123):
     y_test = np.concatenate((nominal_labels.iloc[randIdx[N_train:]], anomaly_labels), axis=0)
 
     if scale_data:
-        scaler = StandardScaler()
-        X_train = scaler.fit_transform(nominal_data)
+        scaler = StandardScaler()  # MinMaxScaler()
+        X_train = scaler.fit_transform(X_train)
         X_test = scaler.fit_transform(X_test)
 
     return X_train.T, X_test.T, y_test
@@ -224,7 +224,7 @@ def thyroid_data(test_split, scale_data=True, seed=123):
 
     if scale_data:
         scaler = StandardScaler()
-        X_train = scaler.fit_transform(nominal_data)
+        X_train = scaler.fit_transform(X_train)
         X_test = scaler.fit_transform(X_test)
 
     return X_train.T, X_test.T, y_test
@@ -266,7 +266,7 @@ def metro_train_data(test_split, num_samples=5000, scale_data=True, seed=123):
 
     if scale_data:
         scaler = StandardScaler()
-        X_train = scaler.fit_transform(nominal_data)
+        X_train = scaler.fit_transform(X_train)
         X_test = scaler.fit_transform(X_test)
 
     return X_train.T, X_test.T, y_test

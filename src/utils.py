@@ -10,6 +10,7 @@ def load_config(config_name, config_path):
         config = yaml.safe_load(file)
     return config
 
+
 # Create result save directory
 # Create run folders for experiment result saving
 def increment_path(path, exist_ok=False, sep='', mkdir=False):
@@ -30,6 +31,7 @@ def increment_path(path, exist_ok=False, sep='', mkdir=False):
         path.mkdir(parents=True, exist_ok=True)  # make directory
 
     return path
+
 
 def create_save_dict_full(out_dict):
     # out_dict : the output dictionary returned after algorithm training
@@ -88,9 +90,6 @@ def print_on_console(out_dict):
 
 def create_yaml(train_size, test_size, config, save_path, results_dict):
 
-    # Initialize test dicts in case results_dict return none for test
-    asfw_test, bpfw_test, appfw_test = {}, {}, {}
-
     data_method = config.get("data").get("method")
     if data_method not in ["random_standard", "random_uniform"]:
         del config["data"]["number_of_samples"]
@@ -105,8 +104,7 @@ def create_yaml(train_size, test_size, config, save_path, results_dict):
 
     asfw_test = results_dict.get("asfw")[1]
     bpfw_test = results_dict.get("bpfw")[1]
-    appfw_test  =results_dict.get("appfw")[1]
-
+    appfw_test = results_dict.get("appfw")[1]
 
     output = {
         'train':
