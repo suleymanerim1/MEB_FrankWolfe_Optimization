@@ -18,5 +18,5 @@ epsilon: "1e-2"
 
 # Algorithms
 solver_methods: ["asfw", "bpfw", "appfw"] # A combination of these 3 ["asfw", "bpfw", "appfw"]
-line_search_asfw: "golden_search"  # "golden_search"
-line_search_bpfw: ""  # "armijo_search"
+line_search_asfw: "exact_line_seach"  # "golden_search"
+line_search_bpfw: "exact_line_seach"  # "armijo_search"

@@ -8,7 +8,7 @@ data:
   method: "musk_data"
   # choose one of ["random_normal", "random_uniform","daphnet_freezing_data", "metro_train_data"]
   # below attributes does not work when custom data is used.
-  test_split: "0.5"
+  test_split: "0.1"
   number_of_samples: "2**12"  # m
   number_of_variables:  "2**8"  # n
 

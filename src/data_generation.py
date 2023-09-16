@@ -1,8 +1,7 @@
 import numpy as np
 import pandas as pd
 import scipy.io as io
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import MinMaxScaler, StandardScaler
+from sklearn.preprocessing import StandardScaler, MinMaxScaler
 import math
 
 
@@ -52,45 +51,14 @@ def create_data(data_config):
 
 
 # daphnet_freezing_data
-def daphnet_freezing_data(test_split, seed=123):
+def daphnet_freezing_data(test_split, scale_data=True, seed=123):
     np.random.seed(seed)
 
-    df = pd.read_csv('datasets/daphnet_freezing.arff', header=None)
-    df = df.rename(columns={14: 'y'})
+    daphnet_freezing_df = pd.read_csv('datasets/daphnet_freezing.arff', header=None)
+    daphnet_freezing_df = daphnet_freezing_df.rename(columns={14: 'y'})
 
-    # Create training and testing sets
-    train, test = train_test_split(df, test_size=test_split)
-
-    X = train[train.y == 0]
-
-    # Remove generated row names and class column (y)
-    X = X.drop(columns=['y'])
-
-    # Normalize data
-    scalar = MinMaxScaler()
-    train_data = scalar.fit_transform(X).T
-
-    len_good = (test["y"] == 0).sum()
-    len_anomaly = (test["y"] == 1).sum()
-
-    # Remove generated row names and class column (y)
-    test = test.drop(columns=['y'])
-
-    # normalize data
-    test_X = scalar.fit_transform(test).T
-
-    # create a list of zeros and ones for good and anomaly points
-    test_Y = [0] * len_good + [1] * len_anomaly
-
-    return train_data, test_X, test_Y
-
-
-def musk_data(test_split, seed=123):
-    np.random.seed(seed)
-
-    medical_df = pd.read_csv('datasets/musk.csv')
-    labels = medical_df['Class']
-    features = medical_df.drop(columns=['Class'])
+    labels = daphnet_freezing_df['y']
+    features = daphnet_freezing_df.drop(columns=['y'])
 
     nominal_data = features.loc[labels == 0, :]
     nominal_labels = labels[labels == 0]
@@ -98,10 +66,6 @@ def musk_data(test_split, seed=123):
 
     anomaly_data = features.loc[labels == 1, :]
     anomaly_labels = labels[labels == 1]
-
-    scaler = StandardScaler()
-    nominal_data = pd.DataFrame(scaler.fit_transform(nominal_data))
-    anomaly_data = pd.DataFrame(scaler.fit_transform(anomaly_data))
 
     randIdx = np.arange(N_nominal)
     np.random.shuffle(randIdx)
@@ -115,15 +79,20 @@ def musk_data(test_split, seed=123):
     X_test = np.concatenate((nominal_data.iloc[randIdx[N_train:]], anomaly_data), axis=0)
     y_test = np.concatenate((nominal_labels.iloc[randIdx[N_train:]], anomaly_labels), axis=0)
 
+    if scale_data:
+        scaler = StandardScaler()
+        X_train = scaler.fit_transform(X_train)
+        X_test = scaler.transform(X_test)
+
     return X_train.T, X_test.T, y_test
 
 
-def customer_churn_data(test_split, seed=123):
+def musk_data(test_split, scale_data=True, seed=123):
     np.random.seed(seed)
 
-    medical_df = pd.read_csv('datasets/CustomerChurn.csv')
-    labels = medical_df['Churn']
-    features = medical_df.drop(columns=['Churn'])
+    musk_df = pd.read_csv('datasets/musk.csv')
+    labels = musk_df['Class']
+    features = musk_df.drop(columns=['Class'])
 
     nominal_data = features.loc[labels == 0, :]
     nominal_labels = labels[labels == 0]
@@ -131,10 +100,6 @@ def customer_churn_data(test_split, seed=123):
 
     anomaly_data = features.loc[labels == 1, :]
     anomaly_labels = labels[labels == 1]
-
-    scaler = StandardScaler()
-    nominal_data = pd.DataFrame(scaler.fit_transform(nominal_data))
-    anomaly_data = pd.DataFrame(scaler.fit_transform(anomaly_data))
 
     randIdx = np.arange(N_nominal)
     np.random.shuffle(randIdx)
@@ -148,17 +113,56 @@ def customer_churn_data(test_split, seed=123):
     X_test = np.concatenate((nominal_data.iloc[randIdx[N_train:]], anomaly_data), axis=0)
     y_test = np.concatenate((nominal_labels.iloc[randIdx[N_train:]], anomaly_labels), axis=0)
 
+    if scale_data:
+        scaler = StandardScaler()
+        X_train = scaler.fit_transform(nominal_data)
+        X_test = scaler.fit_transform(X_test)
+
     return X_train.T, X_test.T, y_test
 
 
-def breast_cancer_data(test_split, seed=123):
+def customer_churn_data(test_split, scale_data=True, seed=123):
     np.random.seed(seed)
 
-    medical_df = pd.read_csv('datasets/breast_cancer_wisconsin.csv')
-    labels = medical_df['diagnosis']
+    churn_df = pd.read_csv('datasets/CustomerChurn.csv')
+    labels = churn_df['Churn']
+    features = churn_df.drop(columns=['Churn'])
+
+    nominal_data = features.loc[labels == 0, :]
+    nominal_labels = labels[labels == 0]
+    N_nominal = nominal_data.shape[0]
+
+    anomaly_data = features.loc[labels == 1, :]
+    anomaly_labels = labels[labels == 1]
+
+    randIdx = np.arange(N_nominal)
+    np.random.shuffle(randIdx)
+
+    N_train = int(N_nominal * (1 - test_split))
+
+    # (1 - test_split) nominal data as training set
+    X_train = nominal_data.iloc[randIdx[:N_train]].values
+
+    # test_split nominal data + all novel data as test set
+    X_test = np.concatenate((nominal_data.iloc[randIdx[N_train:]], anomaly_data), axis=0)
+    y_test = np.concatenate((nominal_labels.iloc[randIdx[N_train:]], anomaly_labels), axis=0)
+
+    if scale_data:
+        scaler = StandardScaler()
+        X_train = scaler.fit_transform(nominal_data)
+        X_test = scaler.fit_transform(X_test)
+
+    return X_train.T, X_test.T, y_test
+
+
+def breast_cancer_data(test_split, scale_data=True, seed=123):
+    np.random.seed(seed)
+
+    breastCancer_df = pd.read_csv('datasets/breast_cancer_wisconsin.csv')
+    labels = breastCancer_df['diagnosis']
     labels = labels.map({'B': 0, 'M': 1})
     features_to_drop = ['Unnamed: 32', 'id', 'diagnosis']
-    features = medical_df.drop(features_to_drop, axis=1)
+    features = breastCancer_df.drop(features_to_drop, axis=1)
 
     nominal_data = features.loc[labels == 0, :]
     nominal_labels = labels[labels == 0]
@@ -179,16 +183,21 @@ def breast_cancer_data(test_split, seed=123):
     X_test = np.concatenate((nominal_data.iloc[randIdx[N_train:]], anomaly_data), axis=0)
     y_test = np.concatenate((nominal_labels.iloc[randIdx[N_train:]], anomaly_labels), axis=0)
 
+    if scale_data:
+        scaler = StandardScaler()
+        X_train = scaler.fit_transform(nominal_data)
+        X_test = scaler.fit_transform(X_test)
+
     return X_train.T, X_test.T, y_test
 
 
-def thyroid_data(test_split, seed=123):
+def thyroid_data(test_split, scale_data=True, seed=123):
     np.random.seed(seed)
 
-    data = io.loadmat('datasets/thyroid.mat')
+    thyroid_dataset = io.loadmat('datasets/thyroid.mat')
 
-    features = data['X']  # [:, (0,5)]
-    labels = data['y'].squeeze()
+    features = thyroid_dataset['X']  # [:, (0,5)]
+    labels = thyroid_dataset['y'].squeeze()
     labels = (labels == 0)
 
     nominal_data = features[labels == 1, :]
@@ -213,52 +222,54 @@ def thyroid_data(test_split, seed=123):
     X_test = np.concatenate((X_test, anomaly_data), axis=0)
     y_test = np.concatenate((y_test, anomaly_labels), axis=0)
 
+    if scale_data:
+        scaler = StandardScaler()
+        X_train = scaler.fit_transform(nominal_data)
+        X_test = scaler.fit_transform(X_test)
+
     return X_train.T, X_test.T, y_test
 
 
 # metro_train_data
-def metro_train_data(test_split, seed=123, num_samples=5000):
+def metro_train_data(test_split, num_samples=5000, scale_data=True, seed=123):
     np.random.seed(seed)
 
-    df = pd.read_csv('datasets/metro_train.csv')
+    metro_train_df = pd.read_csv('datasets/metro_train.csv', nrows=num_samples)
     columns = ['TP2', 'TP3', 'H1', 'DV_pressure', 'Reservoirs', 'Oil_temperature', 'Motor_current', 'COMP']
-    df = df[columns]
-    df = df.rename(columns={"COMP": 'y'})
+    metro_train_df = metro_train_df[columns]
+    metro_train_df = metro_train_df.rename(columns={"COMP": 'y'})
 
     # make anomaly as 1 and good as 0 (to make it suitable for algorithms)
-    df['y'] = df['y'].replace({0: 1, 1: 0})
+    metro_train_df['y'] = metro_train_df['y'].replace({0: 1, 1: 0})
 
-    df = df.head(num_samples)
+    labels = metro_train_df['y']
+    features = metro_train_df.drop('y', axis=1)
 
-    # Create training and testing sets
-    train, test = train_test_split(df, test_size=test_split)
+    nominal_data = features.loc[labels == 0, :]
+    nominal_labels = labels[labels == 0]
+    N_nominal = nominal_data.shape[0]
 
-    # Normalize data
-    scalar = MinMaxScaler()
+    anomaly_data = features.loc[labels == 1, :]
+    anomaly_labels = labels[labels == 1]
 
-    X = train[train.y == 0]
+    randIdx = np.arange(N_nominal)
+    np.random.shuffle(randIdx)
 
-    # Remove generated row names and class column (y)
-    X = X.drop(columns=['y'])
+    N_train = int(N_nominal * (1 - test_split))
 
-    train_data = scalar.fit_transform(X).T
+    # (1 - test_split) nominal data as training set
+    X_train = nominal_data.iloc[randIdx[:N_train]].values
 
-    len_good = (test["y"] == 0).sum()
-    len_anomaly = (test["y"] == 0).sum()
+    # test_split nominal data + all novel data as test set
+    X_test = np.concatenate((nominal_data.iloc[randIdx[N_train:]], anomaly_data), axis=0)
+    y_test = np.concatenate((nominal_labels.iloc[randIdx[N_train:]], anomaly_labels), axis=0)
 
-    # Remove generated row names and class column (y)
-    test = test.drop(columns=['y'])
+    if scale_data:
+        scaler = StandardScaler()
+        X_train = scaler.fit_transform(nominal_data)
+        X_test = scaler.fit_transform(X_test)
 
-    # normalize data
-    test_X = scalar.fit_transform(test).T
-
-    # create a list of zeros and ones for good and anomaly points
-    test_Y = [0] * len_good + [1] * len_anomaly
-
-    count_ones = test_Y.count(1)
-    print("Number of anomalies (1s) in test_Y:", count_ones)
-
-    return train_data, test_X, test_Y
+    return X_train.T, X_test.T, y_test
 
 
 def generate_fermat_spiral(dot, seed=123):

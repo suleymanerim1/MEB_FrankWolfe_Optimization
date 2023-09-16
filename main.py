@@ -5,12 +5,9 @@ from src.data_generation import create_data
 from src.plotting import plot_comparison_graphs
 from src.execution import execute_algorithm
 
-# TODO (Suleyman): Move plotting functions to plotting.py and data generation functions to data_generation.py
-# Suggestion by Dejan
-# in utils. I collected all graphs functions inside that.
 
 # Change only this
-yaml_name = "exp8_Thyroid.yaml"
+yaml_name = "exp11_CustomerChurn.yaml"
 
 config_path = "configs/"  # Folder to load config file
 # Configuration

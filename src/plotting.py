@@ -52,6 +52,7 @@ def plot_points_circle(A, r, c, title, path, test_data=None, show=True):
     else:
         plt.close()
 
+
 def plot_comparison_graphs(out_dict, show_graphs, graph_path):
     train_dict = {key: value[0] for key, value in out_dict.items()}
     plot_single_comparison_graph(train_dict, 'CPU_time', 'dual_function',
@@ -71,6 +72,7 @@ def plot_comparison_graphs(out_dict, show_graphs, graph_path):
     plot_single_comparison_graph(train_dict, 'Number of iterations', 'active_set_size',
                                  'Number of iterations', 'Active set size', graph_path, show_graphs)
 
+
 def plot_graphs(title, show_graphs, graph_path, out_dict):
     # out_dict : the output dictionary returned after algorithm training
     num_iterations = out_dict.get("number_iterations")
@@ -81,24 +83,55 @@ def plot_graphs(title, show_graphs, graph_path, out_dict):
     os.mkdir(graph_path)
     iterations_list = list(range(num_iterations))
 
-    plot_cpu_time_vs_objective_function(CPU_time_list, dual_list, title, graph_path, show_graphs)
-    plot_iterations_vs_objective_function(iterations_list, dual_list, title, graph_path, show_graphs)
+    plot_objective_function_vs_cpu_time(CPU_time_list, dual_list, title, graph_path, show_graphs)
+    plot_objective_function_vs_iterations(iterations_list, dual_list, title, graph_path, show_graphs)
+    plot_active_set_vs_cpu_time(active_set_size_list, CPU_time_list, title, graph_path, show_graphs)
+    plot_active_set_vs_iterations(active_set_size_list, iterations_list, title, graph_path, show_graphs)
 
     # Plots to be showed/saved
     if out_dict.get("name") in ["asfw", "bpfw"]:
         dual_gap_list = out_dict.get("dual_gap_list")
-        plot_cpu_time_vs_dual_gap(CPU_time_list, dual_gap_list, title, graph_path, show_graphs)
-        plot_active_set_size_vs_dual_gap(active_set_size_list, dual_gap_list, title, graph_path, show_graphs)
-        plot_iterations_vs_dual_gap(iterations_list, dual_gap_list, title, graph_path, show_graphs)
+        plot_dual_gap_vs_cpu_time(CPU_time_list, dual_gap_list, title, graph_path, show_graphs)
+        plot_dual_gap_vs_active_set_size(active_set_size_list, dual_gap_list, title, graph_path, show_graphs)
+        plot_dual_gap_vs_iterations(iterations_list, dual_gap_list, title, graph_path, show_graphs)
     elif out_dict.get("name") == "appfw":
         delta_list = out_dict.get("delta_list")
-        plot_cpu_time_vs_delta(CPU_time_list, delta_list, title, graph_path, show_graphs)
-        plot_active_set_size_vs_delta(active_set_size_list, delta_list, title, graph_path, show_graphs)
-        plot_iterations_vs_delta(iterations_list, delta_list, title, graph_path, show_graphs)
+        plot_delta_vs_cpu_time(CPU_time_list, delta_list, title, graph_path, show_graphs)
+        plot_delta_vs_active_set_size(active_set_size_list, delta_list, title, graph_path, show_graphs)
+        plot_delta_vs_iterations(iterations_list, delta_list, title, graph_path, show_graphs)
 
 
+def plot_active_set_vs_iterations(active_set_sizes, iterations, algorithm_name, path, show=True):
+    plt.plot(iterations, active_set_sizes, label=algorithm_name)
+    # sns.lineplot(x=cpu_time, y=delta_list, label=algorithm_name, errorbar=None)
+    plt.xlabel('Iterations')
+    plt.ylabel('Active Set Size')
+    plt.title('Active Set Size per Iteration')
+    plt.grid(True)
+    plt.legend()
+    plt.savefig(os.path.join(path, "active_set_size_vs_iteration.png"))
+    if show:
+        plt.show()
+    else:
+        plt.close()
 
-def plot_cpu_time_vs_dual_gap(cpu_time, dual_gap_values, algorithm_name, path, show=True):
+
+def plot_active_set_vs_cpu_time(active_set_sizes, cpu_time, algorithm_name, path, show=True):
+    plt.plot(cpu_time, active_set_sizes, label=algorithm_name)
+    # sns.lineplot(x=cpu_time, y=delta_list, label=algorithm_name, errorbar=None)
+    plt.xlabel('CPU Time')
+    plt.ylabel('Active Set Size')
+    plt.title('Active Set Size per CPU Time')
+    plt.grid(True)
+    plt.legend()
+    plt.savefig(os.path.join(path, "active_set_size_vs_cpu_time.png"))
+    if show:
+        plt.show()
+    else:
+        plt.close()
+
+
+def plot_dual_gap_vs_cpu_time(cpu_time, dual_gap_values, algorithm_name, path, show=True):
     plt.plot(cpu_time, dual_gap_values, label=algorithm_name)
     # sns.lineplot(x=cpu_time, y=dual_gap_values, label=algorithm_name, errorbar=None)
     plt.xlabel('CPU Time')
@@ -113,7 +146,7 @@ def plot_cpu_time_vs_dual_gap(cpu_time, dual_gap_values, algorithm_name, path, s
         plt.close()
 
 
-def plot_active_set_size_vs_dual_gap(active_set_sizes, dual_gap_values, algorithm_name, path, show=True):
+def plot_dual_gap_vs_active_set_size(active_set_sizes, dual_gap_values, algorithm_name, path, show=True):
     plt.plot(active_set_sizes, dual_gap_values, label=algorithm_name)
     # sns.lineplot(x=active_set_sizes, y=dual_gap_values, label=algorithm_name, errorbar=None)
     plt.xlabel('Size of Active Set')
@@ -128,7 +161,7 @@ def plot_active_set_size_vs_dual_gap(active_set_sizes, dual_gap_values, algorith
         plt.close()
 
 
-def plot_cpu_time_vs_objective_function(cpu_time, objective_function_values, algorithm_name, path, show=True):
+def plot_objective_function_vs_cpu_time(cpu_time, objective_function_values, algorithm_name, path, show=True):
     plt.plot(cpu_time, objective_function_values, label=algorithm_name)
     # sns.lineplot(x=cpu_time, y=objective_function_values, label=algorithm_name, errorbar=None)
     plt.xlabel('CPU Time')
@@ -143,7 +176,7 @@ def plot_cpu_time_vs_objective_function(cpu_time, objective_function_values, alg
         plt.close()
 
 
-def plot_iterations_vs_objective_function(iterations, objective_function_values, algorithm_name, path, show=True):
+def plot_objective_function_vs_iterations(iterations, objective_function_values, algorithm_name, path, show=True):
     plt.plot(iterations, objective_function_values, label=algorithm_name)
     # sns.lineplot(x=iterations, y=objective_function_values, label=algorithm_name, errorbar=None)
     plt.xlabel('Iterations')
@@ -158,7 +191,7 @@ def plot_iterations_vs_objective_function(iterations, objective_function_values,
         plt.close()
 
 
-def plot_iterations_vs_dual_gap(iterations, dual_gap_values, algorithm_name, path, show=True):
+def plot_dual_gap_vs_iterations(iterations, dual_gap_values, algorithm_name, path, show=True):
     plt.plot(iterations, dual_gap_values, label=algorithm_name)
     # sns.lineplot(x=iterations, y=dual_gap_values, label=algorithm_name, errorbar=None)
     plt.xlabel('Iterations')
@@ -173,7 +206,7 @@ def plot_iterations_vs_dual_gap(iterations, dual_gap_values, algorithm_name, pat
         plt.close()
 
 
-def plot_cpu_time_vs_delta(cpu_time, delta_list, algorithm_name, path, show=True):
+def plot_delta_vs_cpu_time(cpu_time, delta_list, algorithm_name, path, show=True):
     plt.plot(cpu_time, delta_list, label=algorithm_name)
     # sns.lineplot(x=cpu_time, y=delta_list, label=algorithm_name, errorbar=None)
     plt.xlabel('CPU Time')
@@ -188,7 +221,7 @@ def plot_cpu_time_vs_delta(cpu_time, delta_list, algorithm_name, path, show=True
         plt.close()
 
 
-def plot_active_set_size_vs_delta(active_set_sizes, delta_list, algorithm_name, path, show=True):
+def plot_delta_vs_active_set_size(active_set_sizes, delta_list, algorithm_name, path, show=True):
     plt.plot(active_set_sizes, delta_list, label=algorithm_name)
     # sns.lineplot(x=active_set_sizes, y=delta_list, label=algorithm_name, errorbar=None)
     plt.xlabel('Size of Active Set')
@@ -203,7 +236,7 @@ def plot_active_set_size_vs_delta(active_set_sizes, delta_list, algorithm_name, 
         plt.close()
 
 
-def plot_iterations_vs_delta(iterations, delta_list, algorithm_name, path, show=True):
+def plot_delta_vs_iterations(iterations, delta_list, algorithm_name, path, show=True):
     plt.plot(iterations, delta_list, label=algorithm_name)
     # sns.lineplot(x=iterations, y=delta_list, label=algorithm_name, errorbar=None)
     plt.xlabel('Iterations')
@@ -231,7 +264,8 @@ def plot_single_comparison_graph(train_dict, x_string, y_string, x_label, y_labe
 
         line_style = '--' if key == 'bpfw' else '-'
 
-        plt.plot(x_axis, value[y_string], linewidth=2,linestyle=line_style, label=key.upper(),marker="o",ms=7,markevery=[-1])
+        plt.plot(x_axis, value[y_string], linewidth=2, linestyle=line_style, label=key.upper(),
+                 marker="o", ms=7, markevery=[-1])
 
     plt.xlabel(x_label)
     plt.ylabel(y_label)
@@ -249,9 +283,6 @@ def plot_single_comparison_graph(train_dict, x_string, y_string, x_label, y_labe
         plt.show()
     else:
         plt.close()
-
-
-
 
 
 @deprecated(reason="This method is deprecated. Use plot_points_circle() instead.")
