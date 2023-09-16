@@ -126,9 +126,9 @@ def create_test_save_dict(out_dict):
         "true_negative": TN,
         "false_positive": FP,
         "false_negative": FN,
-        "precision": precision,
-        "recall": recall,
-        "f1_score": f1
+        "precision": round(100*precision, 3),
+        "recall": round(100*recall, 3),
+        "f1_score": round(100*f1, 3)
     }
 
     return save_dict

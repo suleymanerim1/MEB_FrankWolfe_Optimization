@@ -7,7 +7,7 @@ from src.execution import execute_algorithm
 
 
 # Change only this
-yaml_name = "exp9_BreastCancer.yaml"
+yaml_name = "exp6_CustomerChurn.yaml"
 
 config_path = "configs/"  # Folder to load config file
 # Configuration

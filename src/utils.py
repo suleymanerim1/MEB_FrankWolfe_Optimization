@@ -145,24 +145,24 @@ def __return_yaml_train_format(out_dict):
         yaml_dict = {
             "name": out_dict.get("name"),
             "center": out_dict.get("center"),
-            "radius": out_dict.get("radius"),
+            "radius": round(out_dict.get("radius"), 6),
             "Number of iterations": out_dict.get("Number of iterations"),
             "active_set_size": int(out_dict.get("active_set_size")[-1]),
             "dual_function": float(out_dict.get("dual_function")[-1]),
             "dual_gap": float(out_dict.get("dual_gap")[-1]),
-            "CPU_time": out_dict.get("CPU_time")[-1],
+            "CPU_time": round(out_dict.get("CPU_time")[-1]*1000, 3),
         }
 
     elif out_dict.get("name") == "appfw":
         yaml_dict = {
             "name": out_dict.get("name"),
             "center": out_dict.get("center"),
-            "radius": out_dict.get("radius"),
+            "radius": round(out_dict.get("radius"), 6),
             "Number of iterations": out_dict.get("Number of iterations"),
             "active_set_size": int(out_dict.get("active_set_size")[-1]),
             "dual_function": float(out_dict.get("dual_function")[-1]),
             "delta": float(out_dict.get("delta")[-1]),
-            "CPU_time": out_dict.get("CPU_time")[-1],
+            "CPU_time": round(out_dict.get("CPU_time")[-1]*1000, 3),
         }
 
     return yaml_dict

@@ -9,7 +9,7 @@ data:
   # choose one of ["random_normal", "random_uniform","daphnet_freezing_data", "metro_train_data"]
   # below attributes does not work when custom data is used.
   test_split: "0.1"
-  number_of_samples: "10000" # "2**10"  # m
+  number_of_samples: "1000" # "2**10"  # m
   number_of_variables: "2" # "2**1"  # n
 
 # Experiment Inputs
