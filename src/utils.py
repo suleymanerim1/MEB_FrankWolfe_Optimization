@@ -89,22 +89,29 @@ def print_on_console(out_dict):
 
 
 def create_yaml(train_size, test_size, config, save_path, results_dict):
+    asfw_train, bpfw_train, appfw_train = {}, {}, {}
+    asfw_test, bpfw_test, appfw_test = {}, {}, {}
+
+    solver_methods = config.get("solver_methods")
+    if "asfw" in solver_methods:
+        asfw_train = results_dict.get("asfw")[0]
+        asfw_train = __return_yaml_train_format(asfw_train)
+        asfw_test = results_dict.get("asfw")[1]
+
+    if "bpfw" in solver_methods:
+        bpfw_train = results_dict.get("bpfw")[0]
+        bpfw_train = __return_yaml_train_format(bpfw_train)
+        bpfw_test = results_dict.get("bpfw")[1]
+
+    if "appfw" in solver_methods:
+        appfw_train = results_dict.get("appfw")[0]
+        appfw_train = __return_yaml_train_format(appfw_train)
+        appfw_test = results_dict.get("appfw")[1]
 
     data_method = config.get("data").get("method")
     if data_method not in ["random_standard", "random_uniform"]:
         del config["data"]["number_of_samples"]
         del config["data"]["number_of_variables"]
-
-    asfw_train = results_dict.get("asfw")[0]
-    asfw_train = __return_yaml_train_format(asfw_train)
-    bpfw_train = results_dict.get("bpfw")[0]
-    bpfw_train = __return_yaml_train_format(bpfw_train)
-    appfw_train = results_dict.get("appfw")[0]
-    appfw_train = __return_yaml_train_format(appfw_train)
-
-    asfw_test = results_dict.get("asfw")[1]
-    bpfw_test = results_dict.get("bpfw")[1]
-    appfw_test = results_dict.get("appfw")[1]
 
     output = {
         'train':
