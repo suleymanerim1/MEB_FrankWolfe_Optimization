@@ -7,10 +7,9 @@ perform_test: True
 data:
   method: "thyroid_data"
   # choose one of ["random_normal", "random_uniform","daphnet_freezing_data", "metro_train_data"]
-  test_split: "0.2"
-  # below attributes does not work when custom data is used.
-  number_of_samples: "10000" # "2**10"  # m
-  number_of_variables: "10" # "2**1"  # n
+  test_split: "0.5"
+  number_of_samples: "2**10"  #m
+  number_of_variables: "2**1"  #n
 
 # Experiment Inputs
 maxiter: "1000"

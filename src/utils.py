@@ -8,7 +8,7 @@ import yaml
 from pathlib import Path
 import pandas as pd
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import MinMaxScaler
+from sklearn.preprocessing import MinMaxScaler, StandardScaler
 from src.logger import logging
 from src.FrankWolfeVariants import awayStep_FW, blendedPairwise_FW, one_plus_eps_MEB_approximation
 from deprecated import deprecated
@@ -364,11 +364,7 @@ def plot_graphs(title, show_graphs, graph_path, out_dict):
         plot_iterations_vs_delta(iterations_list, delta_list, title, graph_path, show_graphs)
 
 
-import matplotlib.pyplot as plt
-import os
-
-
-def plot_single_comparison_graph(train_dict, x_string, y_string, x_label, y_label, path, show=False, transform= None):
+def plot_single_comparison_graph(train_dict, x_string, y_string, x_label, y_label, path, show=False, transform=None):
     plt.plot()
     for key, value in train_dict.items():
         if x_string == "Number of iterations":
@@ -382,6 +378,7 @@ def plot_single_comparison_graph(train_dict, x_string, y_string, x_label, y_labe
         line_style = '--' if key == 'bpfw' else '-'
 
         plt.plot(x_axis, value[y_string], linewidth=2,linestyle=line_style, label=key.upper(),marker="o",ms=7,markevery=[-1])
+        plt.plot(x_axis, value[y_string], linewidth=2, linestyle=line_style, label=key.upper())
 
     plt.xlabel(x_label)
     plt.ylabel(y_label)
@@ -399,7 +396,6 @@ def plot_single_comparison_graph(train_dict, x_string, y_string, x_label, y_labe
         plt.show()
     else:
         plt.close()
-
 
 
 def plot_comparison_graphs(out_dict, show_graphs, graph_path):
@@ -458,6 +454,12 @@ def create_data(data_config):
     elif data_creation_method == 'breast_cancer_data':
         train, test_X, test_Y = breast_cancer_data(test_split)
 
+    elif data_creation_method == 'musk_data':
+        train, test_X, test_Y = musk_data(test_split)
+
+    elif data_creation_method == 'customer_churn_data':
+        train, test_X, test_Y = musk_data(test_split)
+
     return train, (test_X, test_Y)
 
 
@@ -493,6 +495,72 @@ def daphnet_freezing_data(test_split, seed=123):
     test_Y = [0] * len_good + [1] * len_anomaly
 
     return train_data, test_X, test_Y
+
+
+def musk_data(test_split, seed=123):
+    np.random.seed(seed)
+
+    medical_df = pd.read_csv('datasets/musk.csv')
+    labels = medical_df['Class']
+    features = medical_df.drop(columns=['Class'])
+
+    nominal_data = features.loc[labels == 0, :]
+    nominal_labels = labels[labels == 0]
+    N_nominal = nominal_data.shape[0]
+
+    anomaly_data = features.loc[labels == 1, :]
+    anomaly_labels = labels[labels == 1]
+
+    scaler = StandardScaler()
+    nominal_data = pd.DataFrame(scaler.fit_transform(nominal_data))
+    anomaly_data = pd.DataFrame(scaler.fit_transform(anomaly_data))
+
+    randIdx = np.arange(N_nominal)
+    np.random.shuffle(randIdx)
+
+    N_train = int(N_nominal * (1 - test_split))
+
+    # (1 - test_split) nominal data as training set
+    X_train = nominal_data.iloc[randIdx[:N_train]].values
+
+    # test_split nominal data + all novel data as test set
+    X_test = np.concatenate((nominal_data.iloc[randIdx[N_train:]], anomaly_data), axis=0)
+    y_test = np.concatenate((nominal_labels.iloc[randIdx[N_train:]], anomaly_labels), axis=0)
+
+    return X_train.T, X_test.T, y_test
+
+
+def customer_churn_data(test_split, seed=123):
+    np.random.seed(seed)
+
+    medical_df = pd.read_csv('datasets/CustomerChurn.csv.csv')
+    labels = medical_df['Churn']
+    features = medical_df.drop(columns=['Churn'])
+
+    nominal_data = features.loc[labels == 0, :]
+    nominal_labels = labels[labels == 0]
+    N_nominal = nominal_data.shape[0]
+
+    anomaly_data = features.loc[labels == 1, :]
+    anomaly_labels = labels[labels == 1]
+
+    scaler = StandardScaler()
+    nominal_data = pd.DataFrame(scaler.fit_transform(nominal_data))
+    anomaly_data = pd.DataFrame(scaler.fit_transform(anomaly_data))
+
+    randIdx = np.arange(N_nominal)
+    np.random.shuffle(randIdx)
+
+    N_train = int(N_nominal * (1 - test_split))
+
+    # (1 - test_split) nominal data as training set
+    X_train = nominal_data.iloc[randIdx[:N_train]].values
+
+    # test_split nominal data + all novel data as test set
+    X_test = np.concatenate((nominal_data.iloc[randIdx[N_train:]], anomaly_data), axis=0)
+    y_test = np.concatenate((nominal_labels.iloc[randIdx[N_train:]], anomaly_labels), axis=0)
+
+    return X_train.T, X_test.T, y_test
 
 
 def breast_cancer_data(test_split, seed=123):
@@ -531,7 +599,7 @@ def thyroid_data(test_split, seed=123):
 
     data = io.loadmat('datasets/thyroid.mat')
 
-    features = data['X']
+    features = data['X']  # [:, (0,5)]
     labels = data['y'].squeeze()
     labels = (labels == 0)
 
