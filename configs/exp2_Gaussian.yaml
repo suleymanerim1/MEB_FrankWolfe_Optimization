@@ -1,0 +1,22 @@
+# General setting
+show_graphs : False
+# Test
+perform_test: True
+
+# Data Creation
+data:
+  method: "random_normal"
+  # choose one of ["random_normal", "random_uniform","daphnet_freezing_data", "metro_train_data"]
+  # below attributes does not work when custom data is used.
+  test_split: "0.1"
+  number_of_samples: "10000" # "2**10"  # m
+  number_of_variables: "2" # "2**1"  # n
+
+# Experiment Inputs
+maxiter: "1000"
+epsilon: "1e-3"
+
+# Algorithms
+solver_methods: ["asfw", "bpfw", "appfw"]  # A combination of these 3 ["asfw", "bpfw", "appfw"]
+line_search_asfw: "exact_line_search"        # "golden_search"
+line_search_bpfw: "exact_line_search"        # "armijo_search"
