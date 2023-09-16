@@ -103,6 +103,11 @@ def create_yaml(train_size, test_size, config, save_path, results_dict):
     appfw_train = results_dict.get("appfw")[0]
     appfw_train = __return_yaml_train_format(appfw_train)
 
+    asfw_test = results_dict.get("asfw")[1]
+    bpfw_test = results_dict.get("bpfw")[1]
+    appfw_test  =results_dict.get("appfw")[1]
+
+
     output = {
         'train':
             {
