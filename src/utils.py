@@ -378,7 +378,6 @@ def plot_single_comparison_graph(train_dict, x_string, y_string, x_label, y_labe
         line_style = '--' if key == 'bpfw' else '-'
 
         plt.plot(x_axis, value[y_string], linewidth=2,linestyle=line_style, label=key.upper(),marker="o",ms=7,markevery=[-1])
-        plt.plot(x_axis, value[y_string], linewidth=2, linestyle=line_style, label=key.upper())
 
     plt.xlabel(x_label)
     plt.ylabel(y_label)
