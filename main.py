@@ -1,15 +1,12 @@
 import os
 from src.logger import my_logger
-from src.utils import increment_path, load_config, create_data, execute_algorithm, create_yaml, plot_comparison_graphs
-
+from src.utils import increment_path, load_config, create_yaml
+from src.data_generation import create_data
+from src.plotting import plot_comparison_graphs
+from src.execution import execute_algorithm
 
 # TODO (Suleyman): Move plotting functions to plotting.py and data generation functions to data_generation.py
 # Suggestion by Dejan
-
-# TODO (Marija): For every plot except the CPU time: x-axis should be a list of integers, however it shows floats.
-# Problematic graphs: Size of Active Set vs Delta, Iterations vs objective Function, Delta vs Iterations
-# This problem occurs when the number of iterations/size of active set is small (< 10).
-# TODO (Marija): Check if a graph needs scaling and do when necessary
 # in utils. I collected all graphs functions inside that.
 
 # Change only this
@@ -30,20 +27,16 @@ print(f"Results will be saved to: {incremented_path}")
 
 # Create logger
 logging = my_logger(incremented_path)
-logging.info("Creating data points")
 
 if __name__ == '__main__':
 
-    # Initialize YAML dicts
-    asfw_train, bpfw_train, appfw_train = {}, {}, {}
-    asfw_test, bpfw_test, appfw_test = {}, {}, {}
-    results = {}
-
     # Create Data
+    logging.info("Creating data points")
     A, test_data = create_data(config.get('data'))
     n, m = A.shape
 
     # Start Algorithms
+    results = {}
     solver_methods = config.get('solver_methods')
     for method in solver_methods:
         train, test = execute_algorithm(method, A, config, incremented_path, test_data)
@@ -53,18 +46,10 @@ if __name__ == '__main__':
     graph_path = os.path.join(incremented_path)
     plot_comparison_graphs(results, show_graphs, graph_path)
 
-    data_method = config.get("data").get("method")
-    if data_method not in ["random_standard"]:
-        del config["data"]["number_of_samples"]
-        del config["data"]["number_of_variables"]
-
     if perform_test:
         test_size = len(test_data[1])
     else:
         test_size = 0
 
     # Create yaml content
-    create_yaml(m, test_size, config, incremented_path,
-                results.get('asfw', (None, None)),
-                results.get('bpfw', (None, None)),
-                results.get('appfw', (None, None)))
+    create_yaml(m, test_size, config, incremented_path, results)
