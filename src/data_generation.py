@@ -17,7 +17,7 @@ def create_data(data_config):
     if data_creation_method == "random_normal":
         train = generate_random_matrix_normal(0, 1, n, int(m * train_split))
         T_0 = generate_random_matrix_normal(0, 1, n, int(m * test_split * 0.5))
-        T_1 = generate_random_matrix_normal(8, 1, n, int(m * test_split * 0.5))
+        T_1 = generate_random_matrix_normal(7, 1, n, int(m * test_split * 0.5))
         test_X = np.hstack((T_0, T_1))
         test_Y = [0] * int(m * test_split * 0.5) + [1] * int(m * test_split * 0.5)
 
