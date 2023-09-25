@@ -33,7 +33,7 @@ Minimum Enclosing Ball and Anomaly Detection
 ├── datasets
 │   ├── CustomerChurn
 │   └── BreastCancer
-├── experiment_results (for each configuration)
+├── runs
 │   ├── graphs
 │   ├── output.yaml
 │   └── log files
@@ -41,7 +41,6 @@ Minimum Enclosing Ball and Anomaly Detection
 │   ├── Lacoste_Julien et al.
 │   ├── Tsuji et al.
 │   ├── Yıldırım
-├── runs (1 dummy run output added)
 ├── src (source codes)
 │   ├── FrankWolfeVariants.py
 │   ├── data_generation.py
