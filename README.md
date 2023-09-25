@@ -75,6 +75,6 @@ configs/"experiment.yaml"
 ```
 $ python main.py --cfg "exp0_Default.yaml"
 ```
-Results will be saved in runs/exp0_Defaulft folder
+Results will be saved in runs/experiment folder
 
 
