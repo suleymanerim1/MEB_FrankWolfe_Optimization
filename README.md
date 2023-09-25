@@ -5,6 +5,7 @@
 * [Group Members](#Group-Members)
 * [Project Structure](#Project-Structure)
 * [Setup](#Setup)
+* [Run](#Run)
 
 ## General Info
 This is a final project for Optimization for Data Science course in University of Padua.
@@ -65,5 +66,15 @@ $ conda activate venv/
 Go to  requirements.txt file and uncomment symbol (#) before "-e ."
 Then,
 ```
-$pip install -r requirements.txt
+$ pip install -r requirements.txt
 ```
+
+## Run
+Choose a configuration file(.yaml) to run an experiment
+configs/"experiment.yaml"
+```
+$ python main.py --cfg "exp0_Default.yaml"
+```
+Results will be saved in runs/exp0_Defaulft folder
+
+
