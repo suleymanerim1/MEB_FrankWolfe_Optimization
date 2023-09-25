@@ -33,7 +33,7 @@ Minimum Enclosing Ball and Anomaly Detection
 ├── datasets
 │   ├── CustomerChurn
 │   └── BreastCancer
-├── runs
+├── runs (results will be saved here)
 │   ├── graphs
 │   ├── output.yaml
 │   └── log files
