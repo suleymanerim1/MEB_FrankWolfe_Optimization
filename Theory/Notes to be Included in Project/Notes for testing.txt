@@ -1,4 +1,0 @@
-Notes for testing:
-Graph: Duality gap vs Iteration (see Lacoste-Julien page 8)
-- Primal gap vs Iteration, Primal vs CPU time (and also for Dual gap) (Tsuji et. al. page 7 Figure 1)
-- To assess the sparsity of generated solution of each algorithm, consider setups with different dimensionality of the input data (example n=200 vs n=500). (Tsuji et. al. page 7 Figure 2)
