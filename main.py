@@ -1,13 +1,18 @@
 import os
+import argparse
 from src.logger import my_logger
 from src.utils import increment_path, load_config, create_yaml
 from src.data_generation import create_data
 from src.plotting import plot_comparison_graphs
 from src.execution import execute_algorithm
 
+# parse configuration argument
+parser = argparse.ArgumentParser(description='Indicate experiment configuration file name--> eg: "exp0_Default.yaml"')
+parser.add_argument('--cfg',required=True, help='Name of configuration file')
+args = parser.parse_args()
 
-# Change only this
-yaml_name = "exp6_CustomerChurn.yaml"
+# configuration yaml name
+yaml_name = args.cfg
 
 config_path = "configs/"  # Folder to load config file
 # Configuration
