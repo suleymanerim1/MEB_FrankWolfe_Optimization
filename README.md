@@ -19,9 +19,9 @@ Minimum Enclosing Ball and Anomaly Detection
 - choose two datasets and use the MEB defined over them to find anomalies (new points that are out of the MEB)
 
 ## Group Members:
-- Dejan Dichoski marticola number : 2071886
-- Marija Cveevska marticola number : 2072060
-- Suleyman Erim marticola number : 2072058
+- Dejan Dichoski
+- Marija Cveevska
+- Suleyman Erim
 
 ## Project Structure
 ```bash
