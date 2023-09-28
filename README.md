@@ -52,6 +52,8 @@ Minimum Enclosing Ball and Anomaly Detection
 ├── main.py
 ├── setup.py
 ├── requirements.txt
+├── Report.pdf
+├── Presentation.pptx
 ├── README.md
 └── .gitignore
 ```
