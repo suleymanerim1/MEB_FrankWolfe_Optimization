@@ -12,11 +12,11 @@ This is a final project for Optimization for Data Science course in University o
 
 ### Task
 Minimum Enclosing Ball and Anomaly Detection
-- analyze in depth the papers and the theoretical results
-- implement the Away-Step Frank Wolfe [Lacoste-Julien et al]
-- implement PFW algorithm described in [Tsuji et al., Algorithm 1]
-- implement the first algorithm in the paper [Yildirim, 2008].
-- choose two datasets and use the MEB defined over them to find anomalies (new points that are out of the MEB)
+- Analyze in depth the papers and the theoretical results
+- Implement the Away-Step Frank Wolfe [Lacoste-Julien et al]
+- Implement PFW algorithm described in [Tsuji et al., Algorithm 1]
+- Implement the first algorithm in the paper [Yildirim, 2008].
+- Choose two datasets and use the MEB defined over them to find anomalies (new points that are out of the MEB)
 
 ## Group Members:
 - Dejan Dichoski
